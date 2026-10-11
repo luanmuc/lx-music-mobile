@@ -35,12 +35,12 @@
     "react-native-app"
   ],
   "author": {
-    "name": "lyswhut",
-    "email": "lyswhut@qq.com"
+    "name": "luanmuc",
+    "email": ""
   },
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/lyswhut/lx-music-mobile/issues"
+    "url": "https://github.com/luanmuc/lx-music-mobile/issues"
   },
   "homepage": "https://github.com/lyswhut/lx-music-mobile#readme",
   "dependencies": {

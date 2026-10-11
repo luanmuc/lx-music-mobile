@@ -29,7 +29,7 @@ export default memo(() => {
     void openUrl('https://github.com/luanmuc/lx-music-mobile/releases')
   }
   const openFAQPage = () => {
-    void openUrl('https://lyswhut.github.io/lx-music-doc/mobile/faq')
+    void openUrl('https://github.com/luanmuc/lx-music-mobile')
   }
   // const openIssuesPage = () => {
   //   openUrl('https://github.com/luanmuc/lx-music-mobile/issues')

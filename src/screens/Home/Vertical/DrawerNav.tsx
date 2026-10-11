@@ -124,7 +124,7 @@ export default memo(() => {
 
 
   return (
-    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
+    <View style={{ ...styles.container, backgroundColor: theme.isDark ? 'rgba(30, 30, 35, 0.92)' : 'rgba(255, 255, 255, 0.92)' }}>
       <Header />
       <ScrollView style={styles.menus}>
         <View style={styles.list}>

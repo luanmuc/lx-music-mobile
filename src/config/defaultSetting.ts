@@ -42,7 +42,7 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.horizontal.style.lrcFontSize': 220,
   'playDetail.isShowLyricProgressSetting': false,
 
-  'desktopLyric.enable': false,
+  'desktopLyric.enable': true,
   'desktopLyric.isLock': false,
   'desktopLyric.width': 100,
   'desktopLyric.maxLineNum': 5,
@@ -55,7 +55,7 @@ const defaultSetting: LX.AppSetting = {
   'desktopLyric.style.fontSize': 180,
   'desktopLyric.style.opacity': 100,
   'desktopLyric.style.lyricUnplayColor': 'rgba(255, 255, 255, 1)',
-  'desktopLyric.style.lyricPlayedColor': 'rgba(7, 197, 86, 1)',
+  'desktopLyric.style.lyricPlayedColor': 'rgba(255, 110, 40, 1)',
   'desktopLyric.style.lyricShadowColor': 'rgba(0, 0, 0, 0.6)',
 
   'search.isShowHotSearch': true,

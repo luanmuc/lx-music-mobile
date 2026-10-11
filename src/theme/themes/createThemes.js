@@ -295,6 +295,24 @@ const defaultThemes = [
       'c-badge-tertiary': 'var(c-primary-light-100)',
     },
   },
+  {
+    id: 'hyperos',
+    name: '澎湃',
+    isDark: false,
+    config: {
+      primary: 'rgb(255, 110, 40)',
+      font: 'rgb(28, 28, 30)',
+      'c-app-background': 'var(c-primary-light-600-alpha-500)',
+      'c-main-background': 'rgba(255, 255, 255, 0.75)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': '#34c759',
+      'c-badge-tertiary': '#ff9500',
+    },
+  },
 ]
 
 const themes = defaultThemes.map(({ config: { primary, font, ...extInfo }, ...themeInfo }) => {

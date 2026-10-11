@@ -52,7 +52,7 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(({ onSourceChange, onTi
 
 
   return (
-    <View style={{ ...styles.searchBar, backgroundColor: 'rgba(255, 255, 255, 0.6)', borderRadius: 24, marginHorizontal: 12, height: 44, alignItems: 'center' }}>
+    <View style={{ ...styles.searchBar, borderBottomWidth: 0, backgroundColor: theme.isDark ? 'rgba(50, 50, 55, 0.6)' : 'rgba(255, 255, 255, 0.6)', borderRadius: 24, marginHorizontal: 12, height: 44, alignItems: 'center' }}>
       <View style={styles.selector}>
         <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} center />
       </View>

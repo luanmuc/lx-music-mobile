@@ -313,6 +313,24 @@ const defaultThemes = [
       'c-badge-tertiary': '#ff9500',
     },
   },
+  {
+    id: 'hyperos_dark',
+    name: '澎湃深色',
+    isDark: true,
+    config: {
+      primary: 'rgb(255, 130, 60)',
+      font: 'rgb(255, 255, 255)',
+      'c-app-background': 'rgba(20, 20, 25, 0.8)',
+      'c-main-background': 'rgba(28, 28, 32, 0.9)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': '#30d158',
+      'c-badge-tertiary': '#ff9f0a',
+    },
+  },
 ]
 
 const themes = defaultThemes.map(({ config: { primary, font, ...extInfo }, ...themeInfo }) => {

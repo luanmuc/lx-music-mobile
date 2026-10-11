@@ -59,7 +59,7 @@ export default memo(({ item, index, showSource, onPress, onLongPress, onShowMenu
   const singer = `${item.singer}${isShowAlbumName && item.meta.albumName ? ` · ${item.meta.albumName}` : ''}`
 
   return (
-    <View style={{ ...styles.listItem, width: rowInfo.rowWidth, height: ITEM_HEIGHT, backgroundColor: isSelected ? theme['c-primary-background-hover'] : 'rgba(0,0,0,0)' }}>
+    <View style={{ ...styles.listItem, width: rowInfo.rowWidth, height: ITEM_HEIGHT, backgroundColor: isSelected ? theme['c-primary-background-hover'] : (theme.isDark ? 'rgba(40, 40, 45, 0.5)' : 'rgba(255, 255, 255, 0.5)') }}>
       <TouchableOpacity style={styles.listItemLeft} onPress={() => { onPress(item, index) }} onLongPress={() => { onLongPress(item, index) }}>
         <Text style={styles.sn} size={13} color={theme['c-300']}>{index + 1}</Text>
         <View style={styles.itemInfo}>
@@ -95,9 +95,16 @@ const styles = createStyle({
     // width: '100%',
     flexDirection: 'row',
     flexWrap: 'nowrap',
-    // paddingLeft: 10,
-    paddingRight: 2,
+    marginHorizontal: 8,
+    marginBottom: 6,
+    borderRadius: 12,
+    paddingHorizontal: 8,
     alignItems: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
     // borderBottomWidth: BorderWidths.normal,
   },
   listItemLeft: {

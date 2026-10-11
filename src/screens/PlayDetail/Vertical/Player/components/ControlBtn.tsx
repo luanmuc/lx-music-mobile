@@ -36,8 +36,8 @@ const TogglePlayBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const isPlay = useIsPlay()
   return (
-    <TouchableOpacity style={{ ...styles.cotrolBtn, width: size, height: size }} activeOpacity={0.5} onPress={togglePlay}>
-      <Icon name={isPlay ? 'pause' : 'play'} color={theme['c-button-font']} rawSize={size * 0.7} />
+    <TouchableOpacity style={{ ...styles.playBtn, width: size * 1.1, height: size * 1.1, backgroundColor: theme['c-primary'] }} activeOpacity={0.8} onPress={togglePlay}>
+      <Icon name={isPlay ? 'pause' : 'play'} color="rgba(255, 255, 255, 1)" rawSize={size * 0.6} />
     </TouchableOpacity>
   )
 }
@@ -80,9 +80,16 @@ const styles = createStyle({
   cotrolBtn: {
     justifyContent: 'center',
     alignItems: 'center',
-
-    // backgroundColor: '#ccc',
-    shadowOpacity: 1,
-    textShadowRadius: 1,
+    borderRadius: 999,
+  },
+  playBtn: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 999,
+    elevation: 8,
+    shadowColor: '#ff6e28',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
 })

@@ -18,7 +18,7 @@ const defaultSetting: LX.AppSetting = {
   'player.startupAutoPlay': false,
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
-  'player.playQuality': '128k',
+  'player.playQuality': '320k',
   'player.isSavePlayTime': false,
   'player.volume': 1,
   'player.playbackRate': 1,
@@ -58,8 +58,8 @@ const defaultSetting: LX.AppSetting = {
   'desktopLyric.style.lyricPlayedColor': 'rgba(7, 197, 86, 1)',
   'desktopLyric.style.lyricShadowColor': 'rgba(0, 0, 0, 0.6)',
 
-  'search.isShowHotSearch': false,
-  'search.isShowHistorySearch': false,
+  'search.isShowHotSearch': true,
+  'search.isShowHistorySearch': true,
 
   'list.isClickPlayList': false,
   'list.isShowSource': true,
@@ -82,10 +82,10 @@ const defaultSetting: LX.AppSetting = {
 }
 
 
-// 使用新年皮肤
-if (new Date().getMonth() < 2) {
-  defaultSetting['theme.id'] = 'happy_new_year'
-  defaultSetting['desktopLyric.style.lyricPlayedColor'] = 'rgba(255, 18, 34, 1)'
-}
+// 使用新年皮肤（已禁用，保持澎湃主题）
+// if (new Date().getMonth() < 2) {
+//   defaultSetting['theme.id'] = 'happy_new_year'
+//   defaultSetting['desktopLyric.style.lyricPlayedColor'] = 'rgba(255, 18, 34, 1)'
+// }
 
 export default defaultSetting

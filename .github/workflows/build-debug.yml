@@ -1,0 +1,46 @@
+name: Build Debug APK
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Android
+        uses: ./.github/actions/setup
+
+      - name: Build Debug APK
+        env:
+          DISABLE_SVG: 1
+        shell: bash
+        run: |
+          cd android
+          ./gradlew assembleDebug
+
+      - name: Rename APK
+        run: |
+          cd android/app/build/outputs/apk/debug
+          mv app-debug.apk lx-music-mobile-debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lx-music-mobile-debug-apk
+          path: android/app/build/outputs/apk/debug/lx-music-mobile-debug.apk

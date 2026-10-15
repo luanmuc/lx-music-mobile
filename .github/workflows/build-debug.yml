@@ -15,6 +15,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download latest music source
+        run: |
+          curl -sL "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/%E8%81%9A%E5%90%88%E9%9F%B3%E6%BA%90v11.11%E6%8E%A5%E5%8F%A3%E6%BB%A1%E7%BC%96%E7%89%88.js" -o android/app/src/main/assets/builtin_source.js
+          echo "Downloaded music source:"
+          ls -lh android/app/src/main/assets/builtin_source.js
+          head -5 android/app/src/main/assets/builtin_source.js
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:

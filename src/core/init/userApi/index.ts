@@ -253,19 +253,24 @@ export default async(setting: LX.AppSetting) => {
     }
   })
 
-  // 自动导入内置音源（只导入一次，用户删除后不再回来）
+  // 自动导入内置音源：已导入标记存在但自定义源列表中找不到豆包定制源时，重新导入
+  // （覆盖安装旧版本时旧数据保留 has_imported 标记，需兜底保证内置源存在）
   const userApiList = await getUserApiList()
   const builtinSourceKey = 'has_imported_builtin_source'
   const hasImportedBuiltin = await getData<boolean>(builtinSourceKey)
-  if (!hasImportedBuiltin) {
+  const BUILTIN_NAME = '豆包定制'
+  const builtinExists = userApiList.some(api => api.name.includes(BUILTIN_NAME))
+  if (!hasImportedBuiltin || !builtinExists) {
     try {
       const response = await fetch('file:///android_asset/builtin_source.js')
       const script = await response.text()
       if (script && script.length > 1000) {
         const newApi = await addUserApi(script)
-        userApiList.push(newApi)
-        // 默认使用内置音源（修改传入的 setting 参数，让后面的 setApiSource 生效）
-        setting['common.apiSource'] = newApi.id
+        if (!userApiList.some(api => api.id === newApi.id)) {
+          userApiList.push(newApi)
+          // 默认使用内置音源（修改传入的 setting 参数，让后面的 setApiSource 生效）
+          setting['common.apiSource'] = newApi.id
+        }
         // 标记已导入过
         await saveData(builtinSourceKey, true)
       }

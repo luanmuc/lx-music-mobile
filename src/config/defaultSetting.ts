@@ -3,7 +3,8 @@ const defaultSetting: LX.AppSetting = {
   'common.isAutoTheme': false,
   'common.langId': null,
   'common.apiSource': '',
-  'common.sourceNameType': 'alias',
+  // 歌曲来源显示原名（非别名）
+  'common.sourceNameType': 'original',
   'common.shareType': 'system',
   'common.isAgreePact': false,
   'common.autoHidePlayBar': true,
@@ -18,7 +19,8 @@ const defaultSetting: LX.AppSetting = {
   'player.startupAutoPlay': false,
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
-  'player.playQuality': '320k',
+  // 默认最高音质
+  'player.playQuality': 'flac',
   'player.isSavePlayTime': false,
   'player.volume': 1,
   'player.playbackRate': 1,
@@ -73,8 +75,9 @@ const defaultSetting: LX.AppSetting = {
   'sync.enable': false,
 
   // 'theme.id': 'blue_plus',
-  'theme.id': 'hyperos',
-  'theme.lightId': 'hyperos',
+  // 原版默认蓝色主题（更协调一致，无卡片方框）
+  'theme.id': 'blue',
+  'theme.lightId': 'blue',
   'theme.darkId': 'black',
   'theme.hideBgDark': false,
   'theme.dynamicBg': false,

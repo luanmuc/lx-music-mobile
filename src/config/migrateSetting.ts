@@ -45,5 +45,13 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['theme.id'] = setting.themeId
   }
 
+  // 豆包定制版升级：一次性强制定制项（仅升级用户生效一次，之后可自由修改）
+  if (compareVer(setting.version as string, '3.0') < 0) {
+    setting['player.playQuality'] = 'flac'
+    setting['common.sourceNameType'] = 'original'
+    setting['theme.id'] = 'blue'
+    setting['theme.lightId'] = 'blue'
+  }
+
   return setting
 }

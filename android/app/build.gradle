@@ -108,7 +108,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.luanmuc.lxmusic"
+    namespace "cn.toside.music.mobile"
     defaultConfig {
         applicationId "com.luanmuc.lxmusic"
         minSdkVersion rootProject.ext.minSdkVersion

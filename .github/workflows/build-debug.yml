@@ -22,8 +22,9 @@ jobs:
           curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
             "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/lx-source.js" \
             -o android/app/src/main/assets/builtin_source.js
-          # 内容校验：必须为有效的洛雪音源（含 @name 标记）
-          head -1 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
+          # 内容校验：文件须大于50KB且含 @name 标记（第一行为 /*! 注释符，取前5行匹配）
+          [ "$(stat -c%s android/app/src/main/assets/builtin_source.js)" -gt 50000 ] || { echo "音源文件过小"; exit 1; }
+          head -5 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
           echo "Downloaded music source:"
           ls -lh android/app/src/main/assets/builtin_source.js
           head -2 android/app/src/main/assets/builtin_source.js

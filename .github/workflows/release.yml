@@ -22,11 +22,14 @@ jobs:
       - name: Download latest music source
         run: |
           echo "Downloading latest music source (lx-source.js)..."
-          curl -sL -H "Authorization: Bearer ${{ github.token }}" \
+          # -f: HTTP 4xx/5xx 即失败退出，避免静默写入错误页导致内置源损坏
+          curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
             "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/lx-source.js" \
             -o android/app/src/main/assets/builtin_source.js
+          # 内容校验：必须为有效的洛雪音源（含 @name 标记）
+          head -1 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
           ls -lh android/app/src/main/assets/builtin_source.js
-          head -5 android/app/src/main/assets/builtin_source.js
+          head -2 android/app/src/main/assets/builtin_source.js
 
       - name: Setup Env
         uses: ./.github/actions/setup
@@ -66,6 +69,8 @@ jobs:
 
       - name: Generate file MD5
         run: |
+          # 覆盖写入（>），避免重复构建时 Release 说明累积旧 MD5
+          echo -e '### 更新内容\n\n- 内置豆包定制聚合音源（lx-source.js 最新版）\n' > ./publish/changeLog.md
           echo -e '\n### File MD5\n```' >> ./publish/changeLog.md
           cd artifacts
           md5sum *.apk >> ../publish/changeLog.md

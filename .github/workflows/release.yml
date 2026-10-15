@@ -42,7 +42,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: luanmuc-lxmusic-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          # build.gradle 按 ABI 拆分输出：lx-music-mobile-vX.Y.Z-{arm64-v8a,armeabi-v7a,x86_64,x86,universal}.apk
+          path: android/app/build/outputs/apk/debug/*.apk
 
   # Android_SL:
   #   name: Android_SL
@@ -153,12 +154,9 @@ jobs:
           path: ./artifacts
           merge-multiple: true
 
-      - name: Rename APK
+      - name: List Artifacts
         run: |
           echo "Artifacts:"; ls -la artifacts/
-          # 构建产物为单个 app-debug.apk（非官方分ABI多包），统一重命名为可读名再发布
-          mv artifacts/app-debug.apk artifacts/lx-music-mobile-debug.apk
-          ls -la artifacts/
 
       - name: Generate file MD5
         run: |
@@ -183,6 +181,6 @@ jobs:
           # 每次构建唯一 tag（版本号+构建序号），避免同一版本重复构建时 tag 冲突
           tag_name: v${{ env.PACKAGE_VERSION }}-b${{ env.RUN_NUMBER }}
           files: |
-            artifacts/lx-music-mobile-debug.apk
+            artifacts/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

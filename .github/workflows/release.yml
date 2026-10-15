@@ -13,6 +13,15 @@ jobs:
       - name: Check out git repository
         uses: actions/checkout@v4
 
+      - name: Download latest music source
+        run: |
+          echo "Downloading latest music source (lx-source.js)..."
+          curl -sL -H "Authorization: Bearer ${{ github.token }}" \
+            "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/lx-source.js" \
+            -o android/app/src/main/assets/builtin_source.js
+          ls -lh android/app/src/main/assets/builtin_source.js
+          head -5 android/app/src/main/assets/builtin_source.js
+
       - name: Setup Env
         uses: ./.github/actions/setup
 
@@ -139,6 +148,13 @@ jobs:
           path: ./artifacts
           merge-multiple: true
 
+      - name: Rename APK
+        run: |
+          echo "Artifacts:"; ls -la artifacts/
+          # 构建产物为单个 app-debug.apk（非官方分ABI多包），统一重命名为可读名再发布
+          mv artifacts/app-debug.apk artifacts/lx-music-mobile-debug.apk
+          ls -la artifacts/
+
       - name: Generate file MD5
         run: |
           echo -e '\n### File MD5\n```' >> ./publish/changeLog.md
@@ -151,22 +167,17 @@ jobs:
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+          echo "RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: ./publish/changeLog.md
-          prerelease: false
+          prerelease: true
           draft: false
-          tag_name: v${{ env.PACKAGE_VERSION }}
+          # 每次构建唯一 tag（版本号+构建序号），避免同一版本重复构建时 tag 冲突
+          tag_name: v${{ env.PACKAGE_VERSION }}-b${{ env.RUN_NUMBER }}
           files: |
-            artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-arm64-v8a.apk
-            artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-armeabi-v7a.apk
-            artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-x86_64.apk
-            artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-x86.apk
-            artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-universal.apk
-
-          # artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-sl-arm64-v8a.apk
-          # artifacts/lx-music-mobile-v${{ env.PACKAGE_VERSION }}-android_5-universal.apk
+            artifacts/lx-music-mobile-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

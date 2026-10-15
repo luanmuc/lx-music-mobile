@@ -46,13 +46,8 @@ jobs:
           cd android
           ./gradlew assembleDebug
 
-      - name: Rename APK
-        run: |
-          cd android/app/build/outputs/apk/debug
-          mv app-debug.apk lx-music-mobile-debug.apk
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: lx-music-mobile-debug-apk
-          path: android/app/build/outputs/apk/debug/lx-music-mobile-debug.apk
+          name: luanmuc-lxmusic-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk

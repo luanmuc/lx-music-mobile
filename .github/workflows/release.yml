@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+# 仓库默认 GITHUB_TOKEN 为只读：下载 artifact 需 actions:read，创建 Release 需 contents:write
+permissions:
+  contents: write
+  actions: read
+
 jobs:
   Android:
     name: Android

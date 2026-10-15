@@ -21,7 +21,8 @@ const handlePushedHomeScreen = async() => {
   if (settingState.setting['common.isAgreePact']) {
     if (isFirstPush) {
       isFirstPush = false
-      void checkUpdate()
+      // 暂时关闭自动更新检查，等有正式发布版本再打开
+      // void checkUpdate()
       void initDeeplink()
     }
   } else {

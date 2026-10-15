@@ -3,7 +3,7 @@ import { log, setUserApiList, setUserApiStatus } from '@/core/userApi'
 import settingState from '@/store/setting/state'
 import BackgroundTimer from 'react-native-background-timer'
 import { fetchData } from './request'
-import { getUserApiList } from '@/utils/data'
+import { getUserApiList, addUserApi } from '@/utils/data'
 import { confirmDialog, openUrl, tipDialog } from '@/utils/tools'
 
 
@@ -252,5 +252,23 @@ export default async(setting: LX.AppSetting) => {
     }
   })
 
-  setUserApiList(await getUserApiList())
+  // 自动导入内置音源
+  const userApiList = await getUserApiList()
+  const builtinApiName = '豆包定制[聚合音源]'
+  const hasBuiltin = userApiList.some(api => api.name === builtinApiName)
+  if (!hasBuiltin) {
+    try {
+      const response = await fetch('file:///android_asset/builtin_source.js')
+      const script = await response.text()
+      if (script && script.length > 1000) {
+        const newApi = await addUserApi(script)
+        userApiList.push(newApi)
+        // 默认使用内置音源（修改传入的 setting 参数，让后面的 setApiSource 生效）
+        setting['common.apiSource'] = newApi.id
+      }
+    } catch (e) {
+      console.warn('Failed to load builtin source:', e)
+    }
+  }
+  setUserApiList(userApiList)
 }

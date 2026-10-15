@@ -1,6 +1,5 @@
 import { useRef, forwardRef, useImperativeHandle } from 'react'
 import { View } from 'react-native'
-import { BlurView } from '@react-native-community/blur'
 
 // import music from '@/utils/musicSdk'
 import { BorderWidths } from '@/theme'
@@ -53,11 +52,8 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(({ onSourceChange, onTi
 
 
   return (
-    <BlurView
-      style={{ ...styles.searchBar, borderBottomWidth: 0, borderRadius: 24, marginHorizontal: 12, height: 44, alignItems: 'center' }}
-      blurType={theme.isDark ? 'dark' : 'light'}
-      blurAmount={25}
-      reducedTransparencyFallbackColor={theme.isDark ? 'rgb(40, 40, 45)' : 'rgba(255, 255, 255, 0.8)'}
+    <View
+      style={{ ...styles.searchBar, borderBottomWidth: 0, borderRadius: 24, marginHorizontal: 12, height: 44, alignItems: 'center', backgroundColor: theme.isDark ? 'rgba(50, 50, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)' }}
     >
       <View style={styles.selector}>
         <SourceSelector ref={sourceSelectorRef} onSourceChange={onSourceChange} center />
@@ -69,7 +65,7 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(({ onSourceChange, onTi
         onBlur={onHideTipList}
         onTouchStart={onShowTipList}
       />
-    </BlurView>
+    </View>
   )
 })
 

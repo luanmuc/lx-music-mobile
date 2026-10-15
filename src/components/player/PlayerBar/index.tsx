@@ -1,6 +1,5 @@
 import { memo, useMemo } from 'react'
 import { View } from 'react-native'
-import { BlurView } from '@react-native-community/blur'
 import { useKeyboard } from '@/utils/hooks'
 
 import Pic from './components/Pic'
@@ -20,12 +19,7 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
   const autoHidePlayBar = useSettingValue('common.autoHidePlayBar')
 
   const playerComponent = useMemo(() => (
-    <BlurView
-      style={styles.container}
-      blurType={theme.isDark ? 'dark' : 'light'}
-      blurAmount={25}
-      reducedTransparencyFallbackColor={theme.isDark ? 'rgb(28, 28, 32)' : 'rgba(255, 255, 255, 0.75)'}
-    >
+    <View style={{ ...styles.container, backgroundColor: theme.isDark ? 'rgba(30, 30, 35, 0.9)' : 'rgba(255, 255, 255, 0.9)' }}>
       <Pic isHome={isHome} />
       <View style={styles.center}>
         <Title isHome={isHome} />
@@ -37,7 +31,7 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
       <View style={styles.right}>
         <ControlBtn />
       </View>
-    </BlurView>
+    </View>
   ), [theme, isHome])
 
   // console.log('render pb')

@@ -28,13 +28,13 @@ const styles = createStyle({
   container: {
     marginHorizontal: 12,
     marginBottom: 16,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
   },
   title: {
     borderLeftWidth: 5,

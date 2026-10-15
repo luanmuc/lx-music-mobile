@@ -23,8 +23,8 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
     <BlurView
       style={styles.container}
       blurType={theme.isDark ? 'dark' : 'light'}
-      blurAmount={20}
-      reducedTransparencyFallbackColor={theme.isDark ? 'rgb(30, 30, 35)' : 'rgb(255, 255, 255)'}
+      blurAmount={25}
+      reducedTransparencyFallbackColor={theme.isDark ? 'rgb(28, 28, 32)' : 'rgba(255, 255, 255, 0.75)'}
     >
       <Pic isHome={isHome} />
       <View style={styles.center}>

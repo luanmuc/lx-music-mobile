@@ -17,17 +17,12 @@ jobs:
 
       - name: Download latest music source
         run: |
-          echo "Finding latest music source JS file..."
-          # 列出仓库根目录下的所有文件，找到第一个 .js 文件
-          JS_FILE=$(curl -s "https://api.github.com/repos/luanmuc/lx-music-source/contents/" | python3 -c "import json,sys; files=json.load(sys.stdin); js_files=[f['name'] for f in files if f['name'].endswith('.js')]; print(js_files[0] if js_files else '')")
-          if [ -z "$JS_FILE" ]; then
-            echo "Warning: No JS file found in source repo, using fallback"
-            exit 0
-          fi
-          echo "Found source file: $JS_FILE"
-          # URL 编码文件名
-          ENCODED_NAME=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$JS_FILE'))")
-          curl -sL "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/$ENCODED_NAME" -o android/app/src/main/assets/builtin_source.js
+          echo "Downloading latest music source (lx-source.js)..."
+          # 固定文件名 lx-source.js（音源仓库根目录始终为最新版），无需 contents API 列举与 URL 编码；
+          # 使用 GITHUB_TOKEN 认证避免未认证 API 限流(60次/小时)导致静默失败
+          curl -sL -H "Authorization: Bearer ${{ github.token }}" \
+            "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/lx-source.js" \
+            -o android/app/src/main/assets/builtin_source.js
           echo "Downloaded music source:"
           ls -lh android/app/src/main/assets/builtin_source.js
           head -5 android/app/src/main/assets/builtin_source.js

@@ -17,18 +17,20 @@ import Player from './Player'
 import { createStyle } from '@/utils/tools'
 import { marginLeftRaw } from './constant'
 import { useStatusbarHeight } from '@/store/common/hook'
+import { useSettingValue } from '@/store/setting/hook'
 // import MoreBtn from './MoreBtn2'
 
 export default memo(({ componentId }: { componentId: string }) => {
   const statusBarHeight = useStatusbarHeight()
+  const keepScreenAwakeSetting = useSettingValue('player.keepScreenAwake')
 
   useEffect(() => {
     setComponentId(COMPONENT_IDS.playDetail, componentId)
-    screenkeepAwake()
+    if (keepScreenAwakeSetting) screenkeepAwake()
     let appstateListener = AppState.addEventListener('change', (state) => {
       switch (state) {
         case 'active':
-          if (!commonState.componentIds.comment) screenkeepAwake()
+          if (keepScreenAwakeSetting && !commonState.componentIds.comment) screenkeepAwake()
           break
         case 'background':
           screenUnkeepAwake()
@@ -38,7 +40,7 @@ export default memo(({ componentId }: { componentId: string }) => {
 
     const handleComponentIdsChange = (ids: CommonState['componentIds']) => {
       if (ids.comment) screenUnkeepAwake()
-      else if (AppState.currentState == 'active') screenkeepAwake()
+      else if (keepScreenAwakeSetting && AppState.currentState == 'active') screenkeepAwake()
     }
 
     global.state_event.on('componentIdsUpdated', handleComponentIdsChange)
@@ -49,7 +51,7 @@ export default memo(({ componentId }: { componentId: string }) => {
       screenUnkeepAwake()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [keepScreenAwakeSetting])
 
   return (
     <PageContent>

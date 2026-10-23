@@ -21,6 +21,13 @@ export const screenUnkeepAwake = () => {
   UtilsModule.screenUnkeepAwake()
 }
 
+/**
+ * 保存图片到系统相册（长按封面保存，借鉴 MusicFree）
+ * @param filePath 本地图片绝对路径
+ */
+export const saveImageToGallery = (filePath: string): Promise<boolean> =>
+  UtilsModule.saveImageToGallery(filePath)
+
 export const getWIFIIPV4Address = UtilsModule.getWIFIIPV4Address as () => Promise<string>
 
 export const getDeviceName = async(): Promise<string> => {

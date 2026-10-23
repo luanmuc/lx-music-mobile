@@ -3,6 +3,7 @@ package cn.toside.music.mobile.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,6 +12,8 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -31,7 +34,9 @@ import com.facebook.react.bridge.WritableNativeArray;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -204,6 +209,59 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       activity.runOnUiThread(() -> {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       });
+    }
+  }
+
+  /**
+   保存图片到系统相册（长按封面保存，借鉴 MusicFree）
+   Android 10+ 通过 MediaStore 免存储权限；Android 9- 走外部存储共享目录
+   */
+  @ReactMethod
+  public void saveImageToGallery(String filePath, final Promise promise) {
+    try {
+      final File file = new File(filePath);
+      if (!file.exists() || !file.isFile()) {
+        promise.reject("SAVE_IMAGE_FAILED", "file not found: " + filePath);
+        return;
+      }
+      new Thread(() -> {
+        try {
+          final String mime = "image/jpeg";
+          final String displayName = file.getName();
+          final ContentValues values = new ContentValues();
+          values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
+          values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LXMusic");
+            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+          }
+          final Uri target = reactContext.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+          if (target == null) {
+            promise.reject("SAVE_IMAGE_FAILED", "create media entry failed");
+            return;
+          }
+          try (OutputStream out = reactContext.getContentResolver().openOutputStream(target);
+               FileInputStream in = new FileInputStream(file)) {
+            if (out == null) {
+              promise.reject("SAVE_IMAGE_FAILED", "open output stream failed");
+              return;
+            }
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) != -1) out.write(buf, 0, len);
+          }
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.clear();
+            values.put(MediaStore.MediaColumns.IS_PENDING, 0);
+            reactContext.getContentResolver().update(target, values, null, null);
+          }
+          promise.resolve(true);
+        } catch (Exception e) {
+          promise.reject("SAVE_IMAGE_FAILED", e.getMessage());
+        }
+      }).start();
+    } catch (Exception e) {
+      promise.reject("SAVE_IMAGE_FAILED", e.getMessage());
     }
   }
 

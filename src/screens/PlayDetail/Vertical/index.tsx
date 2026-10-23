@@ -11,6 +11,7 @@ import Lyric from './Lyric'
 import { screenkeepAwake, screenUnkeepAwake } from '@/utils/nativeModules/utils'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
 import { createStyle } from '@/utils/tools'
+import { useSettingValue } from '@/store/setting/hook'
 // import { useTheme } from '@/store/theme/hook'
 
 const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
@@ -32,11 +33,12 @@ export default memo(({ componentId }: { componentId: string }) => {
   // const theme = useTheme()
   const [pageIndex, setPageIndex] = useState(0)
   const showLyricRef = useRef(false)
+  const keepScreenAwakeSetting = useSettingValue('player.keepScreenAwake')
 
   const onPageSelected = ({ nativeEvent }: PagerViewOnPageSelectedEvent) => {
     setPageIndex(nativeEvent.position)
     showLyricRef.current = nativeEvent.position == 1
-    if (showLyricRef.current) {
+    if (keepScreenAwakeSetting && showLyricRef.current) {
       screenkeepAwake()
     } else {
       screenUnkeepAwake()
@@ -47,7 +49,7 @@ export default memo(({ componentId }: { componentId: string }) => {
     let appstateListener = AppState.addEventListener('change', (state) => {
       switch (state) {
         case 'active':
-          if (showLyricRef.current && !commonState.componentIds.comment) screenkeepAwake()
+          if (keepScreenAwakeSetting && showLyricRef.current && !commonState.componentIds.comment) screenkeepAwake()
           break
         case 'background':
           screenUnkeepAwake()
@@ -57,7 +59,7 @@ export default memo(({ componentId }: { componentId: string }) => {
 
     const handleComponentIdsChange = (ids: CommonState['componentIds']) => {
       if (ids.comment) screenUnkeepAwake()
-      else if (AppState.currentState == 'active') screenkeepAwake()
+      else if (keepScreenAwakeSetting && AppState.currentState == 'active') screenkeepAwake()
     }
 
     global.state_event.on('componentIdsUpdated', handleComponentIdsChange)
@@ -68,7 +70,7 @@ export default memo(({ componentId }: { componentId: string }) => {
       screenUnkeepAwake()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [keepScreenAwakeSetting])
 
   return (
     <>

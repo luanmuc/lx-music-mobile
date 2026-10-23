@@ -39,6 +39,8 @@ const defaultSetting: LX.AppSetting = {
   'player.isS2t': false,
   'player.isShowBluetoothLyric': false,
   'player.isShowBluetoothFullLyric': false,
+  'player.keepScreenAwake': true, // 播放页屏幕常亮（借鉴 MusicFree）
+  'player.showNotificationStop': true, // 通知栏显示关闭按钮（借鉴 MusicFree）
 
   // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,

@@ -215,6 +215,16 @@ declare global {
       'player.isShowBluetoothFullLyric': boolean
 
       /**
+       * 播放页是否保持屏幕常亮（借鉴 MusicFree）
+       */
+      'player.keepScreenAwake': boolean
+
+      /**
+       * 通知栏是否显示关闭按钮（借鉴 MusicFree）
+       */
+      'player.showNotificationStop': boolean
+
+      /**
        * 播放详情页-是否缩放当前播放的歌词行
        */
       // 'playDetail.isZoomActiveLrc': boolean

@@ -14,6 +14,8 @@ import IsShowLyricRoma from './IsShowLyricRoma'
 import IsS2T from './IsS2T'
 import MaxCache from './MaxCache'
 import LastFm from './LastFm'
+import IsKeepScreenAwake from './IsKeepScreenAwake'
+import IsShowNotificationStop from './IsShowNotificationStop'
 import { useI18n } from '@/lang'
 
 
@@ -35,6 +37,8 @@ export default memo(() => {
       <MaxCache />
       <PlayHighQuality />
       <LastFm />
+      <IsKeepScreenAwake />
+      <IsShowNotificationStop />
     </Section>
   )
 })

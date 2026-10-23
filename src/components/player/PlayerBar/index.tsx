@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react'
-import { View } from 'react-native'
+import { View, PanResponder } from 'react-native'
 import { useKeyboard } from '@/utils/hooks'
 
 import Pic from './components/Pic'
@@ -10,7 +10,9 @@ import { createStyle } from '@/utils/tools'
 // import { useSettingValue } from '@/store/setting/hook'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
+import { playNext, playPrev } from '@/core/player/player'
 
+const SWIPE_THRESHOLD = 40
 
 export default memo(({ isHome = false }: { isHome?: boolean }) => {
   // const { onLayout, ...layout } = useLayout()
@@ -18,8 +20,21 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
   const theme = useTheme()
   const autoHidePlayBar = useSettingValue('common.autoHidePlayBar')
 
+  // 播放栏左右滑动切歌（借鉴 MusicFree）
+  const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (_evt, gestureState) => {
+      const { dx, dy } = gestureState
+      return Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.5
+    },
+    onPanResponderRelease: (_evt, gestureState) => {
+      if (gestureState.dx > SWIPE_THRESHOLD) void playPrev()
+      else if (gestureState.dx < -SWIPE_THRESHOLD) void playNext()
+    },
+  }), [])
+
   const playerComponent = useMemo(() => (
-    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
+    <View {...panResponder.panHandlers} style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
       <Pic isHome={isHome} />
       <View style={styles.center}>
         <Title isHome={isHome} />
@@ -32,7 +47,7 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
         <ControlBtn />
       </View>
     </View>
-  ), [theme, isHome])
+  ), [theme, isHome, panResponder])
 
   // console.log('render pb')
 

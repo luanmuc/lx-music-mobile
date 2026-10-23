@@ -6,7 +6,7 @@ import { isTempId, isEmpty } from './utils'
 // import { play as lrcPlay, pause as lrcPause } from '@/core/lyric'
 import { exitApp } from '@/core/common'
 import { getCurrentTrackId } from './playList'
-import { pause, play, playNext, playPrev } from '@/core/player/player'
+import { pause, play, playNext, playPrev, stop } from '@/core/player/player'
 
 let isInitialized = false
 
@@ -49,8 +49,8 @@ const registerPlaybackService = async() => {
   })
 
   TrackPlayer.addEventListener(TPEvent.RemoteStop, () => {
-    // console.log('remote-stop')
-    void handleExitApp('Remote Stop')
+    // 通知栏"关闭"按钮：停止播放、移除通知，不退出应用（借鉴 MusicFree）
+    void stop()
   })
 
   // TrackPlayer.addEventListener(TPEvent.RemoteDuck, async({ permanent, paused, ducking }) => {

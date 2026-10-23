@@ -524,5 +524,9 @@
   "play_detail_setting_lrc_offset_reset": "重置偏移",
   "nav_timeout_exit": "定时关闭",
   "timeout_exit_sidebar_remaining": "定时关闭 · 剩余 {time}",
-  "timeout_exit_sidebar_waiting": "定时关闭 · 等待当前歌曲播放完"
+  "timeout_exit_sidebar_waiting": "定时关闭 · 等待当前歌曲播放完",
+  "setting_player_keep_screen_awake": "播放页屏幕常亮",
+  "setting_player_show_notification_stop": "通知栏显示关闭按钮",
+  "pic_saved": "封面已保存到相册",
+  "pic_save_failed": "封面保存失败"
 }

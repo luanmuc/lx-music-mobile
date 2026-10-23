@@ -52,6 +52,7 @@ export {
   isInitialized,
   setVolume,
   setPlaybackRate,
+  updateOptions,
 }
 
 export {

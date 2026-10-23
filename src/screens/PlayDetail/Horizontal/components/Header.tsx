@@ -5,8 +5,9 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { Icon } from '@/components/common/Icon'
 import { pop } from '@/navigation'
 import { useTheme } from '@/store/theme/hook'
-import { usePlayerMusicInfo } from '@/store/player/hook'
+import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
 import Text from '@/components/common/Text'
+import QualityText from '@/components/player/QualityText'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { HEADER_HEIGHT as _HEADER_HEIGHT, NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import commonState from '@/store/common/state'
@@ -20,11 +21,15 @@ export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
 const Title = () => {
   const theme = useTheme()
   const musicInfo = usePlayerMusicInfo()
+  const playQuality = usePlayQuality()
 
 
   return (
     <View style={styles.titleContent}>
-      <Text numberOfLines={1} style={styles.title} size={14}>{musicInfo.name}</Text>
+      <View style={styles.titleRow}>
+        <Text numberOfLines={1} style={styles.title} size={14}>{musicInfo.name}</Text>
+        <QualityText quality={playQuality} />
+      </View>
       <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
     </View>
   )
@@ -75,6 +80,10 @@ const styles = StyleSheet.create({
     flex: 1,
     // alignItems: 'center',
     justifyContent: 'center',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   title: {
     // flex: 1,

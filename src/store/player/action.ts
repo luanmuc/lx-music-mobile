@@ -21,6 +21,11 @@ export default {
 
     global.state_event.playMusicInfoChanged(state.playMusicInfo)
   },
+  setPlayQuality(playQuality: string) {
+    state.playQuality = playQuality
+
+    global.state_event.playQualityChanged(playQuality)
+  },
   setMusicInfo(_musicInfo: Partial<LX.Player.MusicInfo>) {
     for (const key of musicInfoKeys) {
       const val = _musicInfo[key]

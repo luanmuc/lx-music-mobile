@@ -1,12 +1,13 @@
-import { TouchableOpacity } from 'react-native'
+import { View, TouchableOpacity } from 'react-native'
 import { navigations } from '@/navigation'
-import { usePlayerMusicInfo } from '@/store/player/hook'
+import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
 // import { toast } from '@/utils/tools'
 import { useSettingValue } from '@/store/setting/hook'
 import { useTheme } from '@/store/theme/hook'
 import commonState from '@/store/common/state'
 import playerState from '@/store/player/state'
 import Text from '@/components/common/Text'
+import QualityText from '@/components/player/QualityText'
 import { LIST_IDS } from '@/config/constant'
 import { createStyle, formatMusicName } from '@/utils/tools'
 
@@ -14,6 +15,7 @@ import { createStyle, formatMusicName } from '@/utils/tools'
 export default ({ isHome }: { isHome: boolean }) => {
   // const { t } = useTranslation()
   const musicInfo = usePlayerMusicInfo()
+  const playQuality = usePlayQuality()
   const downloadFileName = useSettingValue('download.fileName')
   const theme = useTheme()
 
@@ -40,7 +42,10 @@ export default ({ isHome }: { isHome: boolean }) => {
   // console.log(playMusicInfo)
   return (
     <TouchableOpacity style={styles.container} onLongPress={handleLongPress} onPress={handlePress} activeOpacity={0.7} >
-      <Text color={theme['c-font-label']} numberOfLines={1}>{title}</Text>
+      <View style={styles.titleRow}>
+        <Text color={theme['c-font-label']} numberOfLines={1} style={styles.titleText}>{title}</Text>
+        <QualityText quality={playQuality} />
+      </View>
     </TouchableOpacity>
   )
 }
@@ -72,5 +77,12 @@ const styles = createStyle({
     // paddingBottom: 4,
     // height: '50%',
     // backgroundColor: 'rgba(0, 0, 0, .1)',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  titleText: {
+    flexShrink: 1,
   },
 })

@@ -60,6 +60,10 @@ export class StateEvent extends Event {
     this.emit('playStateTextChanged', text)
   }
 
+  playQualityChanged(playQuality: PlayerState['playQuality']) {
+    this.emit('playQualityChanged', playQuality)
+  }
+
   playStateChanged(state: PlayerState['isPlay']) {
     this.emit('playStateChanged', state)
   }

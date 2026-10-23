@@ -1,0 +1,294 @@
+import { type InitParams, onScriptAction, sendAction, type ResponseParams, type UpdateInfoParams, type RequestParams } from '@/utils/nativeModules/userApi'
+import { log, setUserApiList, setUserApiStatus } from '@/core/userApi'
+import settingState from '@/store/setting/state'
+import BackgroundTimer from 'react-native-background-timer'
+import RNFS from 'react-native-fs'
+import { fetchData } from './request'
+import { getUserApiList, addUserApi } from '@/utils/data'
+import { getData, saveData } from '@/plugins/storage'
+import { confirmDialog, openUrl, tipDialog } from '@/utils/tools'
+import { storageDataPrefix } from '@/config/constant'
+
+
+export default async(setting: LX.AppSetting) => {
+  const userApiRequestMap = new Map<string, { resolve: (value: ResponseParams['result']) => void, reject: (error: Error) => void, timeout: number }>()
+  const scriptRequestMap = new Map<string, { request: Promise<any>, abort: () => void }>()
+
+  const cancelRequest = (requestKey: string, message: string) => {
+    const target = scriptRequestMap.get(requestKey)
+    if (!target) return
+    scriptRequestMap.delete(requestKey)
+    target.abort()
+  }
+  const sendScriptRequest = (requestKey: string, url: string, options: RequestParams['options']) => {
+    let req = fetchData(url, options)
+    req.request.then(response => {
+      // console.log(response)
+      sendAction('response', {
+        error: null,
+        requestKey,
+        response,
+      })
+    }).catch(err => {
+      sendAction('response', {
+        error: err.message,
+        requestKey,
+        response: null,
+      })
+    }).finally(() => {
+      scriptRequestMap.delete(requestKey)
+    })
+    scriptRequestMap.set(requestKey, req)
+  }
+  const sendUserApiRequest = async(data: LX.UserApi.UserApiRequestParams) => {
+    const handleApiUpdate = () => {
+      const target = userApiRequestMap.get(data.requestKey)
+      if (!target) return
+      userApiRequestMap.delete(data.requestKey)
+      BackgroundTimer.clearTimeout(target.timeout)
+      target.reject(new Error('request failed'))
+    }
+    const requestPromise = new Promise<ResponseParams['result']>((resolve, reject) => {
+      userApiRequestMap.set(data.requestKey, {
+        resolve,
+        reject,
+        timeout: BackgroundTimer.setTimeout(() => {
+          const target = userApiRequestMap.get(data.requestKey)
+          if (!target) return
+          userApiRequestMap.delete(data.requestKey)
+          target.reject(new Error('request timeout'))
+        }, 20_000),
+      })
+      sendAction('request', data)
+    }).finally(() => {
+      global.state_event.off('apiSourceUpdated', handleApiUpdate)
+    })
+    global.state_event.on('apiSourceUpdated', handleApiUpdate)
+    return requestPromise
+  }
+  const handleUserApiResponse = ({ status, result, requestKey, errorMessage }: ResponseParams) => {
+    const target = userApiRequestMap.get(requestKey)
+    if (!target) return
+    userApiRequestMap.delete(requestKey)
+    BackgroundTimer.clearTimeout(target.timeout)
+    if (status) target.resolve(result)
+    else target.reject(new Error(errorMessage ?? 'failed'))
+  }
+  const handleStateChange = ({ status, errorMessage, info }: InitParams) => {
+    // console.log(status, message, info)
+    setUserApiStatus(status, errorMessage)
+    if (!info || info.id !== settingState.setting['common.apiSource']) return
+    if (status) {
+      if (info.sources) {
+        let apis: any = {}
+        let qualitys: LX.QualityList = {}
+        for (const [source, { actions, type, qualitys: sourceQualitys }] of Object.entries(info.sources)) {
+          if (type != 'music') continue
+          apis[source as LX.Source] = {}
+          for (const action of actions) {
+            switch (action) {
+              case 'musicUrl':
+                apis[source].getMusicUrl = (songInfo: LX.Music.MusicInfo, type: LX.Quality) => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'musicUrl',
+                        info: {
+                          type,
+                          musicInfo: songInfo,
+                        },
+                      },
+                      // eslint-disable-next-line @typescript-eslint/promise-function-async
+                    }).then(res => {
+                      // console.log(res)
+                      return { type, url: res.data.url }
+                    }).catch(err => {
+                      console.log(err.message)
+                      throw err
+                    }),
+                  }
+                }
+                break
+              case 'lyric':
+                apis[source].getLyric = (songInfo: LX.Music.MusicInfo) => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'lyric',
+                        info: {
+                          type,
+                          musicInfo: songInfo,
+                        },
+                      },
+                      // eslint-disable-next-line @typescript-eslint/promise-function-async
+                    }).then(res => {
+                      // console.log(res)
+                      return res.data
+                    }).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
+              case 'pic':
+                apis[source].getPic = (songInfo: LX.Music.MusicInfo) => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'pic',
+                        info: {
+                          type,
+                          musicInfo: songInfo,
+                        },
+                      },
+                      // eslint-disable-next-line @typescript-eslint/promise-function-async
+                    }).then(res => {
+                      // console.log(res)
+                      return res.data
+                    }).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
+              default:
+                break
+            }
+          }
+          qualitys[source as LX.Source] = sourceQualitys
+        }
+        global.lx.qualityList = qualitys
+        global.lx.apis = apis
+        global.state_event.apiSourceUpdated(settingState.setting['common.apiSource'])
+      }
+    } else {
+      if (errorMessage) {
+        void tipDialog({
+          message: `${global.i18n.t('user_api__init_failed_alert', { name: info.name })}\n${errorMessage}`,
+          // selection: true,
+          btnText: global.i18n.t('ok'),
+        })
+      }
+    }
+    if (!global.lx.apiInitPromise[1]) global.lx.apiInitPromise[2](status)
+  }
+  const showUpdateAlert = ({ name, log, updateUrl }: UpdateInfoParams) => {
+    if (updateUrl) {
+      void confirmDialog({
+        message: `${global.i18n.t('user_api_update_alert', { name })}\n${log}`,
+        // selection: true,
+        // showCancel: true,
+        confirmButtonText: global.i18n.t('user_api_update_alert_open_url'),
+        cancelButtonText: global.i18n.t('close'),
+      }).then(confirm => {
+        if (!confirm) return
+        setTimeout(() => {
+          void openUrl(updateUrl)
+        }, 300)
+      })
+    } else {
+      void tipDialog({
+        message: `${global.i18n.t('user_api_update_alert', { name })}\n${log}`,
+        // selection: true,
+        btnText: global.i18n.t('ok'),
+      })
+    }
+  }
+
+  onScriptAction((event) => {
+    // console.log('script actuon: ', event)
+    switch (event.action) {
+      case 'init':
+        if ((event as unknown as { errorMessage?: string }).errorMessage) event.data.errorMessage = (event as unknown as { errorMessage: string }).errorMessage
+        handleStateChange(event.data)
+        break
+      case 'response':
+        handleUserApiResponse(event.data)
+        break
+      case 'request':
+        sendScriptRequest(event.data.requestKey, event.data.url, event.data.options)
+        break
+      case 'cancelRequest':
+        cancelRequest(event.data, 'request canceled')
+        break
+      case 'showUpdateAlert':
+        showUpdateAlert(event.data)
+        break
+      case 'log':
+        switch ((event as unknown as { type: keyof typeof log }).type) {
+          case 'log':
+          case 'info':
+            log.info((event as unknown as { log: string }).log)
+            break
+          case 'error':
+            log.error((event as unknown as { log: string }).log)
+            break
+          case 'warn':
+            log.warn((event as unknown as { log: string }).log)
+            break
+          default:
+            break
+        }
+        break
+      default:
+        break
+    }
+  })
+
+  // 自动导入内置音源：已导入标记存在但自定义源列表中找不到豆包定制源时，重新导入
+  // （覆盖安装旧版本时旧数据保留 has_imported 标记，需兜底保证内置源存在）
+  const userApiList = await getUserApiList()
+  const builtinSourceKey = 'has_imported_builtin_source'
+  const hasImportedBuiltin = await getData<boolean>(builtinSourceKey)
+  const BUILTIN_NAME = '豆包定制'
+  const builtinExists = userApiList.some(api => api.name.includes(BUILTIN_NAME))
+  if (!hasImportedBuiltin || !builtinExists) {
+    try {
+      // RN 的 fetch 基于 OkHttp，不支持 file:// 协议，读取内置 assets 必须用 react-native-fs
+      const script = await RNFS.readFileAssets('builtin_source.js', 'utf8')
+      if (script && script.length > 1000) {
+        const newApi = await addUserApi(script)
+        if (!userApiList.some(api => api.id === newApi.id)) {
+          userApiList.push(newApi)
+          // 默认使用内置音源（修改传入的 setting 参数，让后面的 setApiSource 生效）
+          setting['common.apiSource'] = newApi.id
+          // 持久化 apiSource，避免仅内存生效导致重启后选中状态丢失
+          try {
+            const stored = await getData<Partial<LX.AppSetting>>(storageDataPrefix.setting)
+            if (stored) {
+              stored['common.apiSource'] = newApi.id
+              await saveData(storageDataPrefix.setting, stored)
+            }
+          } catch (e) {
+            console.warn('Failed to persist apiSource:', e)
+          }
+        }
+        // 标记已导入过
+        await saveData(builtinSourceKey, true)
+      }
+    } catch (e) {
+      console.warn('Failed to load builtin source:', e)
+    }
+  }
+  setUserApiList(userApiList)
+}

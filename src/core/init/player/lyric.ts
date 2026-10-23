@@ -2,12 +2,17 @@ import { init as initLyricPlayer, toggleTranslation, toggleRoma, play, pause, st
 import { updateSetting } from '@/core/common'
 import { onDesktopLyricPositionChange, showDesktopLyric, onLyricLinePlay, showRemoteLyric } from '@/core/desktopLyric'
 import playerState from '@/store/player/state'
+import settingState from '@/store/setting/state'
 import { updateNowPlayingTitles } from '@/plugins/player/utils'
 import { setLastLyric } from '@/core/player/playInfo'
 
-const updateRemoteLyric = async(lrc?: string) => {
+// 通知栏标题是否显示当前歌词：蓝牙歌词 或 通知栏歌词 任一开启时显示歌词，否则显示歌名
+const isShowLyricInNotification = () =>
+  settingState.setting['player.isShowBluetoothLyric'] || settingState.setting['player.isShowNotificationLyric']
+
+export const updateRemoteLyric = async(lrc?: string) => {
   setLastLyric(lrc)
-  if (lrc == null) {
+  if (lrc == null || !isShowLyricInNotification()) {
     void updateNowPlayingTitles({
       title: playerState.musicInfo.name,
       artist: playerState.musicInfo.singer ?? '',

@@ -29,7 +29,6 @@ import { checkIgnoringBatteryOptimization, checkNotificationPermission, debounce
 import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
 import { addPlayCount } from '@/core/player/playCount'
-import { lastfmNowPlaying } from '@/core/lastfm'
 import { addDislikeInfo } from '@/core/dislikeList'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
@@ -612,7 +611,6 @@ export const play = () => {
     return
   }
   addPlayCount() // 听歌统计：每次开始播放计一次
-  void lastfmNowPlaying() // LastFM：上报 nowPlaying
   void setPlay()
 }
 

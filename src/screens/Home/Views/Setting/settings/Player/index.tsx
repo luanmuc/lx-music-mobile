@@ -8,14 +8,13 @@ import IsEnableAudioOffload from './IsEnableAudioOffload'
 import IsAutoCleanPlayedList from './IsAutoCleanPlayedList'
 import IsShowBluetoothLyric from './IsShowBluetoothLyric'
 import IsShowBluetoothFullLyric from './IsShowBluetoothFullLyric'
+import IsShowNotificationLyric from './IsShowNotificationLyric'
 import IsShowNotificationImage from './IsShowNotificationImage'
 import IsShowLyricTranslation from './IsShowLyricTranslation'
 import IsShowLyricRoma from './IsShowLyricRoma'
 import IsS2T from './IsS2T'
 import MaxCache from './MaxCache'
-import LastFm from './LastFm'
 import IsKeepScreenAwake from './IsKeepScreenAwake'
-import IsShowNotificationStop from './IsShowNotificationStop'
 import { useI18n } from '@/lang'
 
 
@@ -30,15 +29,14 @@ export default memo(() => {
       <IsEnableAudioOffload />
       <IsShowBluetoothLyric />
       <IsShowBluetoothFullLyric />
+      <IsShowNotificationLyric />
       <IsShowNotificationImage />
       <IsShowLyricTranslation />
       <IsShowLyricRoma />
       <IsS2T />
       <MaxCache />
       <PlayHighQuality />
-      <LastFm />
       <IsKeepScreenAwake />
-      <IsShowNotificationStop />
     </Section>
   )
 })

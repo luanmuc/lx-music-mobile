@@ -3,7 +3,6 @@ import BackgroundTimer from 'react-native-background-timer'
 import { playMusic as handlePlayMusic } from './playList'
 import { existsFile, moveFile, privateStorageDirectoryPath, temporaryDirectoryPath } from '@/utils/fs'
 import { toast } from '@/utils/tools'
-import settingState from '@/store/setting/state'
 // import { PlayerMusicInfo } from '@/store/modules/player/playInfo'
 
 
@@ -259,7 +258,6 @@ export const updateOptions = async(options = {
   capabilities: [
     Capability.Play,
     Capability.Pause,
-    Capability.Stop,
     Capability.SeekTo,
     Capability.SkipToNext,
     Capability.SkipToPrevious,
@@ -268,7 +266,6 @@ export const updateOptions = async(options = {
   notificationCapabilities: [
     Capability.Play,
     Capability.Pause,
-    Capability.Stop,
     Capability.SkipToNext,
     Capability.SkipToPrevious,
   ],
@@ -277,7 +274,6 @@ export const updateOptions = async(options = {
   compactCapabilities: [
     Capability.Play,
     Capability.Pause,
-    Capability.Stop,
     Capability.SkipToNext,
   ],
 
@@ -289,15 +285,7 @@ export const updateOptions = async(options = {
   // nextIcon: require('./next-icon.png'),
   // icon: notificationIcon, // The notification icon
 }) => {
-  // 通知栏"关闭"按钮开关（借鉴 MusicFree）：关闭后隐藏 Stop 按钮
-  const showStop = settingState.setting['player.showNotificationStop']
-  const filterCaps = <T,>(caps: T[]) => showStop ? caps : caps.filter(c => c !== Capability.Stop)
-  return TrackPlayer.updateOptions({
-    ...options,
-    capabilities: filterCaps(options.capabilities),
-    notificationCapabilities: filterCaps(options.notificationCapabilities),
-    compactCapabilities: filterCaps(options.compactCapabilities),
-  })
+  return TrackPlayer.updateOptions({ ...options })
 }
 
 // export const setMaxCache = async size => {

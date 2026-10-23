@@ -147,14 +147,6 @@ declare global {
       'player.lrcOffset': number
 
       /**
-       * LastFM Scrobbling（借鉴 MusicFree/Spotube）
-       */
-      'lastfm.enabled': boolean
-      'lastfm.apiKey': string
-      'lastfm.username': string
-      'lastfm.password': string
-
-      /**
        * 缓存大小设置 unit MiB
        */
       'player.cacheSize': string
@@ -215,14 +207,14 @@ declare global {
       'player.isShowBluetoothFullLyric': boolean
 
       /**
+       * 通知栏标题是否显示当前歌词（默认关）
+       */
+      'player.isShowNotificationLyric': boolean
+
+      /**
        * 播放页是否保持屏幕常亮（借鉴 MusicFree）
        */
       'player.keepScreenAwake': boolean
-
-      /**
-       * 通知栏是否显示关闭按钮（借鉴 MusicFree）
-       */
-      'player.showNotificationStop': boolean
 
       /**
        * 播放详情页-是否缩放当前播放的歌词行

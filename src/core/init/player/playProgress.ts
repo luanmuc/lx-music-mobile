@@ -8,7 +8,6 @@ import BackgroundTimer from 'react-native-background-timer'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
 import { onScreenStateChange } from '@/utils/nativeModules/utils'
-import { lastfmOnProgress } from '@/core/lastfm'
 import { AppState } from 'react-native'
 
 const delaySavePlayInfo = throttleBackgroundTimer(() => {
@@ -32,7 +31,6 @@ export default () => {
     void getPosition().then(position => {
       if (!position || id != playerState.musicInfo.id) return
       setNowPlayTime(position)
-      void lastfmOnProgress(position) // LastFM：满足条件后 scrobble
       if (!playerState.isPlay) return
 
       if (settingState.setting['player.isSavePlayTime'] && !playerState.playMusicInfo.isTempPlay && isScreenOn) {

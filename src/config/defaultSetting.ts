@@ -23,10 +23,6 @@ const defaultSetting: LX.AppSetting = {
   'player.volume': 1,
   'player.playbackRate': 1,
   'player.lrcOffset': 0, // 歌词时间轴偏移（秒，可负，借鉴 MusicFree setLyricOffset）
-  'lastfm.enabled': false,
-  'lastfm.apiKey': '',
-  'lastfm.username': '',
-  'lastfm.password': '',
   'player.cacheSize': '500',
   'player.timeoutExit': '',
   'player.timeoutExitPlayed': true,
@@ -39,8 +35,8 @@ const defaultSetting: LX.AppSetting = {
   'player.isS2t': false,
   'player.isShowBluetoothLyric': false,
   'player.isShowBluetoothFullLyric': false,
+  'player.isShowNotificationLyric': false, // 通知栏标题显示当前歌词（默认关，需要时手动开）
   'player.keepScreenAwake': true, // 播放页屏幕常亮（借鉴 MusicFree）
-  'player.showNotificationStop': true, // 通知栏显示关闭按钮（借鉴 MusicFree）
 
   // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,
@@ -49,7 +45,7 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.horizontal.style.lrcFontSize': 220,
   'playDetail.isShowLyricProgressSetting': false,
 
-  'desktopLyric.enable': true,
+  'desktopLyric.enable': false,
   'desktopLyric.isLock': true,
   'desktopLyric.width': 100,
   'desktopLyric.maxLineNum': 5,

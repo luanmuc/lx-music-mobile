@@ -4,9 +4,12 @@ import TrackPlayer, { State as TPState, Event as TPEvent } from 'react-native-tr
 // import { action as playerAction, STATUS } from '@/store/modules/player'
 import { isTempId, isEmpty } from './utils'
 // import { play as lrcPlay, pause as lrcPause } from '@/core/lyric'
-import { exitApp } from '@/core/common'
+import { exitApp, updateSetting } from '@/core/common'
 import { getCurrentTrackId } from './playList'
 import { pause, play, playNext, playPrev, stop } from '@/core/player/player'
+import { hideDesktopLyric, showDesktopLyric, checkDesktopLyricOverlayPermission } from '@/core/desktopLyric'
+import settingState from '@/store/setting/state'
+import { toast } from '@/utils/tools'
 
 let isInitialized = false
 
@@ -21,6 +24,25 @@ let isInitialized = false
 const handleExitApp = async(reason: string) => {
   global.lx.isPlayedStop = false
   exitApp(reason)
+}
+
+// 切换桌面歌词显示状态（通知栏按钮调用，与播放页按钮行为一致）
+const toggleDesktopLyric = async() => {
+  const enable = settingState.setting['desktopLyric.enable']
+  if (enable) {
+    updateSetting({ 'desktopLyric.enable': false })
+    await hideDesktopLyric()
+  } else {
+    try {
+      await checkDesktopLyricOverlayPermission()
+      await showDesktopLyric()
+      updateSetting({ 'desktopLyric.enable': true })
+    } catch {
+      // 悬浮窗权限未授予：回滚设置并提示（后台无法弹权限引导，提示用户手动开启）
+      updateSetting({ 'desktopLyric.enable': false })
+      try { toast('桌面歌词开启失败：请先在系统设置中授予悬浮窗权限') } catch { /* 后台场景 toast 可能不可用 */ }
+    }
+  }
 }
 
 
@@ -51,6 +73,11 @@ const registerPlaybackService = async() => {
   TrackPlayer.addEventListener(TPEvent.RemoteStop, () => {
     // 通知栏"关闭"按钮：停止播放、移除通知，不退出应用（借鉴 MusicFree）
     void stop()
+  })
+
+  // 通知栏"桌面歌词"开关按钮：点一下开，再点一下关（track-player fork 自定义事件）
+  TrackPlayer.addEventListener(TPEvent.RemoteToggleDesktopLyric, () => {
+    void toggleDesktopLyric()
   })
 
   // TrackPlayer.addEventListener(TPEvent.RemoteDuck, async({ permanent, paused, ducking }) => {

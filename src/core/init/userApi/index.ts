@@ -4,7 +4,7 @@ import settingState from '@/store/setting/state'
 import BackgroundTimer from 'react-native-background-timer'
 import RNFS from 'react-native-fs'
 import { fetchData } from './request'
-import { getUserApiList, addUserApi } from '@/utils/data'
+import { getUserApiList, addUserApi, removeUserApi } from '@/utils/data'
 import { getData, saveData } from '@/plugins/storage'
 import { confirmDialog, openUrl, tipDialog } from '@/utils/tools'
 import { storageDataPrefix } from '@/config/constant'
@@ -106,8 +106,8 @@ export default async(setting: LX.AppSetting) => {
                       },
                       // eslint-disable-next-line @typescript-eslint/promise-function-async
                     }).then(res => {
-                      // console.log(res)
-                      return { type, url: res.data.url }
+                      // 音源返回实际交付音质（res.data.type，v11.13+）；旧音源无该字段时回退请求音质
+                      return { type: (res.data as { type?: LX.Quality })?.type ?? type, url: (res.data as { url: string }).url }
                     }).catch(err => {
                       console.log(err.message)
                       throw err
@@ -255,18 +255,43 @@ export default async(setting: LX.AppSetting) => {
     }
   })
 
-  // 自动导入内置音源：已导入标记存在但自定义源列表中找不到豆包定制源时，重新导入
-  // （覆盖安装旧版本时旧数据保留 has_imported 标记，需兜底保证内置源存在）
+  // 自动导入内置音源：首次导入 + 内置版本更新时自动升级
+  // 内置音源脚本随 App 构建更新（CI 每次拉音源仓库最新版），但用户数据里已导入的脚本不会
+  // 自动更新——通过对比"内置脚本版本"与"已导入版本"（存储标记），新版则重新导入替换。
   const userApiList = await getUserApiList()
   const builtinSourceKey = 'has_imported_builtin_source'
+  const builtinVersionKey = 'imported_builtin_source_version'
   const hasImportedBuiltin = await getData<boolean>(builtinSourceKey)
+  const importedVersion = (await getData<string>(builtinVersionKey)) || ''
   const BUILTIN_NAME = '豆包定制'
   const builtinExists = userApiList.some(api => api.name.includes(BUILTIN_NAME))
-  if (!hasImportedBuiltin || !builtinExists) {
+
+  // 读取内置脚本并解析聚合源版本号（logInfo 里的 v11.13 形式；匹配失败则仅首次导入）
+  let needImport = !hasImportedBuiltin || !builtinExists
+  let builtinVer = ''
+  try {
+    const probeScript = await RNFS.readFileAssets('builtin_source.js', 'utf8')
+    const m = probeScript.match(/聚合音源\s*v(\d+(?:\.\d+)*)/)
+    builtinVer = m ? m[1] : ''
+    if (builtinVer && builtinVer != importedVersion) needImport = true
+  } catch (e) {
+    console.warn('Failed to read builtin source version:', e)
+  }
+
+  if (needImport) {
     try {
       // RN 的 fetch 基于 OkHttp，不支持 file:// 协议，读取内置 assets 必须用 react-native-fs
       const script = await RNFS.readFileAssets('builtin_source.js', 'utf8')
       if (script && script.length > 1000) {
+        // 已有旧版内置源时先删除，避免重复添加多个豆包定制源
+        if (builtinExists) {
+          const oldIds = userApiList.filter(api => api.name.includes(BUILTIN_NAME)).map(api => api.id)
+          try { await removeUserApi(oldIds) } catch (e) { console.warn('Failed to remove old builtin source:', e) }
+          for (const id of oldIds) {
+            const idx = userApiList.findIndex(api => api.id === id)
+            if (idx >= 0) userApiList.splice(idx, 1)
+          }
+        }
         const newApi = await addUserApi(script)
         if (!userApiList.some(api => api.id === newApi.id)) {
           userApiList.push(newApi)
@@ -283,8 +308,10 @@ export default async(setting: LX.AppSetting) => {
             console.warn('Failed to persist apiSource:', e)
           }
         }
-        // 标记已导入过
+        // 标记已导入过，并记录导入的版本（用于下次对比）
         await saveData(builtinSourceKey, true)
+        if (builtinVer) await saveData(builtinVersionKey, builtinVer)
+        console.log('builtin source imported/updated:', newApi.name, builtinVer || '')
       }
     } catch (e) {
       console.warn('Failed to load builtin source:', e)

@@ -2,35 +2,49 @@
 # 发布 npm 版本信息包（luanmuc-lx-music-version-info）
 # 由 CI（release.yml）在每次发布后调用：
 #   - 读取 publish/version.json（本次版本信息）
-#   - 更新 npm-version-info/package.json（包版本递增 + versionInfo 字段）
-#   - npm publish 到官方 registry（npmmirror 会自动镜像同步）
+#   - 查询 registry 当前最大版本号，patch+1（避免与已发布版本冲突 403）
+#   - 更新 npm-version-info/package.json（versionInfo 字段）
+#   - npm publish 到官方 registry（npmmirror 会自动镜像同步；staged 暂存会自动提升）
 # 需要环境变量 NPM_TOKEN
 import json
 import os
+import re
 import subprocess
+import urllib.request
+
+PKG_NAME = 'luanmuc-lx-music-version-info'
 
 with open('publish/version.json', encoding='utf-8') as f:
     vi = json.load(f)
 
+# 查询 registry 当前生产版本，取最大 patch + 1
+try:
+    req = urllib.request.Request(f'https://registry.npmjs.org/{PKG_NAME}')
+    with urllib.request.urlopen(req, timeout=20) as r:
+        data = json.loads(r.read().decode())
+    nums = []
+    for v in data.get('versions', {}):
+        m = re.match(r'^(\d+)\.(\d+)\.(\d+)$', v)
+        if m:
+            nums.append(tuple(int(x) for x in m.groups()))
+    if nums:
+        major, minor, patch = max(nums)
+        new_ver = f'{major}.{minor}.{patch + 1}'
+    else:
+        new_ver = '1.0.0'
+except Exception:
+    new_ver = '1.0.0'
+
 pkg_dir = 'npm-version-info'
 os.makedirs(pkg_dir, exist_ok=True)
 pkg_file = os.path.join(pkg_dir, 'package.json')
-
-# 包版本递增（npm 不允许同版本重复发布）
-try:
-    with open(pkg_file, encoding='utf-8') as f:
-        pkg = json.load(f)
-    major, minor, patch = pkg['version'].split('.')
-    pkg['version'] = f'{major}.{minor}.{int(patch) + 1}'
-except Exception:
-    pkg = {
-        'name': 'luanmuc-lx-music-version-info',
-        'version': '1.0.0',
-        'description': 'lx-music-mobile（落雪音乐移动版）在线更新版本信息',
-        'author': 'luanyu',
-        'license': 'MIT',
-    }
-
+pkg = {
+    'name': PKG_NAME,
+    'version': new_ver,
+    'description': 'lx-music-mobile（落雪音乐移动版）在线更新版本信息',
+    'author': 'luanyu',
+    'license': 'MIT',
+}
 pkg['versionInfo'] = json.dumps(vi, ensure_ascii=False)
 with open(pkg_file, 'w', encoding='utf-8') as f:
     json.dump(pkg, f, ensure_ascii=False, indent=2)

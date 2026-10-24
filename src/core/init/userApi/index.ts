@@ -284,8 +284,9 @@ export default async(setting: LX.AppSetting) => {
       const script = await RNFS.readFileAssets('builtin_source.js', 'utf8')
       if (script && script.length > 1000) {
         // 已有旧版内置源时先删除，避免重复添加多个豆包定制源
+        let oldIds: string[] = []
         if (builtinExists) {
-          const oldIds = userApiList.filter(api => api.name.includes(BUILTIN_NAME)).map(api => api.id)
+          oldIds = userApiList.filter(api => api.name.includes(BUILTIN_NAME)).map(api => api.id)
           try { await removeUserApi(oldIds) } catch (e) { console.warn('Failed to remove old builtin source:', e) }
           for (const id of oldIds) {
             const idx = userApiList.findIndex(api => api.id === id)
@@ -295,17 +296,22 @@ export default async(setting: LX.AppSetting) => {
         const newApi = await addUserApi(script)
         if (!userApiList.some(api => api.id === newApi.id)) {
           userApiList.push(newApi)
-          // 默认使用内置音源（修改传入的 setting 参数，让后面的 setApiSource 生效）
-          setting['common.apiSource'] = newApi.id
-          // 持久化 apiSource，避免仅内存生效导致重启后选中状态丢失
-          try {
-            const stored = await getData<Partial<LX.AppSetting>>(storageDataPrefix.setting)
-            if (stored) {
-              stored['common.apiSource'] = newApi.id
-              await saveData(storageDataPrefix.setting, stored)
+          // 仅当当前正使用旧内置源（或未选音源）时切换到新内置源；
+          // 用户手动选择的其它音源保持不变，不被升级覆盖
+          const curSource = setting['common.apiSource'] as string | undefined
+          const usingOldBuiltin = !curSource || oldIds.includes(curSource)
+          if (usingOldBuiltin) {
+            setting['common.apiSource'] = newApi.id
+            // 持久化 apiSource，避免仅内存生效导致重启后选中状态丢失
+            try {
+              const stored = await getData<Partial<LX.AppSetting>>(storageDataPrefix.setting)
+              if (stored) {
+                stored['common.apiSource'] = newApi.id
+                await saveData(storageDataPrefix.setting, stored)
+              }
+            } catch (e) {
+              console.warn('Failed to persist apiSource:', e)
             }
-          } catch (e) {
-            console.warn('Failed to persist apiSource:', e)
           }
         }
         // 标记已导入过，并记录导入的版本（用于下次对比）

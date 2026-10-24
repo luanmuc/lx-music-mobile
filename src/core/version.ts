@@ -105,9 +105,9 @@ export const downloadUpdate = () => {
     versionActions.setProgress({ total, current })
   }).then(() => {
     versionActions.setVersionInfo({ status: 'downloaded' })
-  }).catch(() => {
+  }).catch((err) => {
     versionActions.setVersionInfo({ status: 'error' })
-    // console.log(err)
+    console.log('downloadUpdate failed:', err)
   })
 }
 

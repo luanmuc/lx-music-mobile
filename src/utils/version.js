@@ -1,6 +1,6 @@
 import { httpGet } from '@/utils/request'
 import { author, name } from '../../package.json'
-import { downloadFile, stopDownload, temporaryDirectoryPath } from '@/utils/fs'
+import { downloadFile, stat, stopDownload, temporaryDirectoryPath } from '@/utils/fs'
 import { getSupportedAbis, installApk } from '@/utils/nativeModules/utils'
 import { APP_PROVIDER_NAME } from '@/config/constant'
 
@@ -56,23 +56,40 @@ const getNpmPkgInfo = async(url) => {
   })
 }
 
-export const getVersionInfo = async(index = 0) => {
-  const [url, source] = address[index]
-  let promise
-  switch (source) {
-    case 'direct':
-      promise = getDirectInfo(url)
-      break
-    case 'npm':
-      promise = getNpmPkgInfo(url)
-      break
+// 版本比较（支持构建序号 bN）：主版本逐段比较，相同则比较 b 序号
+const compareVersion = (a, b) => {
+  const parse = (s) => {
+    const [main, build] = String(s).split('-')
+    const nums = (main || '').split('.').map(n => Number.parseInt(n, 10) || 0)
+    const buildNum = build ? (Number.parseInt(build.replace(/[^0-9]/g, ''), 10) || 0) : 0
+    return { nums, buildNum }
   }
+  const c = parse(a)
+  const t = parse(b)
+  const len = Math.max(c.nums.length, t.nums.length)
+  for (let i = 0; i < len; i++) {
+    const cn = c.nums[i] || 0
+    const tn = t.nums[i] || 0
+    if (cn > tn) return 1
+    if (cn < tn) return -1
+  }
+  return c.buildNum - t.buildNum
+}
 
-  return promise.catch(async(err) => {
-    index++
-    if (index >= address.length) throw err
-    return getVersionInfo(index)
+// 并行请求所有源，取版本号最高的结果（避免镜像同步延迟时拿到旧版本）
+// 全部失败才抛错，交由上层 30s 总超时兜底
+export const getVersionInfo = async() => {
+  const tasks = address.map(async([url, source]) => {
+    try {
+      return source === 'npm' ? await getNpmPkgInfo(url) : await getDirectInfo(url)
+    } catch (err) {
+      console.log('version source failed:', url, err?.message || err)
+      return null
+    }
   })
+  const results = (await Promise.all(tasks)).filter(Boolean)
+  if (!results.length) throw new Error('getVersionInfo failed')
+  return results.reduce((best, cur) => (compareVersion(cur.version, best.version) > 0 ? cur : best))
 }
 
 const getTargetAbi = async() => {
@@ -127,6 +144,9 @@ export const downloadNewVersion = async(version, onDownload = noop) => {
     try {
       await promise
       downloadJobId = null
+      // 完整性校验：下载内容过小视为失败（防 404 页/断连残片被直接安装导致"解析包错误"）
+      const fileStat = await stat(savePath)
+      if (fileStat.size < 5 * 1024 * 1024) throw new Error(`apk file too small: ${fileStat.size}`)
       apkSavePath = savePath
       return updateApp()
     } catch (err) {

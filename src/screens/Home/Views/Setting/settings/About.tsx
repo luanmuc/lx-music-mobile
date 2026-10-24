@@ -10,6 +10,7 @@ import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { showPactModal } from '@/core/common'
+import { checkUpdate } from '@/core/version'
 import { getPlayCount } from '@/core/player/playCount'
 
 const formatPlayTime = (seconds: number) => {
@@ -82,6 +83,14 @@ export default memo(() => {
         <Text style={styles.text} >本软件完全免费，代码已开源。开源地址：</Text>
         <TouchableOpacity onPress={openHomePage}>
           <Text style={textLinkStyle}>https://github.com/luanmuc/lx-music-mobile</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.part}>
+        <Text style={styles.text}>当前版本：</Text>
+        <Text style={styles.boldText}>{process.versions.app}</Text>
+        <Text style={styles.text}>　</Text>
+        <TouchableOpacity onPress={() => void checkUpdate()}>
+          <Text style={textLinkStyle}>检查更新</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.part}>

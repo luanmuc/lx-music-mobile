@@ -1,8 +1,8 @@
 import { memo } from 'react'
 
 import Section from '../components/Section'
-import Source from '../Basic/Source'
-import SourceName from '../Basic/SourceName'
+import Source from './Basic/Source'
+import SourceName from './Basic/SourceName'
 import { useI18n } from '@/lang'
 
 // 自定义音源：首页直接展开（不做二级分组）

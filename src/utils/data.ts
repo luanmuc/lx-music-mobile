@@ -574,10 +574,13 @@ export const removeUserApi = async(ids: string[]) => {
   if (!userApis) return []
   const _ids: string[] = []
   for (let index = userApis.length - 1; index > -1; index--) {
-    if (ids.includes(userApis[index].id)) {
-      _ids.push(`${userApiPrefix}${userApis[index].id}`)
+    const target = userApis[index]
+    if (ids.includes(target.id)) {
+      _ids.push(`${userApiPrefix}${target.id}`)
       userApis.splice(index, 1)
-      ids.splice(index, 1)
+      // 按值从传入 ids 中移除对应 id（避免用全局数组索引 splice 误删/污染调用方数组）
+      const i = ids.indexOf(target.id)
+      if (i > -1) ids.splice(i, 1)
     }
   }
   await saveData(userApiPrefix, userApis)

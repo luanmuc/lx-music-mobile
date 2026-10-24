@@ -33,8 +33,8 @@ const defaultSetting: LX.AppSetting = {
   'player.isShowLyricRoma': true,
   'player.isShowNotificationImage': true,
   'player.isS2t': false,
-  'player.isShowBluetoothLyric': false,
-  'player.isShowBluetoothFullLyric': false,
+  'player.isShowBluetoothLyric': true, // 显示蓝牙歌词（用户要求按截图默认开启）
+  'player.isShowBluetoothFullLyric': true, // 显示完整蓝牙歌词（用户要求按截图默认开启）
   'player.isShowNotificationLyric': false, // 通知栏标题显示当前歌词（默认关，需要时手动开）
   'player.keepScreenAwake': true, // 播放页屏幕常亮（借鉴 MusicFree）
 

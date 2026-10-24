@@ -1,5 +1,5 @@
 import { memo, useState, useCallback } from 'react'
-import { FlatList, TouchableOpacity, View, ScrollView } from 'react-native'
+import { TouchableOpacity, View, ScrollView } from 'react-native'
 
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
@@ -7,22 +7,22 @@ import Text from '@/components/common/Text'
 import { Icon } from '@/components/common/Icon'
 import { useI18n } from '@/lang'
 import { useBackHandler } from '@/utils/hooks/useBackHandler'
-import { SETTING_SCREENS, type SettingScreenIds } from '../Main'
+import type { SettingScreenIds } from '../Main'
 import GroupBasic from '../settings/Basic'
 import GroupPlayer from '../settings/Player'
 import GroupLyricDesktop from '../settings/LyricDesktop'
 import GroupSearch from '../settings/Search'
 import GroupList from '../settings/List'
-import GroupSync from '../settings/Sync'
-import GroupBackup from '../settings/Backup'
 import GroupCleanCache from '../settings/CleanCache'
-import GroupOther from '../settings/Other'
-import GroupVersion from '../settings/Version'
 import GroupAbout from '../settings/About'
+import CustomSource from '../settings/CustomSource'
+import Version from '../settings/Version'
 
-// 竖屏（手机）设置页：二级结构
-// 第一层：分组列表（设置首页，一眼看到全部类型）
-// 第二层：点击进入对应分组，只显示该分组内容，可返回
+// 竖屏（手机）设置页：二级结构 + 首页直接展开区
+// 第一层：分组列表（点击进入二级页），自定义音源 / 软件更新直接在首页展开
+// 第二层：分组详情页（返回条在右上角）
+const GROUP_LIST: SettingScreenIds[] = ['basic', 'player', 'lyric_desktop', 'search', 'list', 'clean_cache', 'about']
+
 export default memo(() => {
   const theme = useTheme()
   const t = useI18n()
@@ -37,39 +37,39 @@ export default memo(() => {
     return false
   }, [activeId]))
 
-  const renderGroupItem = useCallback(({ item }: { item: SettingScreenIds }) => {
-    return (
-      <TouchableOpacity
-        style={{ ...styles.listItem, borderBottomColor: theme['c-border-background'] }}
-        onPress={() => setActiveId(item)}
-        activeOpacity={0.6}
-      >
-        <Text size={15} color={theme['c-font']}>{t(`setting_${item}`)}</Text>
-        <Icon style={styles.listItemIcon} color={theme['c-font-sub']} name="chevron-right" size={14} />
-      </TouchableOpacity>
-    )
-  }, [theme, t])
-
   if (activeId == null) {
-    // 第一层：分组列表
+    // 首页：分组列表 + 自定义音源/软件更新直接展开
     return (
-      <FlatList
-        style={styles.list}
-        data={SETTING_SCREENS}
-        keyExtractor={(item) => item}
-        renderItem={renderGroupItem}
-        ItemSeparatorComponent={() => <View style={{ height: 1, backgroundColor: theme['c-border-background'] }} />}
-      />
+      <ScrollView style={styles.page} keyboardShouldPersistTaps={'always'}>
+        {GROUP_LIST.map((item, index) => (
+          <TouchableOpacity
+            key={item}
+            style={{ ...styles.listItem, borderBottomColor: theme['c-border-background'] }}
+            onPress={() => setActiveId(item)}
+            activeOpacity={0.6}
+          >
+            <Text size={15} color={theme['c-font']}>{t(`setting_${item}`)}</Text>
+            <Icon style={styles.listItemIcon} color={theme['c-font-sub']} name="chevron-right" size={14} />
+            {index == GROUP_LIST.length - 1 ? null : null}
+          </TouchableOpacity>
+        ))}
+        <View style={styles.expandBlock}>
+          <CustomSource />
+          <Version />
+        </View>
+      </ScrollView>
     )
   }
 
-  // 第二层：分组内容 + 返回条
+  // 第二层：分组内容 + 返回条（右上角）
   return (
-    <ScrollView style={styles.detail} keyboardShouldPersistTaps={'always'}>
-      <TouchableOpacity style={styles.backBar} onPress={() => setActiveId(null)} activeOpacity={0.6}>
-        <Icon style={styles.backIcon} color={theme['c-primary']} name="chevron-left" size={16} />
-        <Text size={14} color={theme['c-primary']}>{t('back')}</Text>
-      </TouchableOpacity>
+    <ScrollView style={styles.page} keyboardShouldPersistTaps={'always'}>
+      <View style={styles.backBar}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => setActiveId(null)} activeOpacity={0.6}>
+          <Icon style={styles.backIcon} color={theme['c-primary']} name="chevron-left" size={16} />
+          <Text size={14} color={theme['c-primary']}>{t('back')}</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.detailContent}>
         <SettingGroup id={activeId} />
       </View>
@@ -83,11 +83,7 @@ const SettingGroup = memo(({ id }: { id: SettingScreenIds }) => {
     case 'lyric_desktop': return <GroupLyricDesktop />
     case 'search': return <GroupSearch />
     case 'list': return <GroupList />
-    case 'sync': return <GroupSync />
-    case 'backup': return <GroupBackup />
     case 'clean_cache': return <GroupCleanCache />
-    case 'other': return <GroupOther />
-    case 'version': return <GroupVersion />
     case 'about': return <GroupAbout />
     case 'basic':
     default: return <GroupBasic />
@@ -95,7 +91,7 @@ const SettingGroup = memo(({ id }: { id: SettingScreenIds }) => {
 })
 
 const styles = createStyle({
-  list: {
+  page: {
     flex: 1,
   },
   listItem: {
@@ -109,15 +105,25 @@ const styles = createStyle({
   listItemIcon: {
     marginLeft: 4,
   },
-  detail: {
-    flex: 1,
+  expandBlock: {
+    marginTop: 12,
+    marginBottom: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
   },
   backBar: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 10,
+    justifyContent: 'flex-end', // 返回条靠右（右上角）
+    paddingRight: 12,
     paddingTop: 8,
-    paddingBottom: 8,
+    paddingBottom: 4,
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 8,
+    paddingRight: 4,
+    paddingVertical: 4,
   },
   backIcon: {
     marginRight: 2,

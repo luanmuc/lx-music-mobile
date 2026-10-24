@@ -61,5 +61,11 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['playDetail.isShowLyricProgressSetting'] = true
   }
 
+  // 按用户确认的播放设置：蓝牙歌词 / 完整蓝牙歌词 默认开启（老版本升级后自动勾选）
+  if (compareVer(setting.version as string, '1.9.1-b37') < 0) {
+    setting['player.isShowBluetoothLyric'] = true
+    setting['player.isShowBluetoothFullLyric'] = true
+  }
+
   return setting
 }

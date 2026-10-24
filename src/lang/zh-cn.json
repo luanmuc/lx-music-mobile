@@ -534,5 +534,6 @@
   "setting_clean_cache_all": "一键清理全部缓存",
   "setting_clean_cache_url": "歌曲链接缓存",
   "setting_clean_cache_lyric": "歌词缓存",
-  "setting_clean_cache_other_source": "其他音源缓存"
+  "setting_clean_cache_other_source": "其他音源缓存",
+  "setting_custom_source": "自定义音源"
 }

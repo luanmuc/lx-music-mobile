@@ -534,5 +534,6 @@
   "setting_clean_cache_all": "Clear All Cache",
   "setting_clean_cache_url": "Music URL Cache",
   "setting_clean_cache_lyric": "Lyric Cache",
-  "setting_clean_cache_other_source": "Other Source Cache"
+  "setting_clean_cache_other_source": "Other Source Cache",
+  "setting_custom_source": "Custom Source"
 }

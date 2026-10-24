@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b34",
+  "version": "1.9.1-b35",
   "desc": "- 内置豆包定制聚合音源（lx-source.js 最新版）",
   "history": [
+    {
+      "version": "1.9.1-b34",
+      "desc": "- 内置豆包定制聚合音源（lx-source.js 最新版）"
+    },
     {
       "version": "1.9.1-b32",
       "desc": "- 内置豆包定制聚合音源（lx-source.js 最新版）"
@@ -20,10 +24,6 @@
     },
     {
       "version": "1.9.1-b27",
-      "desc": "- 内置豆包定制聚合音源（lx-source.js 最新版）"
-    },
-    {
-      "version": "1.9.1-b26",
       "desc": "- 内置豆包定制聚合音源（lx-source.js 最新版）"
     }
   ]

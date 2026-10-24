@@ -9,6 +9,7 @@ import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
 import Text from '@/components/common/Text'
 import QualitySwitch from '@/components/player/QualitySwitch'
 import { getSourceName } from '@/components/player/SourceName'
+import playerState from '@/store/player/state'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { HEADER_HEIGHT as _HEADER_HEIGHT, NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import commonState from '@/store/common/state'
@@ -23,6 +24,9 @@ const Title = () => {
   const theme = useTheme()
   const musicInfo = usePlayerMusicInfo()
   const playQuality = usePlayQuality()
+  // 平台名取完整播放对象（usePlayerMusicInfo 为简化字段，无 source）
+  const curInfo = playerState.playMusicInfo.musicInfo
+  const sourceName = !!curInfo && !('progress' in curInfo) ? getSourceName((curInfo as LX.Music.MusicInfoOnline).source) : ''
 
 
   return (
@@ -31,7 +35,7 @@ const Title = () => {
         <Text numberOfLines={1} style={styles.title} size={14}>{musicInfo.name}</Text>
         <QualitySwitch quality={playQuality} />
       </View>
-      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{[getSourceName(musicInfo.source), musicInfo.singer].filter(Boolean).join(' · ')}</Text>
+      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{[sourceName, musicInfo.singer].filter(Boolean).join(' · ')}</Text>
     </View>
   )
 }

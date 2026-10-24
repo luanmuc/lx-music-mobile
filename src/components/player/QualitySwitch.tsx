@@ -8,7 +8,7 @@ import { FULL_QUALITYS_LIST, TRY_QUALITYS_LIST } from '@/core/music/utils'
 import { updateSetting } from '@/core/common'
 import { setMusicUrl } from '@/core/player/player'
 import QualityText from './QualityText'
-import { usePlayerMusicInfo } from '@/store/player/hook'
+import playerState from '@/store/player/state'
 
 const QUALITY_NAMES: Record<string, string> = {
   flac24bit: 'Hi-Res 无损',
@@ -23,16 +23,17 @@ const QUALITY_NAMES: Record<string, string> = {
 // 播放页音质标签：点击弹出音质选择，切换后按新音质重新加载当前歌曲
 export default memo(({ quality }: { quality: string }) => {
   const theme = useTheme()
-  const musicInfo = usePlayerMusicInfo()
   const popupRef = useRef<PopupType>(null)
   const [visible, setVisible] = useState(false)
   const [list, setList] = useState<LX.Quality[]>([])
   const [selected, setSelected] = useState<LX.Quality>('128k')
 
   const show = () => {
-    if (!musicInfo) return
+    // 使用完整播放对象（含 meta），usePlayerMusicInfo 只有简化字段
+    const musicInfo = playerState.playMusicInfo.musicInfo
+    if (!musicInfo || 'progress' in musicInfo) return
     // 仅在线歌曲支持切换音质；本地歌曲（meta 无 _qualitys）点击无操作
-    const meta = musicInfo.meta
+    const meta = (musicInfo as LX.Music.MusicInfoOnline).meta
     if (!meta || !('_qualitys' in meta)) return
     const supported = meta._qualitys as Record<string, boolean>
     const available = FULL_QUALITYS_LIST.filter(q => supported[q])
@@ -46,6 +47,7 @@ export default memo(({ quality }: { quality: string }) => {
   }
 
   const handleConfirm = () => {
+    const musicInfo = playerState.playMusicInfo.musicInfo
     if (!musicInfo) return
     // 更新全局播放音质设置，并按新音质重新获取/播放当前歌曲
     updateSetting({ 'player.playQuality': selected })

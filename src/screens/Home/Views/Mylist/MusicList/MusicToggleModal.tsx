@@ -22,6 +22,9 @@ import { playNext } from '@/core/player/player'
 type FlatListProps = _FlatListProps<LX.Music.MusicInfoOnline>
 const ITEM_HEIGHT = scaleSizeH(56)
 
+// 内置支持的 5 个平台（按需搜索，点击 Tab 才请求该平台）
+const TAGS: LX.OnlineSource[] = ['kw', 'kg', 'tx', 'wy', 'mg']
+
 
 const Tabs = <T extends LX.OnlineSource>({ list, source, onChangeSource }: {
   list: T[]
@@ -299,7 +302,7 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
     lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>>
     loading: boolean
     error: boolean
-  }>({ sourceInfo: [], lists: {}, loading: false, error: false })
+  }>({ sourceInfo: TAGS, lists: {}, loading: false, error: false })
   const [source, setSource] = useState<LX.OnlineSource | ''>('')
   const dialogRef = useRef<DialogType>(null)
   const isUnmountedRef = useUnmounted()
@@ -312,34 +315,34 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
     if (isPlaying) void playNext()
   }, [])
 
-  const loadData = useCallback((selectInfo: SelectInfo = infoRef.current) => {
-    setSourceInfo({ sourceInfo: [], lists: {}, loading: true, error: false })
-    searchMusic({
-      name: selectInfo.musicInfo.name,
-      singer: selectInfo.musicInfo.singer,
-      source: '',
-    }).then((result: Array<{ source: LX.OnlineSource, list: LX.Music.MusicInfoOnline[] }>) => {
+  // 按需搜索单个平台（点 Tab 才搜索该平台），避免打开弹窗即全平台 5 路并发请求
+  const loadSource = useCallback(async(source: LX.OnlineSource, selectInfo: SelectInfo = infoRef.current) => {
+    setSourceInfo(prev => ({ ...prev, loading: true, error: false }))
+    try {
+      const result = await searchMusic({
+        name: selectInfo.musicInfo.name,
+        singer: selectInfo.musicInfo.singer,
+        source,
+      })
       if (isUnmountedRef.current) return
-      const tags: LX.OnlineSource[] = []
-      const lists: Partial<Record<LX.OnlineSource, LX.Music.MusicInfoOnline[]>> = {}
-      for (const s of result) {
-        tags.push(s.source)
-        lists[s.source] = s.list.map(s => toNewMusicInfo(s) as LX.Music.MusicInfoOnline)
-      }
-      setSourceInfo({ sourceInfo: tags, lists, loading: false, error: false })
-      if (tags.length) setSource(tags[0])
-    }).catch(() => {
+      const list = result.length ? result[0].list.map(s => toNewMusicInfo(s) as LX.Music.MusicInfoOnline) : []
+      setSourceInfo(prev => ({ ...prev, lists: { ...prev.lists, [source]: list }, loading: false, error: false }))
+    } catch (err) {
+      console.log('toggle source search fail', source, err)
       if (isUnmountedRef.current) return
-      setSourceInfo({ ...sourceInfo, error: true })
-    })
-  }, [isUnmountedRef, sourceInfo])
+      setSourceInfo(prev => ({ ...prev, loading: false, error: true }))
+    }
+  }, [isUnmountedRef])
+
   useImperativeHandle(ref, () => ({
     show(info) {
       infoRef.current = info
-      setSource('')
-      loadData(info)
+      setSource(TAGS[0])
+      setSourceInfo({ sourceInfo: TAGS, lists: {}, loading: false, error: false })
       requestAnimationFrame(() => {
         dialogRef.current?.setVisible(true)
+        // 默认自动搜索第一个平台，其余平台点击 Tab 时再搜
+        requestAnimationFrame(() => loadSource(TAGS[0], info))
       })
     },
   }))
@@ -358,7 +361,10 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
                 <Tabs
                   list={sourceInfo.sourceInfo}
                   source={source}
-                  onChangeSource={setSource}
+                  onChangeSource={(s) => {
+                    setSource(s)
+                    if (!sourceInfo.lists[s]) void loadSource(s)
+                  }}
                 />
                 <List
                   source={source}
@@ -366,7 +372,7 @@ const Modal = forwardRef<ModalType, {}>((props, ref) => {
                   onPlay={handlePlay}
                 />
               </>)
-            : <Empty loading={sourceInfo.loading} error={sourceInfo.error} onReload={loadData} />
+            : <Empty loading={sourceInfo.loading} error={sourceInfo.error} onReload={() => source && void loadSource(source)} />
         }
         <SourceDetail info={infoRef.current.musicInfo} onConfirm={confirmToggleSource} toggleSource={toggleSource} />
       </View>

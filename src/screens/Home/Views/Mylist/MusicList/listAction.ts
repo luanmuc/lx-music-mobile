@@ -1,6 +1,7 @@
 import { addListMusics, removeListMusics, updateListMusicPosition, updateListMusics } from '@/core/list'
 import { playList, playListById, playNext } from '@/core/player/player'
 import { addTempPlayList } from '@/core/player/tempPlayList'
+import { LIST_IDS } from '@/config/constant'
 import settingState from '@/store/setting/state'
 import { similar, sortInsert, toOldMusicInfo } from '@/utils'
 import { confirmDialog, openUrl, shareMusic, toast } from '@/utils/tools'
@@ -149,7 +150,9 @@ export const handleToggleSource = async(listId: string, musicInfo: LX.Music.Musi
   const oldId = musicInfo.id
   let oldIdx = list.findIndex(m => m.id == oldId)
   if (oldIdx < 0) {
-    void addListMusics(listId, [toggleMusicInfo], settingState.setting['list.addMusicLocationType'])
+    // 当前列表不存在（如正在播放"稍后播放"）时，确认切换退化为预览播放，避免静默失败
+    addTempPlayList([{ listId: LIST_IDS.PLAY_LATER, musicInfo: toggleMusicInfo, isTop: true }])
+    if (playerState.playMusicInfo.musicInfo) void playNext()
     return true
   }
   const id = toggleMusicInfo.id

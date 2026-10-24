@@ -56,5 +56,10 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['theme.darkId'] = 'black'
   }
 
+  // 播放页「允许通过拖拽歌词调整播放进度」默认开启（用户要求）：老版本升级后自动勾选
+  if (compareVer(setting.version as string, '1.9.1-b31') < 0) {
+    setting['playDetail.isShowLyricProgressSetting'] = true
+  }
+
   return setting
 }

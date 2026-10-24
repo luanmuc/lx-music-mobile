@@ -529,5 +529,10 @@
   "setting_player_keep_screen_awake": "Keep screen awake on player screen",
   "setting_player_show_notification_stop": "Show close button in notification",
   "pic_saved": "Cover saved to gallery",
-  "pic_save_failed": "Failed to save cover"
+  "pic_save_failed": "Failed to save cover",
+  "setting_clean_cache": "Clear Cache",
+  "setting_clean_cache_all": "Clear All Cache",
+  "setting_clean_cache_url": "Music URL Cache",
+  "setting_clean_cache_lyric": "Lyric Cache",
+  "setting_clean_cache_other_source": "Other Source Cache"
 }

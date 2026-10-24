@@ -529,5 +529,10 @@
   "setting_player_keep_screen_awake": "播放页屏幕常亮",
   "setting_player_show_notification_stop": "通知栏显示关闭按钮",
   "pic_saved": "封面已保存到相册",
-  "pic_save_failed": "封面保存失败"
+  "pic_save_failed": "封面保存失败",
+  "setting_clean_cache": "清理缓存",
+  "setting_clean_cache_all": "一键清理全部缓存",
+  "setting_clean_cache_url": "歌曲链接缓存",
+  "setting_clean_cache_lyric": "歌词缓存",
+  "setting_clean_cache_other_source": "其他音源缓存"
 }

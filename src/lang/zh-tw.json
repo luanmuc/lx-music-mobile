@@ -529,5 +529,10 @@
   "setting_player_keep_screen_awake": "播放頁保持螢幕開啟",
   "setting_player_show_notification_stop": "通知欄顯示關閉按鈕",
   "pic_saved": "封面已儲存到相簿",
-  "pic_save_failed": "封面儲存失敗"
+  "pic_save_failed": "封面儲存失敗",
+  "setting_clean_cache": "清理快取",
+  "setting_clean_cache_all": "一鍵清理全部快取",
+  "setting_clean_cache_url": "歌曲連結快取",
+  "setting_clean_cache_lyric": "歌詞快取",
+  "setting_clean_cache_other_source": "其他音源快取"
 }

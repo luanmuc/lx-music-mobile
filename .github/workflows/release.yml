@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    # 排除 publish 目录：CI 自动提交版本信息文件时不触发新的构建（防循环）
+    paths-ignore:
+      - 'publish/**'
   workflow_dispatch: {}
 
 # 仓库默认 GITHUB_TOKEN 为只读：下载 artifact 需 actions:read，创建 Release 需 contents:write
@@ -98,3 +101,61 @@ jobs:
             artifacts/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update publish version.json
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RUN_NUMBER=${{ github.run_number }}
+          VER="${PACKAGE_VERSION}-b${RUN_NUMBER}"
+          python3 - <<'PYEOF'
+import json, os
+old = {}
+try:
+    with open('publish/version.json', encoding='utf-8') as f:
+        old = json.load(f)
+except Exception:
+    old = {}
+
+# 更新内容段（changeLog.md 中 ### 更新内容 到 ### File MD5 之间的部分）
+desc = ''
+try:
+    lines = open('publish/changeLog.md', encoding='utf-8').read().splitlines()
+    capture = False
+    parts = []
+    for line in lines:
+        if line.strip() == '### 更新内容':
+            capture = True
+            continue
+        if line.strip() == '### File MD5':
+            break
+        if capture and line.strip():
+            parts.append(line.strip())
+    desc = '\n'.join(parts)
+except Exception:
+    pass
+
+# 累积历史（保留最近 6 条，新版本在前）
+history = old.get('history', []) if isinstance(old.get('history', []), list) else []
+if old.get('version') and old.get('version') != VER:
+    history = [{'version': old['version'], 'desc': old.get('desc', '')}] + history
+history = history[:6]
+
+data = {
+    'version': VER,
+    'desc': desc,
+    'history': history,
+}
+with open('publish/version.json', 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+print('version.json ->', json.dumps(data, ensure_ascii=False))
+PYEOF
+
+      - name: Commit version.json
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          VER="${PACKAGE_VERSION}-b${{ github.run_number }}"
+          git config user.name "luanmuc"
+          git config user.email "luanmuc@users.noreply.github.com"
+          git add publish/version.json
+          git commit -m "chore: 更新版本信息 v${VER}" || echo "无改动，跳过提交"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master || echo "推送失败（后续发布不影响已完成的 Release）"

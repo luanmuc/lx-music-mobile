@@ -86,37 +86,56 @@ let downloadJobId = null
 const noop = (total, download) => {}
 let apkSavePath
 
+// APK 下载地址列表：GitHub 直连 + 加速镜像，按顺序尝试，失败自动切换下一个
+const getApkUrlList = (version, abi) => {
+  const base = `https://github.com/${author.name}/${name}/releases/download/v${version}/${name}-v${version}-${abi}.apk`
+  return [
+    base,
+    `https://gh-proxy.com/${base}`,
+    `https://ghfast.top/${base}`,
+  ]
+}
+
 export const downloadNewVersion = async(version, onDownload = noop) => {
   const abi = await getTargetAbi()
-  const url = `https://github.com/${author.name}/${name}/releases/download/v${version}/${name}-v${version}-${abi}.apk`
-  let savePath = temporaryDirectoryPath + '/lx-music-mobile.apk'
+  const urlList = getApkUrlList(version, abi)
+  const savePath = temporaryDirectoryPath + '/lx-music-mobile.apk'
+  let lastErr = null
 
-  if (downloadJobId) stopDownload(downloadJobId)
-
-  const { jobId, promise } = downloadFile(url, savePath, {
-    progressInterval: 500,
-    connectionTimeout: 20000,
-    readTimeout: 30000,
-    begin({ statusCode, contentLength }) {
-      onDownload(contentLength, 0)
-      // switch (statusCode) {
-      //   case 200:
-      //   case 206:
-      //     break
-      //   default:
-      //     onDownload(null, contentLength, 0)
-      //     break
-      // }
-    },
-    progress({ contentLength, bytesWritten }) {
-      onDownload(contentLength, bytesWritten)
-    },
-  })
-  downloadJobId = jobId
-  return promise.then(() => {
-    apkSavePath = savePath
-    return updateApp()
-  })
+  for (const url of urlList) {
+    if (downloadJobId) stopDownload(downloadJobId)
+    const { jobId, promise } = downloadFile(url, savePath, {
+      progressInterval: 500,
+      connectionTimeout: 20000,
+      readTimeout: 30000,
+      begin({ statusCode, contentLength }) {
+        onDownload(contentLength, 0)
+        // switch (statusCode) {
+        //   case 200:
+        //   case 206:
+        //     break
+        //   default:
+        //     onDownload(null, contentLength, 0)
+        //     break
+        // }
+      },
+      progress({ contentLength, bytesWritten }) {
+        onDownload(contentLength, bytesWritten)
+      },
+    })
+    downloadJobId = jobId
+    try {
+      await promise
+      downloadJobId = null
+      apkSavePath = savePath
+      return updateApp()
+    } catch (err) {
+      console.log('downloadNewVersion failed:', url, err)
+      lastErr = err
+    }
+  }
+  downloadJobId = null
+  throw lastErr || new Error('apk download failed')
 }
 
 export const updateApp = async() => {

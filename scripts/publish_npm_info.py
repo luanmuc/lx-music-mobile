@@ -57,5 +57,8 @@ env = dict(os.environ)
 env['npm_config_registry'] = 'https://registry.npmjs.org'
 result = subprocess.run(['npm', 'publish', '--publish-tag=latest'], cwd=pkg_dir, env=env)
 if result.returncode != 0:
-    raise SystemExit('npm publish failed')
-print('npm published:', pkg['name'], pkg['version'], '| versionInfo.version =', vi.get('version'))
+    # 容错：token 过期/网络异常时不阻塞 Release（GitHub raw/jsdelivr 源仍正常提供版本信息）
+    print('WARNING: npm publish 失败（可能 NPM_TOKEN 过期），本次 Release 不受影响；')
+    print('        npm 版本信息通道未更新，需在 token 到期前更换 GitHub secret NPM_TOKEN。')
+else:
+    print('npm published:', pkg['name'], pkg['version'], '| versionInfo.version =', vi.get('version'))

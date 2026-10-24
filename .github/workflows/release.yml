@@ -25,14 +25,18 @@ jobs:
       - name: Download latest music source
         run: |
           echo "Downloading latest music source (lx-source.js)..."
-          # -f: HTTP 4xx/5xx 即失败退出，避免静默写入错误页导致内置源损坏
+          # 使用 GitHub Contents API（Accept: raw）获取音源仓库 master 最新内容，
+          # 绕过 raw.githubusercontent.com 的 CDN 缓存，确保每次编译都拉到最新提交
           curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
-            "https://raw.githubusercontent.com/luanmuc/lx-music-source/master/lx-source.js" \
+            -H "Accept: application/vnd.github.raw" \
+            "https://api.github.com/repos/luanmuc/lx-music-source/contents/lx-source.js" \
             -o android/app/src/main/assets/builtin_source.js
           # 内容校验：文件须大于50KB且含 @name 标记（第一行为 /*! 注释符，取前5行匹配）
           [ "$(stat -c%s android/app/src/main/assets/builtin_source.js)" -gt 50000 ] || { echo "音源文件过小"; exit 1; }
           head -5 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
           ls -lh android/app/src/main/assets/builtin_source.js
+          # 输出音源版本行（便于每次构建核对是否已拉到最新版）
+          grep -o "豆包定制聚合音源 v[0-9.]*" android/app/src/main/assets/builtin_source.js | head -1
           head -2 android/app/src/main/assets/builtin_source.js
 
       - name: Setup Env

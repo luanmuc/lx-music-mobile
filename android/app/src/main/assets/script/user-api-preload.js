@@ -222,13 +222,20 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
         let result
         switch (data.action) {
           case 'musicUrl':
-            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response)) throw new Error('failed')
+            // 兼容两种返回：字符串 URL（旧音源）；{url, type} 对象（v11.13+ 音源携带实际交付音质）
+            let musicUrl = response
+            let actualType = data.info.type
+            if (typeof response === 'object' && response !== null && typeof response.url === 'string') {
+              musicUrl = response.url
+              if (typeof response.type === 'string') actualType = response.type
+            }
+            if (typeof musicUrl != 'string' || musicUrl.length > 2048 || !/^https?:/.test(musicUrl)) throw new Error('failed')
             result = {
               source: data.source,
               action: data.action,
               data: {
-                type: data.info.type,
-                url: response,
+                type: actualType,
+                url: musicUrl,
               },
             }
             break

@@ -27,7 +27,7 @@ const address = [
 const request = async(url, retryNum = 0) => {
   return new Promise((resolve, reject) => {
     httpGet(url, {
-      timeout: 8000,
+      timeout: 5000,
     }, (err, resp, body) => {
       if (err || resp.statusCode != 200) {
         // 快速失败切换源：每源最多重试 1 次，避免长时间卡在"检查更新中"

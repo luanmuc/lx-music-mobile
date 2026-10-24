@@ -45,7 +45,12 @@ export const checkUpdate = async() => {
   versionActions.setVersionInfo({ status: 'checking' })
   let versionInfo: InitState['versionInfo'] = { ...versionState.versionInfo }
   try {
-    const { version, desc, history } = await getVersionInfo()
+    // 总超时兜底：30 秒内未完成视为失败，避免网络异常时无限卡在"检查更新中"
+    const versionInfoPromise = getVersionInfo()
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('timeout')), 30000)
+    })
+    const { version, desc, history } = await Promise.race([versionInfoPromise, timeoutPromise])
     versionInfo.newVersion = {
       version,
       desc,
@@ -69,7 +74,8 @@ export const checkUpdate = async() => {
   } else {
     versionInfo.status = 'idle'
     versionInfo.isUnknown = false
-    if (compareVerWithBuild(versionInfo.version, versionInfo.newVersion.version) != -1) {
+    // 用真实构建版本（process.versions.app，含 b 序号）比较，避免 1.9.1 恒小于 1.9.1-bN 导致永远提示更新
+    if (compareVerWithBuild(process.versions.app, versionInfo.newVersion.version) != -1) {
       versionInfo.isLatest = true
     }
   }

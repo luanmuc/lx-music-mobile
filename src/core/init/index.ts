@@ -13,6 +13,7 @@ import commonActions from '@/store/common/action'
 import settingState from '@/store/setting/state'
 import { bootLog } from '@/utils/bootLog'
 import { cheatTip } from '@/utils/tools'
+import { checkUpdate } from '@/core/version'
 
 let isFirstPush = true
 const handlePushedHomeScreen = async() => {
@@ -20,8 +21,8 @@ const handlePushedHomeScreen = async() => {
   if (settingState.setting['common.isAgreePact']) {
     if (isFirstPush) {
       isFirstPush = false
-      // 暂时关闭自动更新检查，等有正式发布版本再打开
-      // void checkUpdate()
+      // 启动自动检查更新：有新版本时弹窗提示（与原版一致）
+      void checkUpdate()
       void initDeeplink()
     }
   } else {

@@ -98,8 +98,8 @@ def getNpmPackageJson() {
     return packageJson
 }
 def npmPackageJson = getNpmPackageJson()
-def verCode = npmPackageJson["versionCode"]
-def verName = npmPackageJson["version"]
+def verCode = (System.getenv("APP_VERSION_CODE") ?: npmPackageJson["versionCode"]) as Integer
+def verName = System.getenv("APP_VERSION_NAME") ?: npmPackageJson["version"]
 def applicationName = npmPackageJson["name"]
 
 android {

@@ -1,4 +1,5 @@
 import { version } from '../../package.json'
+import { buildNumber } from './buildNumber'
 import { createAppEventHub } from '@/event/appEvent'
 import { createListEventHub } from '@/event/listEvent'
 import { createDislikeEventHub } from '@/event/dislikeEvent'
@@ -6,9 +7,10 @@ import { createStateEventHub } from '@/event/stateEvent'
 if (process.versions == null) {
   // @ts-expect-error
   process.versions = {
-    app: version,
+    // 显示真实构建版本：如 1.9.1-b13（CI 注入 buildNumber，本地开发为空则显示 1.9.1）
+    app: buildNumber ? `${version}-${buildNumber}` : version,
   }
-} else process.versions.app = version
+} else process.versions.app = buildNumber ? `${version}-${buildNumber}` : version
 
 // global.i18n = null
 

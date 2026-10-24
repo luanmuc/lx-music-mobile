@@ -43,6 +43,13 @@ jobs:
           DISABLE_SVG: 1
         shell: bash
         run: |
+          # 每次构建注入唯一版本标识：versionName=1.9.1-b<run>、versionCode 递增
+          # （build.gradle 支持 env 覆盖，package.json 保持 1.9.1 不变以维持 release tag 逻辑）
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          export APP_VERSION_NAME="${PACKAGE_VERSION}-b${GITHUB_RUN_NUMBER}"
+          export APP_VERSION_CODE=$((80 + GITHUB_RUN_NUMBER))
+          echo "export const buildNumber = 'b${GITHUB_RUN_NUMBER}'" > src/config/buildNumber.ts
+          echo "构建版本: ${APP_VERSION_NAME} (versionCode ${APP_VERSION_CODE})"
           cd android
           # release 变体自动打包 JS bundle（debug 变体不含 bundle，安装后无法独立运行）；
           # 无 secrets 时签名自动降级为 debug.keystore（build.gradle 已配置），可正常安装

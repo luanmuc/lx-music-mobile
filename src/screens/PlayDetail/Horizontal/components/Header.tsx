@@ -5,9 +5,8 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { Icon } from '@/components/common/Icon'
 import { pop } from '@/navigation'
 import { useTheme } from '@/store/theme/hook'
-import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
+import { usePlayerMusicInfo } from '@/store/player/hook'
 import Text from '@/components/common/Text'
-import QualitySwitch from '@/components/player/QualitySwitch'
 import { getSourceName } from '@/components/player/SourceName'
 import playerState from '@/store/player/state'
 import { scaleSizeH } from '@/utils/pixelRatio'
@@ -23,7 +22,6 @@ export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
 const Title = () => {
   const theme = useTheme()
   const musicInfo = usePlayerMusicInfo()
-  const playQuality = usePlayQuality()
   // 平台名取完整播放对象（usePlayerMusicInfo 为简化字段，无 source）
   const curInfo = playerState.playMusicInfo.musicInfo
   const sourceName = !!curInfo && !('progress' in curInfo) ? getSourceName((curInfo as LX.Music.MusicInfoOnline).source) : ''
@@ -33,7 +31,6 @@ const Title = () => {
     <View style={styles.titleContent}>
       <View style={styles.titleRow}>
         <Text numberOfLines={1} style={styles.title} size={14}>{musicInfo.name}</Text>
-        <QualitySwitch quality={playQuality} />
       </View>
       <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{[sourceName, musicInfo.singer].filter(Boolean).join(' · ')}</Text>
     </View>

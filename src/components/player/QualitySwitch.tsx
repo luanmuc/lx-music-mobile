@@ -7,11 +7,10 @@ import { useTheme } from '@/store/theme/hook'
 import { FULL_QUALITYS_LIST, TRY_QUALITYS_LIST } from '@/core/music/utils'
 import { updateSetting } from '@/core/common'
 import { setMusicUrl } from '@/core/player/player'
-import QualityText from './QualityText'
 import playerState from '@/store/player/state'
 
 const QUALITY_NAMES: Record<string, string> = {
-  flac24bit: 'Hi-Res 无损',
+  flac24bit: 'Hi-Res',
   flac: '无损',
   wav: 'WAV',
   ape: 'APE',
@@ -20,7 +19,7 @@ const QUALITY_NAMES: Record<string, string> = {
   '128k': '128K',
 }
 
-// 播放页音质标签：点击弹出音质选择，切换后按新音质重新加载当前歌曲
+// 播放页音质切换按钮：显示当前实际音质，点击弹出音质选择，切换后按新音质重新加载当前歌曲
 export default memo(({ quality }: { quality: string }) => {
   const theme = useTheme()
   const popupRef = useRef<PopupType>(null)
@@ -60,10 +59,13 @@ export default memo(({ quality }: { quality: string }) => {
     setVisible(false)
   }
 
+  const label = quality ? (QUALITY_NAMES[quality] ?? quality) : '--'
+
   return (
     <View style={styles.wrap}>
-      <TouchableOpacity onPress={show} hitSlop={styles.hitSlop} style={styles.btn}>
-        <QualityText quality={quality} />
+      <TouchableOpacity onPress={show} hitSlop={styles.hitSlop} style={[styles.btn, { backgroundColor: theme['c-primary-alpha-900'] }]} activeOpacity={0.6}>
+        <Text size={14} color={theme['c-primary-font-active']}>{label}</Text>
+        <Text size={14} color={theme['c-primary-font-active']} style={styles.arrow}>▾</Text>
       </TouchableOpacity>
       {
         visible
@@ -116,6 +118,12 @@ const styles = createStyle({
   btn: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+  arrow: {
+    marginLeft: 4,
   },
   hitSlop: { top: 6, bottom: 6, left: 6, right: 6 },
   content: {

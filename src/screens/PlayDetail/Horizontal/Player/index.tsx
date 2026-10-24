@@ -6,6 +6,7 @@ import { createStyle } from '@/utils/tools'
 import { NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import PlayInfo from './PlayInfo'
 import ControlBtn from './ControlBtn'
+import PlayToggleBar from '@/components/player/PlayToggleBar'
 import { marginLeftRaw } from '../constant'
 
 
@@ -13,6 +14,7 @@ export default memo(() => {
   return (
     <View style={styles.container} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_player}>
       <ControlBtn />
+      <PlayToggleBar />
       <PlayInfo />
     </View>
   )

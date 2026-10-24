@@ -45,11 +45,11 @@ export default memo(({ quality }: { quality: string }) => {
     })
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = (quality: LX.Quality = selected) => {
     const musicInfo = playerState.playMusicInfo.musicInfo
     if (!musicInfo) return
     // 更新全局播放音质设置，并按新音质重新获取/播放当前歌曲
-    updateSetting({ 'player.playQuality': selected })
+    updateSetting({ 'player.playQuality': quality })
     void setMusicUrl(musicInfo, true)
     popupRef.current?.setVisible(false)
     setVisible(false)
@@ -85,7 +85,11 @@ export default memo(({ quality }: { quality: string }) => {
                         <TouchableOpacity
                           key={q}
                           style={styles.item}
-                          onPress={() => { setSelected(q) }}
+                          onPress={() => {
+                            // 点一下即切换音质并重新加载当前歌曲（无需单独确认）
+                            setSelected(q)
+                            handleConfirm(q)
+                          }}
                         >
                           <Text
                             size={14}

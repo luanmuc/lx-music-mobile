@@ -55,10 +55,17 @@ with open(os.path.join(pkg_dir, '.npmrc'), 'w') as f:
 
 env = dict(os.environ)
 env['npm_config_registry'] = 'https://registry.npmjs.org'
-result = subprocess.run(['npm', 'publish', '--publish-tag=latest'], cwd=pkg_dir, env=env)
-if result.returncode != 0:
-    # 容错：token 过期/网络异常时不阻塞 Release（GitHub raw/jsdelivr 源仍正常提供版本信息）
-    print('WARNING: npm publish 失败（可能 NPM_TOKEN 过期），本次 Release 不受影响；')
-    print('        npm 版本信息通道未更新，需在 token 到期前更换 GitHub secret NPM_TOKEN。')
-else:
-    print('npm published:', pkg['name'], pkg['version'], '| versionInfo.version =', vi.get('version'))
+result = None
+for attempt in range(3):
+    result = subprocess.run(['npm', 'publish', '--publish-tag=latest'], cwd=pkg_dir, env=env)
+    if result.returncode == 0:
+        break
+    print(f'attempt {attempt + 1}/3 failed, retrying in 10s...')
+    import time
+    time.sleep(10)
+if result is None or result.returncode != 0:
+    # 发布失败（通常是 NPM_TOKEN 过期）：
+    # 标红让 CI 可见（Release 已发布不受影响），供维护者发现后更换 token
+    print('::error::npm publish 失败（可能 NPM_TOKEN 已过期）——请重新生成 npm token 并更新 GitHub secret NPM_TOKEN')
+    raise SystemExit('npm publish failed: NPM_TOKEN may be expired')
+print('npm published:', pkg['name'], pkg['version'], '| versionInfo.version =', vi.get('version'))

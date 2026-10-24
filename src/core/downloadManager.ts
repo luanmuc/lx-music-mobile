@@ -362,7 +362,7 @@ const runTask = async(task: LX.Download.ListItem) => {
         const u = await getOnlineMusicUrl({
           musicInfo: task.metadata.musicInfo,
           quality,
-          isRefresh: false,
+          isRefresh: true,
         })
         if (u) {
           url = u

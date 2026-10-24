@@ -341,15 +341,16 @@ export const removeListMusics = async(ids: string[]): Promise<void> => {
 
 export const qualitys = ['128k', '320k', 'flac', 'flac24bit']
 export const hasMusicUrlByMusic = async(musicInfo: LX.Music.MusicInfo) => {
-  return getDataMultiple(qualitys.map(q => `${storageDataPrefix.musicUrl}${musicInfo.id}_${q}`)).then((urls) => {
+  return getDataMultiple(qualitys.map(q => `${storageDataPrefix.musicUrl}${musicInfo.source}_${musicInfo.id}_${q}`)).then((urls) => {
     return urls.some(([, url]) => !!url)
   })
 }
 export const clearMusicUrlByMusic = async(musicInfo: LX.Music.MusicInfo) => {
-  await removeDataMultiple(qualitys.map(q => `${storageDataPrefix.musicUrl}${musicInfo.id}_${q}`))
+  await removeDataMultiple(qualitys.map(q => `${storageDataPrefix.musicUrl}${musicInfo.source}_${musicInfo.id}_${q}`))
 }
-export const getMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`).then((url) => url ?? '')
-export const saveMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, url: string) => saveData(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`, url)
+// URL 缓存 key 加入平台标识（source）：聚合音源下多平台歌曲 id 可能相同，防止跨平台串用播放链接
+export const getMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicUrl}${musicInfo.source}_${musicInfo.id}_${type}`).then((url) => url ?? '')
+export const saveMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, url: string) => saveData(`${storageDataPrefix.musicUrl}${musicInfo.source}_${musicInfo.id}_${type}`, url)
 export const clearMusicUrl = async(keys?: string[]) => {
   if (!keys) keys = (await getAllKeys()).filter(key => key.startsWith(storageDataPrefix.musicUrl))
   await removeDataMultiple(keys)

@@ -151,6 +151,11 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       return;
     }
 
+    // 记录待清理的安装包路径：安装完成后由 ApkInstallReceiver 删除。
+    // 升级安装时本应用进程会被系统终止，动态注册的接收器收不到广播，只能靠静态广播（PACKAGE_REPLACED/PACKAGE_ADDED）
+    reactContext.getSharedPreferences("apk_install", Context.MODE_PRIVATE)
+        .edit().putString("installApkPath", filePath).apply();
+
     if (Build.VERSION.SDK_INT >= 24) {
       // API24 and up has a package installer that can handle FileProvider content:// URIs
       Uri contentUri;

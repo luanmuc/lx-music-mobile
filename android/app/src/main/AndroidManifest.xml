@@ -111,5 +111,16 @@
           android:name="android.support.FILE_PROVIDER_PATHS"
           android:resource="@xml/file_paths" />
       </provider>
+
+      <!-- 在线更新安装包清理：安装/升级完成后删除公共目录里的 APK（PACKAGE_ADDED/REPLACED 为受保护的系统广播，进程被终止也能收到） -->
+      <receiver
+        android:name=".utils.ApkInstallReceiver"
+        android:exported="false">
+        <intent-filter>
+          <action android:name="android.intent.action.PACKAGE_ADDED" />
+          <action android:name="android.intent.action.PACKAGE_REPLACED" />
+          <data android:scheme="package" />
+        </intent-filter>
+      </receiver>
     </application>
 </manifest>

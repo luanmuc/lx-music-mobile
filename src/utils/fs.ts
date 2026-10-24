@@ -20,6 +20,8 @@ export const extname = (name: string) => name.lastIndexOf('.') > 0 ? name.substr
 export const temporaryDirectoryPath = Dirs.CacheDir
 export const externalStorageDirectoryPath = Dirs.SDCardDir
 export const privateStorageDirectoryPath = Dirs.DocumentDir
+// 系统公共下载目录（/storage/emulated/0/Download），用于在线更新安装包
+export const downloadDirectoryPath = RNFS.DownloadDirectoryPath
 
 export const getExternalStoragePaths = async(is_removable?: boolean) => _getExternalStoragePaths(is_removable)
 

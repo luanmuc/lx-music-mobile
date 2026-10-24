@@ -1,6 +1,6 @@
 import { httpGet } from '@/utils/request'
 import { author, name } from '../../package.json'
-import { downloadFile, stat, stopDownload, temporaryDirectoryPath } from '@/utils/fs'
+import { downloadFile, downloadDirectoryPath, readDir, stat, stopDownload, temporaryDirectoryPath, unlink } from '@/utils/fs'
 import { getSupportedAbis, installApk } from '@/utils/nativeModules/utils'
 import { APP_PROVIDER_NAME } from '@/config/constant'
 
@@ -113,45 +113,69 @@ const getApkUrlList = (version, abi) => {
   ]
 }
 
+// 清理公共下载目录里的旧安装包（保留本次要下载的文件，防止安装包越攒越多）
+const cleanupOldApk = async(dir, keepFileName) => {
+  try {
+    const files = await readDir(dir)
+    for (const f of files) {
+      if (f.isFile && /^lx-music-mobile-.*\.apk$/i.test(f.name) && f.name != keepFileName) {
+        await unlink(f.path).catch(() => {})
+      }
+    }
+  } catch (err) {
+    console.log('cleanupOldApk failed:', err)
+  }
+}
+
 export const downloadNewVersion = async(version, onDownload = noop) => {
   const abi = await getTargetAbi()
   const urlList = getApkUrlList(version, abi)
-  const savePath = temporaryDirectoryPath + '/lx-music-mobile.apk'
+  const apkFileName = `lx-music-mobile-v${version}.apk`
+  // 优先保存到系统公共下载目录（用户可见）；失败自动回退应用缓存目录
+  const savePaths = [
+    `${downloadDirectoryPath}/${apkFileName}`,
+    `${temporaryDirectoryPath}/${apkFileName}`,
+  ]
+  // 下载前清理公共目录与缓存目录的旧包
+  void cleanupOldApk(downloadDirectoryPath, apkFileName)
+  void cleanupOldApk(temporaryDirectoryPath, apkFileName)
   let lastErr = null
 
-  for (const url of urlList) {
-    if (downloadJobId) stopDownload(downloadJobId)
-    const { jobId, promise } = downloadFile(url, savePath, {
-      progressInterval: 500,
-      connectionTimeout: 20000,
-      readTimeout: 30000,
-      begin({ statusCode, contentLength }) {
-        onDownload(contentLength, 0)
-        // switch (statusCode) {
-        //   case 200:
-        //   case 206:
-        //     break
-        //   default:
-        //     onDownload(null, contentLength, 0)
-        //     break
-        // }
-      },
-      progress({ contentLength, bytesWritten }) {
-        onDownload(contentLength, bytesWritten)
-      },
-    })
-    downloadJobId = jobId
-    try {
-      await promise
-      downloadJobId = null
-      // 完整性校验：下载内容过小视为失败（防 404 页/断连残片被直接安装导致"解析包错误"）
-      const fileStat = await stat(savePath)
-      if (fileStat.size < 5 * 1024 * 1024) throw new Error(`apk file too small: ${fileStat.size}`)
-      apkSavePath = savePath
-      return updateApp()
-    } catch (err) {
-      console.log('downloadNewVersion failed:', url, err)
-      lastErr = err
+  for (const savePath of savePaths) {
+    for (const url of urlList) {
+      if (downloadJobId) stopDownload(downloadJobId)
+      const { jobId, promise } = downloadFile(url, savePath, {
+        progressInterval: 500,
+        connectionTimeout: 20000,
+        readTimeout: 30000,
+        begin({ statusCode, contentLength }) {
+          onDownload(contentLength, 0)
+          // switch (statusCode) {
+          //   case 200:
+          //   case 206:
+          //     break
+          //   default:
+          //     onDownload(null, contentLength, 0)
+          //     break
+          // }
+        },
+        progress({ contentLength, bytesWritten }) {
+          onDownload(contentLength, bytesWritten)
+        },
+      })
+      downloadJobId = jobId
+      try {
+        await promise
+        downloadJobId = null
+        // 完整性校验：下载内容过小视为失败（防 404 页/断连残片被直接安装导致"解析包错误"）
+        const fileStat = await stat(savePath)
+        if (fileStat.size < 5 * 1024 * 1024) throw new Error(`apk file too small: ${fileStat.size}`)
+        apkSavePath = savePath
+        return updateApp()
+      } catch (err) {
+        console.log('downloadNewVersion failed:', savePath, url, err)
+        lastErr = err
+      }
     }
   }
   downloadJobId = null

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { TouchableOpacity, View } from 'react-native'
 // import { useLayout } from '@/utils/hooks'
 import { createStyle } from '@/utils/tools'
 import { usePlayerMusicInfo } from '@/store/player/hook'
@@ -15,6 +15,11 @@ import { downloadFile, mkdir, temporaryDirectoryPath } from '@/utils/fs'
 import { saveImageToGallery } from '@/utils/nativeModules/utils'
 import { toast } from '@/utils/tools'
 import { useI18n } from '@/lang'
+import Text from '@/components/common/Text'
+import { useTheme } from '@/store/theme/hook'
+import { getSourceName } from '@/components/player/SourceName'
+import playerState from '@/store/player/state'
+import MusicToggleModal, { type MusicToggleModalType } from '@/screens/Home/Views/Mylist/MusicList/MusicToggleModal'
 
 
 // 长按封面保存到相册（借鉴 MusicFree）
@@ -45,6 +50,21 @@ export default ({ componentId }: { componentId: string }) => {
   const { width: winWidth, height: winHeight } = useWindowSize()
   const statusBarHeight = useStatusbarHeight()
   const t = useI18n()
+  const theme = useTheme()
+  const musicToggleRef = useRef<MusicToggleModalType>(null)
+
+  // 当前播放歌曲的完整信息（含 source/meta），用于判断是否在线歌曲并取平台名
+  const curInfo = playerState.playMusicInfo.musicInfo
+  const isOnline = !!curInfo && !('progress' in curInfo)
+  const sourceName = isOnline ? getSourceName((curInfo as LX.Music.MusicInfoOnline).source) : ''
+
+  const openToggleSource = () => {
+    if (!isOnline || !curInfo) return
+    musicToggleRef.current?.show({
+      musicInfo: curInfo as LX.Music.MusicInfo,
+      listId: playerState.playMusicInfo.listId ?? '',
+    })
+  }
 
   const [animated, setAnimated] = useState(!!commonState.componentIds.playDetail)
   const [pic, setPic] = useState(musicInfo.pic)
@@ -73,6 +93,14 @@ export default ({ componentId }: { componentId: string }) => {
           <Image url={pic} nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic} style={style} onLongPress={pic ? () => void savePicToGallery(pic, t) : undefined} />
         </ImageFullScreen>
       </View>
+      {/* 当前播放源（平台）标签：点击弹出换源面板 */}
+      {isOnline ? (
+        <TouchableOpacity style={styles.sourceTag} onPress={openToggleSource} activeOpacity={0.6}>
+          <Text size={12} color={theme['c-primary-font-active']}>{sourceName}</Text>
+          <Text size={12} color={theme['c-primary-font-active']} style={styles.sourceTagArrow}>▾</Text>
+        </TouchableOpacity>
+      ) : null}
+      <MusicToggleModal ref={musicToggleRef} />
     </View>
   )
 }
@@ -89,5 +117,17 @@ const styles = createStyle({
     // elevation: 3,
     backgroundColor: 'rgba(0,0,0,0)',
     borderRadius: 4,
+  },
+  sourceTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  sourceTagArrow: {
+    marginLeft: 4,
   },
 })

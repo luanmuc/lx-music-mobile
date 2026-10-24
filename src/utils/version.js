@@ -14,9 +14,10 @@ const abis = [
 
 const address = [
   [`https://raw.githubusercontent.com/${author.name}/${name}/master/publish/version.json`, 'direct'],
-  [`https://cdn.jsdelivr.net/gh/${author.name}/${name}/master/publish/version.json`, 'direct'],
-  [`https://fastly.jsdelivr.net/gh/${author.name}/${name}/master/publish/version.json`, 'direct'],
-  [`https://gcore.jsdelivr.net/gh/${author.name}/${name}/master/publish/version.json`, 'direct'],
+  // jsdelivr 语法需 @分支（@master），否则 master 会被当作文件路径返回 404
+  [`https://cdn.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
+  [`https://fastly.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
+  [`https://gcore.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
 ]
 
 

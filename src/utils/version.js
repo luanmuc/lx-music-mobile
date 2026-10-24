@@ -18,16 +18,20 @@ const address = [
   [`https://cdn.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
   [`https://fastly.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
   [`https://gcore.jsdelivr.net/gh/${author.name}/${name}@master/publish/version.json`, 'direct'],
+  // npm 包通道：阿里云 npmmirror 托管，国内必达（原版同思路）
+  ['https://registry.npmjs.org/luanmuc-lx-music-version-info/latest', 'npm'],
+  ['https://registry.npmmirror.com/luanmuc-lx-music-version-info/latest', 'npm'],
 ]
 
 
 const request = async(url, retryNum = 0) => {
   return new Promise((resolve, reject) => {
     httpGet(url, {
-      timeout: 10000,
+      timeout: 8000,
     }, (err, resp, body) => {
       if (err || resp.statusCode != 200) {
-        ++retryNum >= 3
+        // 快速失败切换源：每源最多重试 1 次，避免长时间卡在"检查更新中"
+        ++retryNum >= 1
           ? reject(err || new Error(resp.statusMessage || resp.statusCode))
           : request(url, retryNum).then(resolve).catch(reject)
       } else resolve(body)

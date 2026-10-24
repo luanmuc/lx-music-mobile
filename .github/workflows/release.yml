@@ -118,3 +118,9 @@ jobs:
           git add publish/version.json
           git commit -m "chore: 更新版本信息 v${VER}" || echo "无改动，跳过提交"
           git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master || echo "推送失败（后续发布不影响已完成的 Release）"
+
+      - name: Publish npm version info
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          python3 scripts/publish_npm_info.py

@@ -7,7 +7,8 @@ import StatusBar from '@/components/common/StatusBar'
 import { useTheme } from '@/store/theme/hook'
 import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
 import Text from '@/components/common/Text'
-import QualityText from '@/components/player/QualityText'
+import QualitySwitch from '@/components/player/QualitySwitch'
+import { getSourceName } from '@/components/player/SourceName'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { HEADER_HEIGHT as _HEADER_HEIGHT, NAV_SHEAR_NATIVE_IDS } from '@/config/constant'
 import commonState from '@/store/common/state'
@@ -29,9 +30,9 @@ const Title = () => {
     <View style={styles.titleContent}>
       <View style={styles.titleRow}>
         <Text numberOfLines={1} style={styles.title}>{musicInfo.name}</Text>
-        <QualityText quality={playQuality} />
+        <QualitySwitch quality={playQuality} />
       </View>
-      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{musicInfo.singer}</Text>
+      <Text numberOfLines={1} style={styles.title} size={12} color={theme['c-font-label']}>{[getSourceName(musicInfo.source), musicInfo.singer].filter(Boolean).join(' · ')}</Text>
     </View>
   )
 }

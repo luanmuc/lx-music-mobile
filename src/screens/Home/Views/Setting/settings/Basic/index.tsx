@@ -10,6 +10,7 @@ import IsStartupPushPlayDetailScreen from './IsStartupPushPlayDetailScreen'
 import IsAutoHidePlayBar from './IsAutoHidePlayBar'
 import IsHomePageScroll from './IsHomePageScroll'
 import IsAllowProgressBarSeek from './IsAllowProgressBarSeek'
+import IsEnableDebugLog from './IsEnableDebugLog'
 import IsUseSystemFileSelector from './IsUseSystemFileSelector'
 import IsAlwaysKeepStatusbarHeight from './IsAlwaysKeepStatusbarHeight'
 import IsShowBackBtn from './IsShowBackBtn'
@@ -31,6 +32,7 @@ export default memo(() => {
       <IsAutoHidePlayBar />
       <IsHomePageScroll />
       <IsAllowProgressBarSeek />
+      <IsEnableDebugLog />
       <IsUseSystemFileSelector />
       <IsAlwaysKeepStatusbarHeight />
       <DownloadNotifyComplete />

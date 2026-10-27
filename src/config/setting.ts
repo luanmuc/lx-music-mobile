@@ -4,7 +4,7 @@ import { getData, removeData, saveData } from '@/plugins/storage'
 import migrateSetting from './migrateSetting'
 import settingState from '@/store/setting/state'
 import { migrateMetaData, migrateListData } from './migrate'
-import { exitApp, tipDialog } from '@/utils/tools'
+import { exitApp, tipDialog, compareVer } from '@/utils/tools'
 
 // 业务相关工具方法
 
@@ -104,6 +104,27 @@ export const initSetting = async() => {
   }
 
   // console.log(setting)
+
+  // 定制版设置迁移：按版本号升级默认值（老用户升级后自动应用新默认值）
+  if (setting && setting.version) {
+    // v2.1 迁移
+    if (compareVer(setting.version as string, '2.1') < 0) {
+      setting['list.isClickPlayList'] = true
+      setting['common.allowProgressBarSeek'] = false
+    }
+    // v2.2 迁移
+    if (compareVer(setting.version as string, '2.2') < 0) {
+      setting['player.playQuality'] = 'flac24bit'
+      setting['player.isShowLyricTranslation'] = true
+      setting['player.isShowLyricRoma'] = true
+      setting['playDetail.isShowLyricProgressSetting'] = true
+      setting['playDetail.style.align'] = 'center'
+      setting['desktopLyric.enable'] = true
+      setting['desktopLyric.textPosition.x'] = 'center'
+      setting['desktopLyric.textPosition.y'] = 'center'
+    }
+  }
+
   const updatedSetting = updateSetting(setting, true)
   void saveData(storageDataPrefix.setting, updatedSetting.setting)
 

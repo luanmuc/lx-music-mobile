@@ -269,7 +269,7 @@ const handlePlay = async() => {
 
   if (!musicInfo) return
 
-  logger.player('开始播放', `${musicInfo.name} - ${(musicInfo.singer as LX.Music.MusicInfoOnline['singer'])?.join(' / ')}`, `来源:${musicInfo.source}, id:${musicInfo.id}`)
+  logger.player('开始播放', `${musicInfo.name} - ${musicInfo.singer}`, `来源:${musicInfo.source}, id:${musicInfo.id}`)
 
   await setStop()
   global.app_event.pause()

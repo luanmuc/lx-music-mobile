@@ -62,7 +62,7 @@ const defaultSetting: LX.AppSetting = {
   'search.isShowHotSearch': false,
   'search.isShowHistorySearch': false,
 
-  'list.isClickPlayList': false,
+  'list.isClickPlayList': true, // 点击歌曲时默认播放整个列表（原版默认 false=单曲；定制开启以获得整列表连续播放）
   'list.isShowSource': true,
   'list.isShowAlbumName': false,
   'list.isShowInterval': true,

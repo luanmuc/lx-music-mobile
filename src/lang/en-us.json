@@ -536,5 +536,8 @@
   "setting_clean_cache_url": "Music URL Cache",
   "setting_clean_cache_lyric": "Lyric Cache",
   "setting_clean_cache_other_source": "Other Source Cache",
-  "setting_custom_source": "Custom Source"
+  "setting_custom_source": "Custom Source",
+  "play_list_song_count": "{num} songs",
+  "play_list_empty": "No playlist",
+  "playing": "Playing"
 }

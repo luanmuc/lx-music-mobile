@@ -536,5 +536,8 @@
   "setting_clean_cache_url": "歌曲連結快取",
   "setting_clean_cache_lyric": "歌詞快取",
   "setting_clean_cache_other_source": "其他音源快取",
-  "setting_custom_source": "自訂音源"
+  "setting_custom_source": "自訂音源",
+  "play_list_song_count": "{num} 首",
+  "play_list_empty": "暫無播放列表",
+  "playing": "正在播放"
 }

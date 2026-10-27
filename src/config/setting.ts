@@ -116,12 +116,13 @@ export const initSetting = async() => {
     // v2.2 迁移
     if (compareVer(setting.version as string, '2.2') < 0) {
       setting['player.playQuality'] = 'flac24bit'
-      setting['player.isShowLyricTranslation'] = true
-      setting['player.isShowLyricRoma'] = true
+      setting['player.isShowLyricTranslation'] = false
+      setting['player.isShowLyricRoma'] = false
       setting['playDetail.isShowLyricProgressSetting'] = true
       setting['playDetail.style.align'] = 'center'
       setting['desktopLyric.textPosition.x'] = 'center'
       setting['desktopLyric.textPosition.y'] = 'center'
+      setting['common.sourceNameType'] = 'real'
     }
   }
 

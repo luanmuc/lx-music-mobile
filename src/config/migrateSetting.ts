@@ -67,29 +67,8 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['player.isShowBluetoothFullLyric'] = true
   }
 
-  // 定制版默认值迁移（v2.1）：升级后自动应用新默认设置，无需清除数据
-  // 修复：之前改了默认值但老用户设置里存的是旧值，导致新功能不生效
-  if (compareVer(setting.version as string, '2.1') < 0) {
-    // 点击歌曲默认播放整个列表（原版默认 false=单曲，定制改为 true=整列表）
-    setting['list.isClickPlayList'] = true
-    // 进度条拖动默认关闭（原版默认 true，定制改为 false）
-    setting['common.allowProgressBarSeek'] = false
-  }
-
-  // 定制版默认值迁移（v2.2）：按用户截图预设的设置
-  if (compareVer(setting.version as string, '2.2') < 0) {
-    // 播放设置
-    setting['player.playQuality'] = 'flac24bit'
-    setting['player.isShowLyricTranslation'] = true
-    setting['player.isShowLyricRoma'] = true
-    // 播放详情页
-    setting['playDetail.isShowLyricProgressSetting'] = true
-    setting['playDetail.style.align'] = 'center'
-    // 桌面歌词
-    setting['desktopLyric.enable'] = true
-    setting['desktopLyric.textPosition.x'] = 'center'
-    setting['desktopLyric.textPosition.y'] = 'center'
-  }
+  // 定制版迁移统一在 setting.ts 的 initSetting 里按版本号处理
+  // 这里只保留 v1→v2 大版本结构迁移，不再放默认值迁移块
 
   return setting
 }

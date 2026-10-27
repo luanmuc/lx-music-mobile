@@ -34,7 +34,7 @@ const defaultSetting: LX.AppSetting = {
   'player.isS2t': false,
   'player.isShowBluetoothLyric': false,
   'player.isShowBluetoothFullLyric': false,
-  'player.isShowNotificationLyric': false, // 通知栏标题是否显示当前歌词（默认关，需要时手动开）
+  'player.isShowNotificationLyric': true, // 通知栏标题显示当前歌词（与原版默认一致；需要时可手动关闭）
 
   // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,

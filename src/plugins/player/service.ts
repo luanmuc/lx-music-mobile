@@ -6,7 +6,7 @@ import { isTempId, isEmpty } from './utils'
 // import { play as lrcPlay, pause as lrcPause } from '@/core/lyric'
 import { exitApp, updateSetting } from '@/core/common'
 import { getCurrentTrackId } from './playList'
-import { pause, play, playNext, playPrev, stop } from '@/core/player/player'
+import { pause, play, playNext, playPrev } from '@/core/player/player'
 import { hideDesktopLyric, showDesktopLyric, checkDesktopLyricOverlayPermission } from '@/core/desktopLyric'
 import settingState from '@/store/setting/state'
 import { toast } from '@/utils/tools'
@@ -71,8 +71,8 @@ const registerPlaybackService = async() => {
   })
 
   TrackPlayer.addEventListener(TPEvent.RemoteStop, () => {
-    // 通知栏"关闭"按钮：停止播放、移除通知，不退出应用（借鉴 MusicFree）
-    void stop()
+    // console.log('remote-stop')
+    void handleExitApp('Remote Stop')
   })
 
   // 通知栏"桌面歌词"开关按钮：点一下开，再点一下关（track-player fork 自定义事件）

@@ -4,7 +4,8 @@ import { getData, removeData, saveData } from '@/plugins/storage'
 import migrateSetting from './migrateSetting'
 import settingState from '@/store/setting/state'
 import { migrateMetaData, migrateListData } from './migrate'
-import { exitApp, tipDialog, compareVer } from '@/utils/tools'
+import { exitApp, tipDialog } from '@/utils/tools'
+import { compareVer } from '@/utils'
 
 // 业务相关工具方法
 
@@ -119,7 +120,6 @@ export const initSetting = async() => {
       setting['player.isShowLyricRoma'] = true
       setting['playDetail.isShowLyricProgressSetting'] = true
       setting['playDetail.style.align'] = 'center'
-      setting['desktopLyric.enable'] = true
       setting['desktopLyric.textPosition.x'] = 'center'
       setting['desktopLyric.textPosition.y'] = 'center'
     }

@@ -44,7 +44,7 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.horizontal.style.lrcFontSize': 220,
   'playDetail.isShowLyricProgressSetting': true,
 
-  'desktopLyric.enable': true,
+  'desktopLyric.enable': false,
   'desktopLyric.isLock': false,
   'desktopLyric.width': 100,
   'desktopLyric.maxLineNum': 5,

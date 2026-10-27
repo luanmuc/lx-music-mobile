@@ -14,6 +14,7 @@ import settingState from '@/store/setting/state'
 import { bootLog } from '@/utils/bootLog'
 import { cheatTip } from '@/utils/tools'
 import { checkUpdate } from '@/core/version'
+import { logger } from '@/utils/logger'
 
 let isFirstPush = true
 const handlePushedHomeScreen = async() => {
@@ -34,6 +35,7 @@ const handlePushedHomeScreen = async() => {
 let isInited = false
 export default async() => {
   if (isInited) return handlePushedHomeScreen
+  logger.info('App', '应用启动')
   bootLog('Initing...')
   commonActions.setFontSize(global.lx.fontSize)
   bootLog('Font size changed.')

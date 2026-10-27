@@ -76,5 +76,20 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['common.allowProgressBarSeek'] = false
   }
 
+  // 定制版默认值迁移（v2.2）：按用户截图预设的设置
+  if (compareVer(setting.version as string, '2.2') < 0) {
+    // 播放设置
+    setting['player.playQuality'] = 'flac24bit'
+    setting['player.isShowLyricTranslation'] = true
+    setting['player.isShowLyricRoma'] = true
+    // 播放详情页
+    setting['playDetail.isShowLyricProgressSetting'] = true
+    setting['playDetail.style.align'] = 'center'
+    // 桌面歌词
+    setting['desktopLyric.enable'] = true
+    setting['desktopLyric.textPosition.x'] = 'center'
+    setting['desktopLyric.textPosition.y'] = 'center'
+  }
+
   return setting
 }

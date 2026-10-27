@@ -67,5 +67,14 @@ export default (setting: any): Partial<LX.AppSetting> => {
     setting['player.isShowBluetoothFullLyric'] = true
   }
 
+  // 定制版默认值迁移（v2.1）：升级后自动应用新默认设置，无需清除数据
+  // 修复：之前改了默认值但老用户设置里存的是旧值，导致新功能不生效
+  if (compareVer(setting.version as string, '2.1') < 0) {
+    // 点击歌曲默认播放整个列表（原版默认 false=单曲，定制改为 true=整列表）
+    setting['list.isClickPlayList'] = true
+    // 进度条拖动默认关闭（原版默认 true，定制改为 false）
+    setting['common.allowProgressBarSeek'] = false
+  }
+
   return setting
 }

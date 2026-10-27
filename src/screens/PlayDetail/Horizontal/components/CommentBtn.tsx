@@ -9,7 +9,7 @@ export default () => {
 
   return (
     <>
-      <Btn icon="list-order" onPress={() => { modalRef.current?.setVisible(true) }} />
+      <Btn icon="menu" onPress={() => { modalRef.current?.setVisible(true) }} />
       <PlayListModal ref={modalRef} />
     </>
   )

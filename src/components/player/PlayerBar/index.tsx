@@ -43,15 +43,8 @@ export default memo(({ isHome = false }: { isHome?: boolean }) => {
 const styles = createStyle({
   container: {
     width: '100%',
-    // height: 100,
-    // paddingTop: progressContentPadding,
-    // marginTop: -progressContentPadding,
-    // backgroundColor: 'rgba(0, 0, 0, .1)',
-    // borderTopWidth: BorderWidths.normal2,
-    paddingVertical: 5,
-    paddingLeft: 5,
-    // backgroundColor: AppColors.primary,
-    // backgroundColor: 'red',
+    paddingVertical: 12,
+    paddingLeft: 8,
     borderTopLeftRadius: 6,
     borderTopRightRadius: 6,
     flexDirection: 'row',

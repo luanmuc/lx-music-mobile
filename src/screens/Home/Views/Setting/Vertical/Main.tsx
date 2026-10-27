@@ -13,9 +13,6 @@ import GroupPlayer from '../settings/Player'
 import GroupLyricDesktop from '../settings/LyricDesktop'
 import GroupSearch from '../settings/Search'
 import GroupList from '../settings/List'
-import GroupSync from '../settings/Sync'
-import GroupBackup from '../settings/Backup'
-import GroupOther from '../settings/Other'
 import GroupCleanCache from '../settings/CleanCache'
 import GroupAbout from '../settings/About'
 import CustomSource from '../settings/CustomSource'
@@ -24,7 +21,7 @@ import Version from '../settings/Version'
 // 竖屏（手机）设置页：二级结构 + 首页直接展开区
 // 第一层：分组列表（点击进入二级页），自定义音源 / 软件更新直接在首页展开
 // 第二层：分组详情页（返回条在右上角）
-const GROUP_LIST: SettingScreenIds[] = ['basic', 'player', 'lyric_desktop', 'search', 'list', 'sync', 'backup', 'other', 'clean_cache', 'about']
+const GROUP_LIST: SettingScreenIds[] = ['basic', 'player', 'lyric_desktop', 'search', 'list', 'clean_cache', 'about']
 
 export default memo(() => {
   const theme = useTheme()
@@ -86,9 +83,6 @@ const SettingGroup = memo(({ id }: { id: SettingScreenIds }) => {
     case 'lyric_desktop': return <GroupLyricDesktop />
     case 'search': return <GroupSearch />
     case 'list': return <GroupList />
-    case 'sync': return <GroupSync />
-    case 'backup': return <GroupBackup />
-    case 'other': return <GroupOther />
     case 'clean_cache': return <GroupCleanCache />
     case 'about': return <GroupAbout />
     case 'basic':

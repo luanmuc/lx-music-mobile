@@ -19,7 +19,7 @@ const defaultSetting: LX.AppSetting = {
   'player.startupAutoPlay': false,
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
-  'player.playQuality': '128k',
+  'player.playQuality': 'flac24bit', // 用户要求默认优先 flac24bit（截图设置；App 按源实际能力降级）
   'player.isSavePlayTime': false,
   'player.volume': 1,
   'player.playbackRate': 1,

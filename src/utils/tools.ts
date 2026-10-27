@@ -81,11 +81,13 @@ export const requestStoragePermission = async() => {
     // console.log(Object.values(granted).every(r => r === PermissionsAndroid.RESULTS.GRANTED))
     // console.log(PermissionsAndroid.RESULTS)
     const granteds = Object.values(granted)
-    return granteds.every(r => r === PermissionsAndroid.RESULTS.GRANTED)
-      ? true
-      : granteds.includes(PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN)
-        ? null
-        : false
+    if (granteds.every(r => r === PermissionsAndroid.RESULTS.GRANTED)) return true
+    if (granteds.includes(PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN)) {
+      // 用户选择了"不再询问"，权限已被永久拒绝，需引导去系统设置开启
+      toast('存储权限已被永久拒绝，请到系统设置中手动开启存储权限')
+      return null
+    }
+    return false
     // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
     //   console.log('You can use the storage')
     // } else {

@@ -19,4 +19,7 @@
   <!-- <external-path name="some_external_path" path="put-your-specific-external-path-here" />  -->
   <!-- <external-files-path name="external-files" path="/data/user/0/com.example/cache" />  -->
   <!-- <external-media-path name="external-media" path="put-your-path-to-media-here" />  -->
+
+  <!-- 公共下载目录（下载歌曲保存位置），用于打开/分享已下载文件 -->
+  <external-path name="external_download" path="Download/" />
 </paths>

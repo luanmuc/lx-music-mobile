@@ -1,4 +1,3 @@
-import { compareVer } from '@/utils'
 import { downloadNewVersion, getVersionInfo } from '@/utils/version'
 import versionActions from '@/store/version/action'
 import versionState, { type InitState } from '@/store/version/state'
@@ -6,6 +5,29 @@ import { getIgnoreVersion, getIgnoreVersionFailTipTime, saveIgnoreVersion, saveI
 import { showVersionModal } from '@/navigation'
 import { Navigation } from 'react-native-navigation'
 import { toast } from '@/utils/tools'
+
+// 版本比较（支持构建序号）：如 "1.9.1" 与 "1.9.1-b8" 比较时，主版本相同则比 b 序号
+// compareVer 会把 "1.9.1-b8" 的 -b8 当作负值导致误判为更旧，这里专门处理
+const compareVerWithBuild = (currentVer: string, targetVer: string): -1 | 0 | 1 => {
+  const parse = (s: string) => {
+    const [main, build] = s.split('-')
+    const nums = (main || '').split('.').map(n => Number.parseInt(n, 10) || 0)
+    const buildNum = build ? (Number.parseInt(build.replace(/[^0-9]/g, ''), 10) || 0) : 0
+    return { nums, buildNum }
+  }
+  const c = parse(currentVer)
+  const t = parse(targetVer)
+  const len = Math.max(c.nums.length, t.nums.length)
+  for (let i = 0; i < len; i++) {
+    const cn = c.nums[i] || 0
+    const tn = t.nums[i] || 0
+    if (cn > tn) return 1
+    if (cn < tn) return -1
+  }
+  if (c.buildNum > t.buildNum) return 1
+  if (c.buildNum < t.buildNum) return -1
+  return 0
+}
 
 export const showModal = () => {
   if (versionState.showModal) return
@@ -23,7 +45,12 @@ export const checkUpdate = async() => {
   versionActions.setVersionInfo({ status: 'checking' })
   let versionInfo: InitState['versionInfo'] = { ...versionState.versionInfo }
   try {
-    const { version, desc, history } = await getVersionInfo()
+    // 总超时兜底：30 秒内未完成视为失败，避免网络异常时无限卡在"检查更新中"
+    const versionInfoPromise = getVersionInfo()
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('timeout')), 30000)
+    })
+    const { version, desc, history } = await Promise.race([versionInfoPromise, timeoutPromise])
     versionInfo.newVersion = {
       version,
       desc,
@@ -47,7 +74,8 @@ export const checkUpdate = async() => {
   } else {
     versionInfo.status = 'idle'
     versionInfo.isUnknown = false
-    if (compareVer(versionInfo.version, versionInfo.newVersion.version) != -1) {
+    // 用真实构建版本（process.versions.app，含 b 序号）比较，避免 1.9.1 恒小于 1.9.1-bN 导致永远提示更新
+    if (compareVerWithBuild(process.versions.app, versionInfo.newVersion.version) != -1) {
       versionInfo.isLatest = true
     }
   }
@@ -77,9 +105,9 @@ export const downloadUpdate = () => {
     versionActions.setProgress({ total, current })
   }).then(() => {
     versionActions.setVersionInfo({ status: 'downloaded' })
-  }).catch(() => {
+  }).catch((err) => {
     versionActions.setVersionInfo({ status: 'error' })
-    // console.log(err)
+    console.log('downloadUpdate failed:', err)
   })
 }
 

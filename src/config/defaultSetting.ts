@@ -34,6 +34,7 @@ const defaultSetting: LX.AppSetting = {
   'player.isS2t': false,
   'player.isShowBluetoothLyric': false,
   'player.isShowBluetoothFullLyric': false,
+  'player.isShowNotificationLyric': false, // 通知栏标题是否显示当前歌词（默认关，需要时手动开）
 
   // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,
@@ -69,6 +70,11 @@ const defaultSetting: LX.AppSetting = {
   'list.addMusicLocationType': 'top',
 
   'download.fileName': '歌名 - 歌手',
+  'download.onlyWifi': false,
+  'download.maxTask': 2,
+  'download.autoRetry': true,
+  'download.notifyComplete': true,
+  'download.dir': '',
 
   'sync.enable': false,
 

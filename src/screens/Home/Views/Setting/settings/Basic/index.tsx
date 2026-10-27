@@ -2,8 +2,6 @@ import { memo } from 'react'
 
 import Theme from '../Theme'
 import Section from '../../components/Section'
-import Source from './Source'
-import SourceName from './SourceName'
 import Language from './Language'
 import FontSize from './FontSize'
 import ShareType from './ShareType'
@@ -17,6 +15,7 @@ import IsAlwaysKeepStatusbarHeight from './IsAlwaysKeepStatusbarHeight'
 import IsShowBackBtn from './IsShowBackBtn'
 import IsShowExitBtn from './IsShowExitBtn'
 import DrawerLayoutPosition from './DrawerLayoutPosition'
+import DownloadNotifyComplete from './DownloadNotifyComplete'
 import { useI18n } from '@/lang/i18n'
 
 export default memo(() => {
@@ -34,13 +33,12 @@ export default memo(() => {
       <IsAllowProgressBarSeek />
       <IsUseSystemFileSelector />
       <IsAlwaysKeepStatusbarHeight />
+      <DownloadNotifyComplete />
       <Theme />
       <DrawerLayoutPosition />
       <Language />
       <FontSize />
       <ShareType />
-      <Source />
-      <SourceName />
     </Section>
   )
 })

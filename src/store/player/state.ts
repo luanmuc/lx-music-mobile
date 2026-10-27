@@ -20,6 +20,10 @@ export interface InitState {
   volume: number
   playRate: number
   statusText: string
+  /**
+   * 当前播放歌曲的实际音质（'' 表示未知/本地/下载）
+   */
+  playQuality: string
 
   playedList: LX.Player.PlayMusicInfo[]
   tempPlayList: LX.Player.PlayMusicInfo[]
@@ -67,6 +71,7 @@ const state: InitState = {
   volume: 1,
   playRate: 1,
   statusText: '',
+  playQuality: '',
   loadErrorPicUrl: '',
 
   playedList: [],

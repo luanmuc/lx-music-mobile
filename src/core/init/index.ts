@@ -11,9 +11,9 @@ import { initDeeplink } from './deeplink'
 import { setApiSource } from '@/core/apiSource'
 import commonActions from '@/store/common/action'
 import settingState from '@/store/setting/state'
-import { checkUpdate } from '@/core/version'
 import { bootLog } from '@/utils/bootLog'
 import { cheatTip } from '@/utils/tools'
+import { checkUpdate } from '@/core/version'
 
 let isFirstPush = true
 const handlePushedHomeScreen = async() => {
@@ -21,6 +21,7 @@ const handlePushedHomeScreen = async() => {
   if (settingState.setting['common.isAgreePact']) {
     if (isFirstPush) {
       isFirstPush = false
+      // 启动自动检查更新：有新版本时弹窗提示（与原版一致）
       void checkUpdate()
       void initDeeplink()
     }

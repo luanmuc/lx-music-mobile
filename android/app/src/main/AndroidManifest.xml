@@ -1,10 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  package="cn.toside.music.mobile">
+  xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 获取读写外置存储权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- 下载完成震动提醒（Android 12+ 未声明该权限时调用 vibrate 会抛 SecurityException 导致崩溃） -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Android 13+ 细分媒体权限（直接弹窗申请，不用全文件访问） -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- Android 11-12 才需要全文件访问权限 -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -104,5 +111,16 @@
           android:name="android.support.FILE_PROVIDER_PATHS"
           android:resource="@xml/file_paths" />
       </provider>
+
+      <!-- 在线更新安装包清理：安装/升级完成后删除公共目录里的 APK（PACKAGE_ADDED/REPLACED 为受保护的系统广播，进程被终止也能收到） -->
+      <receiver
+        android:name=".utils.ApkInstallReceiver"
+        android:exported="false">
+        <intent-filter>
+          <action android:name="android.intent.action.PACKAGE_ADDED" />
+          <action android:name="android.intent.action.PACKAGE_REPLACED" />
+          <data android:scheme="package" />
+        </intent-filter>
+      </receiver>
     </application>
 </manifest>

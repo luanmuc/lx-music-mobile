@@ -4,6 +4,7 @@ import {
 } from '@/core/player/playStatus'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
+import playerActions from '@/store/player/action'
 import {
   getList,
   setPlayMusicInfo,
@@ -27,6 +28,7 @@ import BackgroundTimer from 'react-native-background-timer'
 import { checkIgnoringBatteryOptimization, checkNotificationPermission, debounceBackgroundTimer } from '@/utils/tools'
 import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
+import { addPlayCount } from '@/core/player/playCount'
 import { addDislikeInfo } from '@/core/dislikeList'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
@@ -60,8 +62,7 @@ const { addDelayNextTimeout, clearDelayNextTimeout } = createDelayNextTimeout(50
 const { addDelayNextTimeout: addLoadTimeout, clearDelayNextTimeout: clearLoadTimeout } = createDelayNextTimeout(100000)
 
 const createGettingUrlId = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem) => {
-  const tInfo = 'progress' in musicInfo ? musicInfo.metadata.musicInfo.meta.toggleMusicInfo : musicInfo.meta.toggleMusicInfo
-  return `${musicInfo.id}_${tInfo?.id ?? ''}`
+  return `${musicInfo.id}`
 }
 /**
  * 检查音乐信息是否已更改
@@ -93,27 +94,27 @@ const delayRetry = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListItem, i
     }
   })
 }
+
 const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListItem, isRefresh = false, isRetryed = false): Promise<string | null> => {
   // this.musicInfo.url = await getMusicPlayUrl(targetSong, type)
   setStatusText(global.i18n.t('player__getting_url'))
   addLoadTimeout()
 
-  // const type = getPlayType(settingState.setting['player.isPlayHighQuality'], musicInfo)
-  let toggleMusicInfo = ('progress' in musicInfo ? musicInfo.metadata.musicInfo : musicInfo).meta.toggleMusicInfo
+  // 取消切换音源功能后：一律使用当前歌曲本身请求播放链接，不再优先使用切换残留的 toggleMusicInfo
+  // （历史切换过的歌曲 meta 里残留的 toggleMusicInfo 会导致请求错误平台的坏 URL，反复刷新失败）
+  const onQuality = (quality: LX.Quality) => {
+    if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return
+    playerActions.setPlayQuality(quality)
+  }
 
-  return (toggleMusicInfo ? getMusicUrl({
-    musicInfo: toggleMusicInfo,
+  return getMusicUrl({
+    musicInfo,
     isRefresh,
-    allowToggleSource: false,
-  }) : Promise.reject(new Error('not found'))).catch(async() => {
-    return getMusicUrl({
-      musicInfo,
-      isRefresh,
-      onToggleSource(mInfo) {
-        if (diffCurrentMusicInfo(musicInfo)) return
-        setStatusText(global.i18n.t('toggle_source_try'))
-      },
-    })
+    onQuality,
+    onToggleSource(mInfo) {
+      if (diffCurrentMusicInfo(musicInfo)) return
+      setStatusText(global.i18n.t('toggle_source_try'))
+    },
   }).then(url => {
     if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return null
 
@@ -134,7 +135,11 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
 
 export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem, isRefresh?: boolean) => {
   // addLoadTimeout()
-  if (!diffCurrentMusicInfo(musicInfo)) return
+  // 非刷新时才校验音乐信息是否已变更（防止为已切走的歌请求 URL）；
+  // 播放失败刷新（isRefresh=true）必须跳过该校验，否则会静默阻断刷新——
+  // 命中过期 URL 缓存后刷新不执行，却仍提示"URL 过期，正在刷新 URL..."，导致播放卡死
+  if (!isRefresh && !diffCurrentMusicInfo(musicInfo)) return
+  playerActions.setPlayQuality('')
   if (cancelDelayRetry) cancelDelayRetry()
   global.lx.gettingUrlId = createGettingUrlId(musicInfo)
   void getMusicPlayUrl(musicInfo, isRefresh).then((url) => {
@@ -600,6 +605,7 @@ export const play = () => {
     if (createGettingUrlId(playerState.playMusicInfo.musicInfo) != global.lx.gettingUrlId) setMusicUrl(playerState.playMusicInfo.musicInfo)
     return
   }
+  addPlayCount() // 听歌统计：每次开始播放计一次
   void setPlay()
 }
 

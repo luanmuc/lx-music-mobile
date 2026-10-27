@@ -119,11 +119,12 @@ export function useBufferProgress() {
     let isUnmounted = false
     let preBuffered = 0
     let duration = 0
+    // RN 运行时 setInterval 返回 number，类型标注为 NodeJS.Timer 仅用于兼容 @types/node
     let interval: NodeJS.Timer | null = null
 
     const clearItv = () => {
       if (!interval) return
-      clearInterval(interval)
+      clearInterval(interval as unknown as number)
       interval = null
     }
     const updateBuffer = async() => {

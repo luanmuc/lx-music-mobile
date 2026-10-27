@@ -1,4 +1,6 @@
-import { addListMusics, getListMusics, removeListMusics, removeUserList, setFetchingListStatus, updateListMusics } from '@/core/list'
+import { addListMusics, createList, getListMusics, removeListMusics, removeUserList, setFetchingListStatus, updateListMusics } from '@/core/list'
+import RNFS from 'react-native-fs'
+import listState from '@/store/list/state'
 import { confirmDialog, handleReadFile, handleSaveFile, showImportTip, toast } from '@/utils/tools'
 import syncSourceList from '@/core/syncSourceList'
 import { log } from '@/utils/log'
@@ -203,4 +205,28 @@ export const handleImportMediaFile = async(listInfo: LX.List.MyListInfo, path: s
     await handleUpdateMusics(files.map(f => f.path), throttleUpdateMusics)
   } else toast(global.i18n.t('list_select_local_file_empty_tip'), 'long')
   setFetchingListStatus(listInfo.id, false)
+}
+
+// 本地音乐管理（借鉴 MusicFree 本地音乐）：一键扫描下载目录并导入歌单
+// 若不存在「本地音乐」歌单则自动创建，之后重复扫描只补新文件
+const LOCAL_MUSIC_LIST_ID = 'local_music'
+const LOCAL_MUSIC_LIST_NAME = '本地音乐'
+export const handleScanDownloadDir = async() => {
+  try {
+    let dir = settingState.setting['download.dir']
+    if (!dir) dir = `${RNFS.DownloadDirectoryPath}/lx-music`
+    if (!(await RNFS.exists(dir))) {
+      toast('下载目录不存在')
+      return
+    }
+    let targetList = listState.userList.find(l => l.id == LOCAL_MUSIC_LIST_ID)
+    if (!targetList) {
+      await createList({ id: LOCAL_MUSIC_LIST_ID, name: LOCAL_MUSIC_LIST_NAME })
+      targetList = listState.userList.find(l => l.id == LOCAL_MUSIC_LIST_ID)!
+    }
+    await handleImportMediaFile(targetList, dir)
+  } catch (e) {
+    console.error('[scanDownloadDir]', e)
+    toast('扫描本地音乐失败')
+  }
 }

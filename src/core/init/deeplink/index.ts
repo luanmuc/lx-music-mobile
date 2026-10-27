@@ -23,7 +23,14 @@ const handleLinkAction = async(link: string) => {
       const [key, value] = param.split('=')
       params[key] = value
     }
-    if (params.data) params.data = JSON.parse(decodeURIComponent(params.data))
+    if (params.data) {
+      // 非法 data 静默忽略（外层 runLinkAction 有 try，但不应为此弹错误框打扰用户）
+      try {
+        params.data = JSON.parse(decodeURIComponent(params.data))
+      } catch (e) {
+        params.data = undefined
+      }
+    }
   }
   params.paths = paths.map(p => decodeURIComponent(p))
   console.log(params)

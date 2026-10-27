@@ -2,6 +2,7 @@ import playerActions from '@/store/player/action'
 import playerState from '@/store/player/state'
 
 import { getListMusicSync } from '@/utils/listManage'
+import downloadState from '@/store/download/state'
 import { setProgress } from '@/core/player/progress'
 import { LIST_IDS } from '@/config/constant'
 
@@ -137,6 +138,7 @@ export const setPlayMusicInfo = (listId: string | null, musicInfo: LX.Download.L
 }
 
 export const getList = (listId: string | null): LX.Music.MusicInfo[] | LX.Download.ListItem[] => {
-  // return listId == LIST_ID_DOWNLOAD ? downloadList : getListMusicSync(listId)
-  return listId == LIST_IDS.DOWNLOAD ? [] : getListMusicSync(listId)
+  // 下载列表作为播放列表：只返回已完成的下载任务（ListItem 结构，播放器走本地文件播放分支）
+  if (listId == LIST_IDS.DOWNLOAD) return downloadState.list.filter(t => t.isComplate)
+  return getListMusicSync(listId)
 }

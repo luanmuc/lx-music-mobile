@@ -12,6 +12,14 @@ declare namespace LX {
     | 'error'
     | 'completed'
 
+    // 下载失败原因分类（借鉴 MusicFree DownloadFailReason）
+    type DownloadErrorReason = 'network'
+    | 'cellular'
+    | 'noSource'
+    | 'noWrite'
+    | 'noSpace'
+    | 'unknown'
+
     type FileExt = 'mp3' | 'flac' | 'wav' | 'ape'
 
     interface ProgressInfo {
@@ -48,6 +56,9 @@ declare namespace LX {
       total: number
       progress: number
       speed: string
+      error?: string
+      errorCode?: DownloadErrorReason
+      retryCount?: number
       metadata: {
         musicInfo: LX.Music.MusicInfoOnline
         url: string | null

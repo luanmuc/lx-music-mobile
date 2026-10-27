@@ -5,21 +5,20 @@ import Player from './settings/Player'
 import LyricDesktop from './settings/LyricDesktop'
 import Search from './settings/Search'
 import List from './settings/List'
-import Sync from './settings/Sync'
-import Backup from './settings/Backup'
-import Other from './settings/Other'
+import CleanCache from './settings/CleanCache'
+import CustomSource from './settings/CustomSource'
 import Version from './settings/Version'
 import About from './settings/About'
 
+// 竖屏首页：前 6 个为二级分组（点击进入）；custom_source / version 在首页直接展开（仍保留在清单中供横屏 tab 使用）
 export const SETTING_SCREENS = [
   'basic',
   'player',
   'lyric_desktop',
   'search',
   'list',
-  'sync',
-  'backup',
-  'other',
+  'clean_cache',
+  'custom_source',
   'version',
   'about',
 ] as const
@@ -52,9 +51,8 @@ const Main = forwardRef<MainType, {}>((props, ref) => {
       case 'lyric_desktop': return <LyricDesktop />
       case 'search': return <Search />
       case 'list': return <List />
-      case 'sync': return <Sync />
-      case 'backup': return <Backup />
-      case 'other': return <Other />
+      case 'clean_cache': return <CleanCache />
+      case 'custom_source': return <CustomSource />
       case 'version': return <Version />
       case 'about': return <About />
       case 'basic':
@@ -67,4 +65,3 @@ const Main = forwardRef<MainType, {}>((props, ref) => {
 
 
 export default Main
-

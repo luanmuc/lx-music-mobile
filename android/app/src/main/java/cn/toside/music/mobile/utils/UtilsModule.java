@@ -3,6 +3,7 @@ package cn.toside.music.mobile.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,6 +12,8 @@ import android.net.Uri;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -28,9 +31,21 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Locale;
 import java.util.Objects;
+
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.images.ArtworkFactory;
 
 public class UtilsModule extends ReactContextBaseJavaModule {
   private final ReactApplicationContext reactContext;
@@ -136,6 +151,11 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       return;
     }
 
+    // 记录待清理的安装包路径：安装完成后由 ApkInstallReceiver 删除。
+    // 升级安装时本应用进程会被系统终止，动态注册的接收器收不到广播，只能靠静态广播（PACKAGE_REPLACED/PACKAGE_ADDED）
+    reactContext.getSharedPreferences("apk_install", Context.MODE_PRIVATE)
+        .edit().putString("installApkPath", filePath).apply();
+
     if (Build.VERSION.SDK_INT >= 24) {
       // API24 and up has a package installer that can handle FileProvider content:// URIs
       Uri contentUri;
@@ -194,6 +214,59 @@ public class UtilsModule extends ReactContextBaseJavaModule {
       activity.runOnUiThread(() -> {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
       });
+    }
+  }
+
+  /**
+   保存图片到系统相册（长按封面保存，借鉴 MusicFree）
+   Android 10+ 通过 MediaStore 免存储权限；Android 9- 走外部存储共享目录
+   */
+  @ReactMethod
+  public void saveImageToGallery(String filePath, final Promise promise) {
+    try {
+      final File file = new File(filePath);
+      if (!file.exists() || !file.isFile()) {
+        promise.reject("SAVE_IMAGE_FAILED", "file not found: " + filePath);
+        return;
+      }
+      new Thread(() -> {
+        try {
+          final String mime = "image/jpeg";
+          final String displayName = file.getName();
+          final ContentValues values = new ContentValues();
+          values.put(MediaStore.MediaColumns.DISPLAY_NAME, displayName);
+          values.put(MediaStore.MediaColumns.MIME_TYPE, mime);
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/LXMusic");
+            values.put(MediaStore.MediaColumns.IS_PENDING, 1);
+          }
+          final Uri target = reactContext.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+          if (target == null) {
+            promise.reject("SAVE_IMAGE_FAILED", "create media entry failed");
+            return;
+          }
+          try (OutputStream out = reactContext.getContentResolver().openOutputStream(target);
+               FileInputStream in = new FileInputStream(file)) {
+            if (out == null) {
+              promise.reject("SAVE_IMAGE_FAILED", "open output stream failed");
+              return;
+            }
+            byte[] buf = new byte[8192];
+            int len;
+            while ((len = in.read(buf)) != -1) out.write(buf, 0, len);
+          }
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            values.clear();
+            values.put(MediaStore.MediaColumns.IS_PENDING, 0);
+            reactContext.getContentResolver().update(target, values, null, null);
+          }
+          promise.resolve(true);
+        } catch (Exception e) {
+          promise.reject("SAVE_IMAGE_FAILED", e.getMessage());
+        }
+      }).start();
+    } catch (Exception e) {
+      promise.reject("SAVE_IMAGE_FAILED", e.getMessage());
     }
   }
 
@@ -263,11 +336,149 @@ public class UtilsModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void shareText(String shareTitle, String title, String text) {
+    Activity activity = reactContext.getCurrentActivity();
+    if (activity == null) {
+      Log.e("Utils", "shareText: no current activity");
+      return;
+    }
     Intent shareIntent = new Intent(Intent.ACTION_SEND);
     shareIntent.setType("text/plain");
-    shareIntent.putExtra(Intent.EXTRA_TEXT,text);
+    shareIntent.putExtra(Intent.EXTRA_TEXT, text);
     shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-    Objects.requireNonNull(reactContext.getCurrentActivity()).startActivity(Intent.createChooser(shareIntent, shareTitle));
+    try {
+      activity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+    } catch (Exception e) {
+      Log.e("Utils", "shareText exception", e);
+    }
+  }
+
+  @ReactMethod
+  public void shareFile(String filePath, String fileProviderAuthority, String shareTitle, String title, Promise promise) {
+    File file = new File(filePath);
+    if (!file.exists()) {
+      Log.e("Utils", "shareFile: file does not exist '" + filePath + "'");
+      promise.reject("Utils", "shareFile: file does not exist '" + filePath + "'");
+      return;
+    }
+    Uri contentUri;
+    try {
+      contentUri = FileProvider.getUriForFile(getReactApplicationContext(), fileProviderAuthority, file);
+    } catch (Exception e) {
+      Log.e("Utils", "shareFile exception with authority name '" + fileProviderAuthority + "'", e);
+      promise.reject("Utils", e.getMessage());
+      return;
+    }
+    Activity activity = reactContext.getCurrentActivity();
+    if (activity == null) {
+      Log.e("Utils", "shareFile: no current activity");
+      promise.reject("Utils", "shareFile: no current activity");
+      return;
+    }
+    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+    shareIntent.setType("audio/*");
+    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+    shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    try {
+      activity.startActivity(Intent.createChooser(shareIntent, shareTitle));
+      promise.resolve(null);
+    } catch (Exception e) {
+      Log.e("Utils", "shareFile exception", e);
+      promise.reject("Utils", e.getMessage());
+    }
+  }
+
+  @ReactMethod
+  public void openFileInFileManager(String filePath, String fileProviderAuthority, Promise promise) {
+    File file = new File(filePath);
+    if (!file.exists()) {
+      Log.e("Utils", "openFileInFileManager: file does not exist '" + filePath + "'");
+      promise.reject("Utils", "file does not exist");
+      return;
+    }
+    try {
+      Uri contentUri = FileProvider.getUriForFile(getReactApplicationContext(), fileProviderAuthority, file);
+      Activity activity = reactContext.getCurrentActivity();
+      if (activity == null) {
+        promise.reject("Utils", "no current activity");
+        return;
+      }
+      // 先按文件的具体 MIME 打开；没有应用能处理时降级为 */*，
+      // 这样系统文件管理器（小米/华为/MT 等）通常能接管并在其界面中定位到该文件
+      Intent intent = new Intent(Intent.ACTION_VIEW);
+      intent.setDataAndType(contentUri, getMimeType(filePath));
+      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      if (intent.resolveActivity(activity.getPackageManager()) == null) {
+        intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(contentUri, "*/*");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+      }
+      activity.startActivity(intent);
+      promise.resolve(true);
+    } catch (Exception e) {
+      Log.e("Utils", "openFileInFileManager exception", e);
+      promise.reject("Utils", e.getMessage());
+    }
+  }
+
+  // 下载完成后写入音频标签（借鉴 Spotube 下载完成写元数据）
+  // coverPath 为本地封面文件路径（可选，null/空则只写文本标签）
+  @ReactMethod
+  public void writeAudioTag(String filePath, String title, String artist, String album, String coverPath, Promise promise) {
+    new Thread(() -> {
+      try {
+        File audioFile = new File(filePath);
+        if (!audioFile.exists()) {
+          promise.reject("Utils", "file does not exist");
+          return;
+        }
+        AudioFile af = AudioFileIO.read(audioFile);
+        Tag tag = af.getTag();
+        if (tag == null) {
+          tag = af.createDefaultTag();
+          af.setTag(tag);
+        }
+        if (title != null && !title.isEmpty()) tag.setField(FieldKey.TITLE, title);
+        if (artist != null && !artist.isEmpty()) tag.setField(FieldKey.ARTIST, artist);
+        if (album != null && !album.isEmpty()) tag.setField(FieldKey.ALBUM, album);
+        if (coverPath != null && !coverPath.isEmpty()) {
+          File coverFile = new File(coverPath);
+          if (coverFile.exists()) {
+            byte[] artBytes = readFileBytes(coverFile);
+            if (artBytes.length > 0) {
+              Artwork artwork = ArtworkFactory.createArtworkFromFile(coverFile);
+              tag.setField(artwork);
+            }
+          }
+        }
+        af.commit();
+        promise.resolve(true);
+      } catch (Exception e) {
+        Log.e("Utils", "writeAudioTag exception", e);
+        promise.reject("Utils", e.getMessage());
+      }
+    }).start();
+  }
+
+  private byte[] readFileBytes(File file) throws Exception {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    byte[] buf = new byte[8192];
+    try (InputStream fis = new FileInputStream(file)) {
+      int n;
+      while ((n = fis.read(buf)) != -1) bos.write(buf, 0, n);
+    }
+    return bos.toByteArray();
+  }
+
+  private String getMimeType(String filePath) {
+    String name = filePath.toLowerCase();
+    if (name.endsWith(".flac")) return "audio/flac";
+    if (name.endsWith(".mp3")) return "audio/mpeg";
+    if (name.endsWith(".m4a") || name.endsWith(".aac")) return "audio/mp4";
+    if (name.endsWith(".wav")) return "audio/wav";
+    if (name.endsWith(".ogg")) return "audio/ogg";
+    if (name.endsWith(".ape")) return "audio/ape";
+    return "*/*";
   }
 
   // https://stackoverflow.com/questions/73463341/in-per-app-language-how-to-get-app-locale-in-api-33-if-system-locale-is-diffe

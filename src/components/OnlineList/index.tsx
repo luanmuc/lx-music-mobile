@@ -3,10 +3,12 @@ import { View } from 'react-native'
 // import LoadingMask, { LoadingMaskType } from '@/components/common/LoadingMask'
 import List, { type ListProps, type ListType, type Status, type RowInfoType } from './List'
 import ListMenu, { type ListMenuType, type Position, type SelectInfo } from './ListMenu'
+import QualitySelect, { type QualitySelectType } from './QualitySelect'
 import ListMusicMultiAdd, { type MusicMultiAddModalType as ListAddMultiType } from '@/components/MusicMultiAddModal'
 import ListMusicAdd, { type MusicAddModalType as ListMusicAddType } from '@/components/MusicAddModal'
 import MultipleModeBar, { type MultipleModeBarType, type SelectMode } from './MultipleModeBar'
 import { clearMusicUrl, handleDislikeMusic, handlePlay, handlePlayLater, handleShare, handleShowMusicSourceDetail } from './listAction'
+import { startDownload, startBatchDownload } from '@/core/downloadManager'
 import { createStyle } from '@/utils/tools'
 
 export interface OnlineListProps {
@@ -37,6 +39,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   const listMusicAddRef = useRef<ListMusicAddType>(null)
   const listMusicMultiAddRef = useRef<ListAddMultiType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
+  const qualitySelectRef = useRef<QualitySelectType>(null)
   // const loadingMaskRef = useRef<LoadingMaskType>(null)
 
   useImperativeHandle(ref, () => ({
@@ -78,6 +81,13 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
     }
   }
 
+  const handleDownloadSelected = () => {
+    const selectedList = listRef.current?.getSelectedList()
+    if (!selectedList?.length) return
+    void startBatchDownload(selectedList)
+    hancelExitSelect()
+  }
+
   return (
     <View style={styles.container}>
       <View style={{ flex: 1 }}>
@@ -99,6 +109,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           onSwitchMode={hancelSwitchSelectMode}
           onSelectAll={isAll => listRef.current?.selectAll(isAll)}
           onExitSelectMode={hancelExitSelect}
+          onDownloadSelected={handleDownloadSelected}
         />
       </View>
       <ListMusicAdd ref={listMusicAddRef} onAdded={() => { hancelExitSelect() }} />
@@ -107,11 +118,16 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
         ref={listMenuRef}
         onPlay={info => { handlePlay(info.musicInfo) }}
         onPlayLater={info => { hancelExitSelect(); handlePlayLater(info.musicInfo, info.selectedList, hancelExitSelect) }}
+        onDownload={info => { qualitySelectRef.current?.show(info.musicInfo) }}
         onCopyName={info => { handleShare(info.musicInfo) }}
         onAdd={handleAddMusic}
         onMusicSourceDetail={info => { void handleShowMusicSourceDetail(info.musicInfo) }}
         onRemoveCache={info => { void clearMusicUrl(info.musicInfo) }}
         onDislikeMusic={info => { void handleDislikeMusic(info.musicInfo) }}
+      />
+      <QualitySelect
+        ref={qualitySelectRef}
+        onConfirm={(musicInfo, quality) => { void startDownload(musicInfo, quality) }}
       />
       {/* <LoadingMask ref={loadingMaskRef} /> */}
     </View>

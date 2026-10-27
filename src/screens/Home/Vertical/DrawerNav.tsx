@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 import { useI18n } from '@/lang'
 import { useNavActiveId, useStatusbarHeight } from '@/store/common/hook'
@@ -12,6 +12,19 @@ import type { InitState } from '@/store/common/state'
 import { exitApp, setNavActiveId } from '@/core/common'
 import Text from '@/components/common/Text'
 import { useSettingValue } from '@/store/setting/hook'
+import { getPlayCount } from '@/core/player/playCount'
+import { useTimeoutExitTimeInfo } from '@/core/player/timeoutExit'
+import TimeoutExitEditModal, { type TimeoutExitEditModalType, useTimeInfo } from '@/components/TimeoutExitEditModal'
+
+// 播放时长格式化：秒 → "M:SS" 或 "H:MM:SS"
+const formatPlayTime = (seconds: number) => {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  const mm = String(m).padStart(2, '0')
+  const ss = String(s).padStart(2, '0')
+  return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`
+}
 
 const styles = createStyle({
   container: {
@@ -22,14 +35,17 @@ const styles = createStyle({
   },
   header: {
     paddingTop: 40,
-    paddingBottom: 50,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    paddingBottom: 30,
+    flexDirection: 'column',
     alignItems: 'center',
   },
-  headerText: {
+  statsMain: {
     textAlign: 'center',
-    marginLeft: 16,
+  },
+  statsSub: {
+    textAlign: 'center',
+    marginTop: 6,
+    opacity: 0.75,
   },
   menus: {
     flex: 1,
@@ -60,11 +76,21 @@ const styles = createStyle({
 const Header = () => {
   const theme = useTheme()
   const statusBarHeight = useStatusbarHeight()
+  const [playCount, setPlayCount] = useState(getPlayCount())
+  useEffect(() => {
+    // 每 30 秒刷新一次听歌统计
+    const timer = setInterval(() => setPlayCount(getPlayCount()), 30000)
+    return () => clearInterval(timer)
+  }, [])
   return (
     <View style={{ paddingTop: statusBarHeight, backgroundColor: theme['c-primary-light-700-alpha-500'] }}>
       <View style={styles.header}>
-        <Icon name="logo" color={theme['c-primary-dark-100-alpha-300']} size={28} />
-        <Text style={styles.headerText} size={28} color={theme['c-primary-dark-100-alpha-300']}>LX Music</Text>
+        <Text style={styles.statsMain} size={20} color={theme['c-primary-dark-100-alpha-300']}>
+          累计播放 {playCount.playedCount} 次
+        </Text>
+        <Text style={styles.statsSub} size={12} color={theme['c-primary-dark-100-alpha-300']}>
+          今日 {playCount.dayCount} 次 · 时长 {formatPlayTime(playCount.playTime)}
+        </Text>
       </View>
     </View>
   )
@@ -94,6 +120,46 @@ const MenuItem = ({ id, icon, onPress }: {
         </View>
         <Text style={styles.text}>{t(id)}</Text>
       </TouchableOpacity>
+}
+
+// 定时关闭菜单项：显示剩余时间（每秒更新），点击弹出设置
+const TimeoutExitMenuItem = () => {
+  const t = useI18n()
+  const theme = useTheme()
+  const modalRef = useRef<TimeoutExitEditModalType>(null)
+  const timeInfo = useTimeInfo()
+  const { time, isPlayedStop } = useTimeoutExitTimeInfo()
+
+  const active = time >= 0
+  const remainText = active
+    ? (() => {
+        const h = Math.floor(time / 3600)
+        const m = Math.floor((time % 3600) / 60)
+        const s = Math.floor(time % 60)
+        const mm = String(m).padStart(2, '0')
+        const ss = String(s).padStart(2, '0')
+        return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
+      })()
+    : ''
+
+  return (
+    <>
+      <TouchableOpacity style={styles.menuItem} onPress={() => {
+        global.app_event.changeMenuVisible(false)
+        modalRef.current?.show()
+      }}>
+        <View style={styles.iconContent}>
+          <Icon name="music_time" size={20} color={active ? theme['c-primary-font-active'] : theme['c-font-label']} />
+        </View>
+        <Text style={styles.text} color={active ? theme['c-primary-font'] : undefined}>
+          {active ? t('timeout_exit_sidebar_remaining', { time: remainText })
+            : isPlayedStop ? t('timeout_exit_sidebar_waiting')
+            : t('nav_timeout_exit')}
+        </Text>
+      </TouchableOpacity>
+      <TimeoutExitEditModal ref={modalRef} timeInfo={timeInfo} />
+    </>
+  )
 }
 
 export default memo(() => {
@@ -129,6 +195,7 @@ export default memo(() => {
       <ScrollView style={styles.menus}>
         <View style={styles.list}>
           {NAV_MENUS.map(menu => <MenuItem key={menu.id} id={menu.id} icon={menu.icon} onPress={handlePress} />)}
+          <TimeoutExitMenuItem />
         </View>
       </ScrollView>
 

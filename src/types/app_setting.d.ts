@@ -202,6 +202,11 @@ declare global {
       'player.isShowBluetoothFullLyric': boolean
 
       /**
+       * 通知栏标题是否显示当前歌词（默认关）
+       */
+      'player.isShowNotificationLyric': boolean
+
+      /**
        * 播放详情页-是否缩放当前播放的歌词行
        */
       // 'playDetail.isZoomActiveLrc': boolean
@@ -350,6 +355,31 @@ declare global {
        * 文件命名方式
        */
       'download.fileName': '歌名 - 歌手' | '歌手 - 歌名' | '歌名'
+
+      /**
+       * 仅 WiFi 环境下下载
+       */
+      'download.onlyWifi': boolean
+
+      /**
+       * 最大并发下载任务数
+       */
+      'download.maxTask': number
+
+      /**
+       * 下载失败自动重试
+       */
+      'download.autoRetry': boolean
+
+      /**
+       * 下载完成通知
+       */
+      'download.notifyComplete': boolean
+
+      /**
+       * 自定义下载目录（为空则使用公共下载目录）
+       */
+      'download.dir': string
 
       /**
        * 是否启用同步

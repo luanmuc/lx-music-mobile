@@ -32,7 +32,8 @@ const timeoutTools = {
   clearTimeout() {
     if (!this.bgTimeout) return
     BackgroundTimer.clearTimeout(this.bgTimeout)
-    clearInterval(this.timeout!)
+    // RN 运行时 setInterval 返回 number，类型标注为 NodeJS.Timer 仅用于兼容 @types/node
+    clearInterval(this.timeout as unknown as number)
     this.bgTimeout = null
     this.timeout = null
     this.time = -1

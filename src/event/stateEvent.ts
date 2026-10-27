@@ -60,6 +60,10 @@ export class StateEvent extends Event {
     this.emit('playStateTextChanged', text)
   }
 
+  playQualityChanged(playQuality: PlayerState['playQuality']) {
+    this.emit('playQualityChanged', playQuality)
+  }
+
   playStateChanged(state: PlayerState['isPlay']) {
     this.emit('playStateChanged', state)
   }
@@ -120,6 +124,13 @@ export class StateEvent extends Event {
 
   sourceNamesUpdated(names: CommonState['sourceNames']) {
     this.emit('sourceNamesUpdated', names)
+  }
+
+  /**
+   * 下载列表更新
+   */
+  downloadListUpdated(list: LX.Download.ListItem[]) {
+    this.emit('downloadListUpdated', list)
   }
 }
 

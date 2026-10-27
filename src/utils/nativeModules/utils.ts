@@ -48,6 +48,12 @@ export const shareText = async(shareTitle: string, title: string, text: string):
   UtilsModule.shareText(shareTitle, title, text)
 }
 
+export const shareFile = (filePath: string, shareTitle: string, title: string): Promise<void> =>
+  UtilsModule.shareFile(filePath, 'com.luanmuc.lxmusic.provider', shareTitle, title)
+
+export const openFileInFileManager = (filePath: string): Promise<boolean> =>
+  UtilsModule.openFileInFileManager(filePath, 'com.luanmuc.lxmusic.provider')
+
 export const getSystemLocales = async(): Promise<string> => {
   return UtilsModule.getSystemLocales()
 }
@@ -99,3 +105,14 @@ export const requestIgnoreBatteryOptimization = async() => new Promise<boolean>(
     resolve(false)
   })
 })
+
+/**
+ * 下载完成后写入音频标签（借鉴 Spotube 写元数据）
+ * @param filePath 音频文件路径
+ * @param title 标题
+ * @param artist 歌手
+ * @param album 专辑（可为空）
+ * @param coverPath 本地封面图路径（可为空，为空则只写文本标签）
+ */
+export const writeAudioTag = (filePath: string, title: string, artist: string, album: string, coverPath?: string): Promise<boolean> =>
+  UtilsModule.writeAudioTag(filePath, title, artist, album, coverPath ?? '')

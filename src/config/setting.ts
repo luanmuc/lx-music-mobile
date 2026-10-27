@@ -115,7 +115,6 @@ export const initSetting = async() => {
     }
     // v2.2 迁移
     if (compareVer(setting.version as string, '2.2') < 0) {
-      setting['player.playQuality'] = 'flac24bit'
       setting['player.isShowLyricTranslation'] = false
       setting['player.isShowLyricRoma'] = false
       setting['playDetail.isShowLyricProgressSetting'] = true

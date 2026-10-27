@@ -160,20 +160,9 @@ const List = forwardRef<ListType, ListProps>(({
       if (isMultiSelectModeRef.current) {
         handleSelect(item, index)
       } else {
-        if (settingState.setting['list.isClickPlayList']) {
-          if (onPlayList != null) {
-            // 外部自定义了播放逻辑（如排行榜/歌单详情页），交给外部处理
-            onPlayList(index)
-          } else if (currentList.length) {
-            // 没有外部回调时，把整个当前列表设为临时播放列表，从点击的歌曲开始播放
-            void setTempList('online_list', [...currentList]).then(() => {
-              void playList(LIST_IDS.TEMP, index)
-            })
-          } else {
-            handlePlay(currentList[index])
-          }
+        if (settingState.setting['list.isClickPlayList'] && onPlayList != null) {
+          onPlayList(index)
         } else {
-          // 单曲模式：只播放当前这一首歌
           handlePlay(currentList[index])
         }
       }

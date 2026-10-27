@@ -110,7 +110,6 @@ export const initSetting = async() => {
   if (setting && setting.version) {
     // v2.1 迁移
     if (compareVer(setting.version as string, '2.1') < 0) {
-      setting['list.isClickPlayList'] = true
       setting['common.allowProgressBarSeek'] = false
     }
     // v2.2 迁移

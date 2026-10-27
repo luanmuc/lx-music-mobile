@@ -13,9 +13,6 @@ import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { handlePlay } from './listAction'
 import { useSettingValue } from '@/store/setting/hook'
-import { setTempList } from '@/core/list'
-import { playList } from '@/core/player/player'
-import { LIST_IDS } from '@/config/constant'
 
 type FlatListType = FlatListProps<LX.Music.MusicInfoOnline>
 

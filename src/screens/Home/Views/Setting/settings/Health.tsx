@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import Section from '../components/Section'
 import SubTitle from '../components/SubTitle'
@@ -8,14 +8,16 @@ import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 
-// 音源健康快照（音源 getHealthSnapshot 聚合查询，v16.3）
+// 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数）
 interface HealthItem {
   name: string
   maxQuality: string
   enabled: boolean
-  successRate: number
-  avgTime: number
+  successRate: number | null
+  avgTime: number | null
   state: 'closed' | 'open' | 'half-open'
+  reqCount: number
+  probeCount: number
   healthScore: number
 }
 type HealthSnapshot = Record<string, HealthItem>
@@ -33,6 +35,9 @@ const getHealthQuerier = (): (() => { promise: Promise<any> }) | null => {
   const sourceId = Object.keys(apis).find(id => typeof apis[id]?.getHealth === 'function')
   return sourceId ? apis[sourceId].getHealth : null
 }
+
+// 无样本（未产生任何请求/探测）判定
+const hasSample = (item: HealthItem) => (item.reqCount ?? 0) > 0 || (item.probeCount ?? 0) > 0
 
 export default memo(() => {
   const t = useI18n()
@@ -83,7 +88,7 @@ export default memo(() => {
         }
         {
           snapshot && items.length ? (
-            <ScrollView style={styles.tableWrap} nestedScrollEnabled>
+            <View style={styles.tableWrap}>
               <View style={[styles.row, styles.headRow, { backgroundColor: theme['c-primary-background-active'] }]}>
                 <Text size={12} style={styles.colName}>{t('health_col_source')}</Text>
                 <Text size={12} style={styles.colSmall}>{t('health_col_quality')}</Text>
@@ -93,18 +98,43 @@ export default memo(() => {
                 <Text size={12} style={styles.colSmall}>{t('health_col_score')}</Text>
               </View>
               {
-                items.map(([id, item]) => (
-                  <View key={id} style={[styles.row, { borderBottomColor: theme['c-border-background'] }]}>
-                    <Text numberOfLines={1} size={12} style={styles.colName} color={item.enabled ? theme['c-font'] : theme['c-font-label']}>{item.name}</Text>
-                    <Text size={12} style={styles.colSmall}>{item.maxQuality.toUpperCase()}</Text>
-                    <Text size={12} style={styles.colSmall} color={item.successRate >= 0.6 ? theme['c-font'] : '#ff4d4f'}>{(item.successRate * 100).toFixed(0)}%</Text>
-                    <Text size={12} style={styles.colSmall}>{item.avgTime >= 99999 ? '-' : `${item.avgTime}ms`}</Text>
-                    <Text size={12} style={styles.colSmall} color={item.enabled ? STATE_COLOR[item.state] : theme['c-font-label']}>{item.enabled ? t(`health_state_${item.state}`) : t('health_state_disabled')}</Text>
-                    <Text size={12} style={styles.colSmall} color={item.healthScore >= 0.3 ? '#52c41a' : item.healthScore >= -0.5 ? theme['c-font'] : '#ff4d4f'}>{item.healthScore.toFixed(2)}</Text>
-                  </View>
-                ))
+                // v16.4：全部行直接渲染，表格随音源数量自动撑高（整页滚动，不再 maxHeight 截断）
+                items.map(([id, item]) => {
+                  const sampled = hasSample(item)
+                  const rateText = item.successRate == null ? '-' : `${(item.successRate * 100).toFixed(0)}%`
+                  const timeText = item.avgTime == null ? '-' : `${Math.round(item.avgTime)}ms`
+                  // 无样本：状态显示「待采样」（灰）；有样本熔断才显示红色「熔断」
+                  const stateText = item.enabled
+                    ? sampled ? t(`health_state_${item.state}`) : t('health_state_idle')
+                    : t('health_state_disabled')
+                  const stateColor = item.enabled
+                    ? sampled ? STATE_COLOR[item.state] : theme['c-font-label']
+                    : theme['c-font-label']
+                  const scoreText = !sampled ? '-' : item.healthScore.toFixed(2)
+                  const scoreColor = !sampled ? theme['c-font-label']
+                    : item.healthScore >= 0.3 ? '#52c41a' : item.healthScore >= -0.5 ? theme['c-font'] : '#ff4d4f'
+                  const rateColor = !sampled || item.successRate == null ? theme['c-font-label']
+                    : item.successRate >= 0.6 ? theme['c-font'] : '#ff4d4f'
+                  return (
+                    <View key={id} style={[styles.row, { borderBottomColor: theme['c-border-background'] }]}>
+                      <Text numberOfLines={1} size={12} style={styles.colName} color={item.enabled ? theme['c-font'] : theme['c-font-label']}>{item.name}</Text>
+                      <Text size={12} style={styles.colSmall}>{item.maxQuality.toUpperCase()}</Text>
+                      <Text size={12} style={styles.colSmall} color={rateColor}>{rateText}</Text>
+                      <Text size={12} style={styles.colSmall} color={sampled ? theme['c-font'] : theme['c-font-label']}>{timeText}</Text>
+                      <Text size={12} style={styles.colSmall} color={stateColor}>{stateText}</Text>
+                      <Text size={12} style={styles.colSmall} color={scoreColor}>{scoreText}</Text>
+                    </View>
+                  )
+                })
               }
-            </ScrollView>
+            </View>
+          ) : null
+        }
+        {
+          snapshot && items.length ? (
+            <View style={styles.desc}>
+              <Text size={12} color={theme['c-font-label']}>{t('health_footnote')}</Text>
+            </View>
           ) : null
         }
         {
@@ -121,6 +151,7 @@ export default memo(() => {
 
 const styles = StyleSheet.create({
   desc: {
+    marginTop: 10,
     marginBottom: 8,
   },
   btn: {
@@ -129,7 +160,6 @@ const styles = StyleSheet.create({
   },
   tableWrap: {
     marginTop: 4,
-    maxHeight: 300,
   },
   row: {
     flexDirection: 'row',

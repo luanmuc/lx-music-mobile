@@ -566,5 +566,7 @@
   "health_state_open": "正常",
   "health_state_half_open": "半开",
   "health_state_closed": "熔断",
-  "health_state_disabled": "已关"
+  "health_state_disabled": "已关",
+  "health_state_idle": "待采样",
+  "health_footnote": "说明：- 表示该子源尚未产生播放/探测样本；播放或健康探测后自动更新。状态：正常/半开/熔断（有样本）、待采样（无样本）、已关（运行时关闭）"
 }

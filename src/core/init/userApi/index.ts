@@ -171,6 +171,32 @@ export default async(setting: LX.AppSetting) => {
                   }
                 }
                 break
+              case 'health':
+                // v16.3：健康快照（音源 getHealthSnapshot 聚合查询，与具体源无关；任一源可调）
+                apis[source].getHealth = () => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'health',
+                        info: {},
+                      },
+                      // eslint-disable-next-line @typescript-eslint/promise-function-async
+                    }).then(res => {
+                      // console.log(res)
+                      return res.data
+                    }).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
               default:
                 break
             }

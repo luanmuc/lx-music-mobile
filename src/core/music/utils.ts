@@ -570,3 +570,38 @@ export const getPlayQualityLabel = (quality: string): string => {
   if (!quality) return ''
   return PLAY_QUALITY_LABELS[quality] ?? quality.toUpperCase()
 }
+
+// ============================================================
+// 音源失败原因友好化（v16.3：播放失败提示中文摘要）
+// 音源聚合失败 message 格式（v14.0+）：`CODE: 所有源均失败 [[q] 源: 原因 | ...]`
+// 或 `CODE: 单源原因`；内置源错误为 requestMsg 中文文案（原样截断返回）
+// ============================================================
+const FAIL_CODE_ZH: Record<string, string> = {
+  NOT_FOUND: '歌曲不可用',
+  NETWORK_ERROR: '网络错误',
+  TIMEOUT: '请求超时',
+  PARAM_ERROR: '请求参数错误',
+  TOO_MANY_REQUESTS: '请求过于频繁，请稍后再试',
+  UNKNOWN: '未知错误',
+}
+
+export const formatPlayError = (err: any): string => {
+  const fallback = global.i18n.t('player__error')
+  const msg = String(err?.message ?? '')
+  if (!msg) return fallback
+  const m = msg.match(/^([A-Z_]+):\s*(.*)$/)
+  const trim = (s: string, n = 26) => (s.length > n ? `${s.slice(0, n)}…` : s)
+  if (!m) return msg.length > 40 ? `${msg.slice(0, 40)}…` : msg
+  const [, code, rest] = m
+  const zh = FAIL_CODE_ZH[code] || code
+  // 聚合失败：取前两个明细摘要（去掉 [音质] 前缀）
+  if (rest.startsWith('所有源均失败')) {
+    const detailMatch = rest.match(/\[(.*)\]/)
+    const details = detailMatch
+      ? detailMatch[1].split(' | ').filter(Boolean).slice(0, 2).map(d => d.replace(/^\[[^\]]+\]\s*/, ''))
+      : []
+    if (details.length) return `${zh}：${trim(details.join('；'))}`
+    return `${zh}：所有源均失败`
+  }
+  return `${zh}：${trim(rest.replace(/，跳过$/, '').replace(/\(可能需VIP\)/, ''))}`
+}

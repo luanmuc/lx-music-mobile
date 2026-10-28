@@ -254,6 +254,15 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
               data: response,
             }
             break
+          case 'health':
+            // v16.3：健康快照透传（聚合对象，App 设置页「音源健康」面板消费）
+            if (typeof response != 'object' || response === null) throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
+            }
+            break
         }
         nativeCall(NATIVE_EVENTS_NAMES.response, { requestKey, status: true, result })
       }).catch(err => {

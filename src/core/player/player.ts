@@ -31,6 +31,7 @@ import { LIST_IDS } from '@/config/constant'
 import { addListMusics, removeListMusics } from '@/core/list'
 import { addPlayCount } from '@/core/player/playCount'
 import { addDislikeInfo } from '@/core/dislikeList'
+import { formatPlayError } from '@/core/music/utils'
 
 // import { checkMusicFileAvailable } from '@renderer/utils/music'
 
@@ -158,7 +159,8 @@ export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
     setResource(musicInfo, url, playerState.progress.nowPlayTime)
   }).catch((err: any) => {
     console.log(err)
-    setStatusText(err.message as string)
+    // v16.3：音源失败原因友好化（原为 err.message 大段英文技术细节）
+    setStatusText(formatPlayError(err))
     global.app_event.error()
     addDelayNextTimeout()
   }).finally(() => {

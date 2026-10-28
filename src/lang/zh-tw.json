@@ -550,5 +550,21 @@
   "official_status_checking": "檢測中…",
   "official_modal_title": "🌟 官方上游有新版本 🌟",
   "official_modal_desc": "洛雪音樂原版（lyswhut/lx-music-mobile）已發布新版本 v{latest}，目前定制版底座為 v{base}。定制版將隨上游迭代，詳情可在「設定 → 軟體更新」查看。",
-  "official_btn_ok": "知道了"
+  "official_btn_ok": "知道了",
+  "setting_health": "音源健康",
+  "health_desc": "音源即時健康快照：各子源成功率 / 均時 / 熔斷狀態 / 健康分",
+  "health_refresh": "重新整理",
+  "health_loading": "載入中…",
+  "health_no_source": "未偵測到支援健康查詢的音源（需音源聲明 health action，v16.3+）",
+  "health_load_failed": "健康資料載入失敗",
+  "health_col_source": "音源",
+  "health_col_quality": "音質",
+  "health_col_success": "成功率",
+  "health_col_time": "均時",
+  "health_col_state": "狀態",
+  "health_col_score": "健康分",
+  "health_state_open": "正常",
+  "health_state_half_open": "半開",
+  "health_state_closed": "熔斷",
+  "health_state_disabled": "已關"
 }

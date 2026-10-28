@@ -550,5 +550,21 @@
   "official_status_checking": "checking…",
   "official_modal_title": "🌟 Upstream has a new version 🌟",
   "official_modal_desc": "The original LX Music Mobile (lyswhut/lx-music-mobile) has released v{latest}, while this custom build is based on v{base}. It will follow upstream updates; see Settings → Software Update for details.",
-  "official_btn_ok": "Got it"
+  "official_btn_ok": "Got it",
+  "setting_health": "Source Health",
+  "health_desc": "Live health snapshot: success rate / avg time / breaker state / health score per sub-source",
+  "health_refresh": "Refresh",
+  "health_loading": "Loading…",
+  "health_no_source": "No source supports health query (requires health action, v16.3+)",
+  "health_load_failed": "Failed to load health data",
+  "health_col_source": "Source",
+  "health_col_quality": "Quality",
+  "health_col_success": "Rate",
+  "health_col_time": "Avg",
+  "health_col_state": "State",
+  "health_col_score": "Score",
+  "health_state_open": "OK",
+  "health_state_half_open": "Half",
+  "health_state_closed": "Closed",
+  "health_state_disabled": "Off"
 }

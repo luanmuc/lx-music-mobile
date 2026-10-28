@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react'
 import state, { type InitState } from './state'
 import { getListMusics } from '@/core/list'
+import { LIST_IDS } from '@/config/constant'
+
+// 定制：砍掉「试听列表」（defaultList），我的列表只保留「我的收藏」与用户列表
+const filterList = (lists: InitState['allList']) => lists.filter(l => l.id != LIST_IDS.DEFAULT)
 
 export const useMyList = () => {
   const [lists, setList] = useState(state.allList)
-  lists[0].name = global.i18n.t('list_name_default')
-  lists[1].name = global.i18n.t('list_name_love')
+  let _lists = filterList(lists)
+  _lists[0].name = global.i18n.t('list_name_love')
 
   useEffect(() => {
     const handleConfigUpdate = (keys: Array<keyof LX.AppSetting>) => {
       if (!keys.includes('common.langId')) return
       setList((lists) => {
-        lists[0].name = global.i18n.t('list_name_default')
-        lists[1].name = global.i18n.t('list_name_love')
-        return [...lists]
+        const _lists = filterList(lists)
+        _lists[0].name = global.i18n.t('list_name_love')
+        return [..._lists]
       })
     }
     global.state_event.on('mylistUpdated', setList)
@@ -24,7 +28,7 @@ export const useMyList = () => {
     }
   }, [])
 
-  return lists
+  return _lists
 }
 
 export const useActiveListId = () => {

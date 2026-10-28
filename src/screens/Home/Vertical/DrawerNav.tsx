@@ -4,12 +4,13 @@ import { useI18n } from '@/lang'
 import { useNavActiveId, useStatusbarHeight } from '@/store/common/hook'
 import { useTheme } from '@/store/theme/hook'
 import { Icon } from '@/components/common/Icon'
-import { confirmDialog, createStyle, exitApp as backHome } from '@/utils/tools'
-import { NAV_MENUS } from '@/config/constant'
+import { createStyle, exitApp as backHome } from '@/utils/tools'
+import { NAV_MENUS, LIST_IDS } from '@/config/constant'
 import type { InitState } from '@/store/common/state'
 // import { navigations } from '@/navigation'
 // import commonState from '@/store/common/state'
 import { exitApp, setNavActiveId } from '@/core/common'
+import { setActiveList } from '@/core/list'
 import Text from '@/components/common/Text'
 import { useSettingValue } from '@/store/setting/hook'
 import { getPlayCount } from '@/core/player/playCount'
@@ -171,17 +172,15 @@ export default memo(() => {
   const handlePress = (id: IdType) => {
     switch (id) {
       case 'nav_exit':
-        void confirmDialog({
-          message: global.i18n.t('exit_app_tip'),
-          confirmButtonText: global.i18n.t('list_remove_tip_button'),
-        }).then(isExit => {
-          if (!isExit) return
-          exitApp('Exit Btn')
-        })
+        exitApp('Exit Btn')
         return
       case 'back_home':
         backHome()
         return
+      case 'nav_love':
+        // 定制：侧边栏「收藏」直接打开我的收藏列表
+        setActiveList(LIST_IDS.LOVE)
+        break
     }
 
     global.app_event.changeMenuVisible(false)

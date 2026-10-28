@@ -106,8 +106,12 @@ const saveListPrevSelectIdThrottle = throttle(() => {
 }, 200)
 export const getListPrevSelectId = async() => {
   // eslint-disable-next-line require-atomic-updates
-  listPrevSelectId ??= await getData(listPrevSelectIdKey) ?? LIST_IDS.DEFAULT
-  return listPrevSelectId || LIST_IDS.DEFAULT
+  // 定制：默认/上次选择为「试听列表」（default）时归到「我的收藏」（love），配合砍掉试听列表
+  listPrevSelectId ??= (async() => {
+    const savedId = await getData(listPrevSelectIdKey)
+    return savedId == LIST_IDS.DEFAULT ? LIST_IDS.LOVE : savedId || LIST_IDS.LOVE
+  })()
+  return listPrevSelectId || LIST_IDS.LOVE
 }
 export const saveListPrevSelectId = (id: string) => {
   listPrevSelectId = id

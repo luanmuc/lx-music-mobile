@@ -7,6 +7,7 @@ import { useProgress, usePlayQuality } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import PlayQualityTag from '@/components/PlayQualityTag'
 import { useBufferProgress } from '@/plugins/player'
 import { getPlayQualityLabel } from '@/core/music/utils'
 
@@ -24,7 +25,6 @@ const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
 })
 
 export default () => {
-  const theme = useTheme()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
   const playQuality = usePlayQuality()
@@ -36,7 +36,7 @@ export default () => {
     <>
       {
         qualityLabel
-          ? <View style={styles.quality}><Text size={12} color={theme['c-500']}>{qualityLabel}</Text></View>
+          ? <View style={styles.quality}><PlayQualityTag label={qualityLabel} showLabel size={12} /></View>
           : null
       }
       <View style={styles.progress}><Progress progress={progress} duration={maxPlayTime} buffered={buffered} /></View>
@@ -63,7 +63,7 @@ const styles = createStyle({
     flexGrow: 0,
     flexShrink: 0,
     paddingBottom: 3,
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   info: {
     flexDirection: 'row',

@@ -8,6 +8,7 @@ import { useTheme } from '@/store/theme/hook'
 import commonState from '@/store/common/state'
 import playerState from '@/store/player/state'
 import Text from '@/components/common/Text'
+import PlayQualityTag from '@/components/PlayQualityTag'
 import { LIST_IDS } from '@/config/constant'
 import { createStyle, formatMusicName } from '@/utils/tools'
 import { getPlayQualityLabel } from '@/core/music/utils'
@@ -48,7 +49,7 @@ export default ({ isHome }: { isHome: boolean }) => {
         <Text style={styles.titleText} color={theme['c-font-label']} numberOfLines={1}>{title}</Text>
         {
           qualityLabel
-            ? <Text size={10} color={theme['c-500']} style={styles.quality}>{qualityLabel}</Text>
+            ? <PlayQualityTag label={qualityLabel} size={10} />
             : null
         }
       </View>
@@ -91,10 +92,5 @@ const styles = createStyle({
   },
   titleText: {
     flexShrink: 1,
-  },
-  quality: {
-    flexShrink: 0,
-    marginLeft: 4,
-    fontWeight: 'bold',
   },
 })

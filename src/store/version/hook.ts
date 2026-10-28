@@ -14,6 +14,20 @@ export const useVersionInfo = () => {
   return info
 }
 
+// 官方上游版本信息（定制版专属）
+export const useOfficialVersionInfo = () => {
+  const [info, setInfo] = useState(state.official)
+
+  useEffect(() => {
+    global.state_event.on('officialVersionInfoUpdated', setInfo)
+    return () => {
+      global.state_event.off('officialVersionInfoUpdated', setInfo)
+    }
+  }, [])
+
+  return info
+}
+
 export const useVersionDownloadProgressUpdated = () => {
   const [status, setStatus] = useState(state.progress)
 

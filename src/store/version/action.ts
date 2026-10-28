@@ -22,5 +22,9 @@ export default {
     if (state.showModal == visible) return
     state.showModal = visible
   },
+  setOfficialInfo(info: Partial<InitState['official']>) {
+    Object.assign(state.official, info)
+    global.state_event.officialVersionInfoUpdated({ ...state.official })
+  },
 }
 

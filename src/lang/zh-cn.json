@@ -540,5 +540,15 @@
   "setting_custom_source": "自定义音源",
   "play_list_song_count": "{num} 首",
   "play_list_empty": "暂无播放列表",
-  "playing": "正在播放"
+  "playing": "正在播放",
+  "official_label_upstream": "官方上游：",
+  "official_label_base": "底座版本 ",
+  "official_label_latest": "官方最新 ",
+  "official_status_latest": "已是最新",
+  "official_status_update": "有新版本 ⬆",
+  "official_status_failed": "获取失败",
+  "official_status_checking": "检测中…",
+  "official_modal_title": "🌟 官方上游有新版本 🌟",
+  "official_modal_desc": "洛雪音乐原版（lyswhut/lx-music-mobile）已发布新版本 v{latest}，当前定制版底座为 v{base}。定制版将随上游迭代，详情可在「设置 → 软件更新」查看。",
+  "official_btn_ok": "知道了"
 }

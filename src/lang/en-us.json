@@ -540,5 +540,15 @@
   "setting_custom_source": "Custom Source",
   "play_list_song_count": "{num} songs",
   "play_list_empty": "No playlist",
-  "playing": "Playing"
+  "playing": "Playing",
+  "official_label_upstream": "Upstream: ",
+  "official_label_base": "Base v",
+  "official_label_latest": "Official latest v",
+  "official_status_latest": "up to date",
+  "official_status_update": "update available ⬆",
+  "official_status_failed": "failed to check",
+  "official_status_checking": "checking…",
+  "official_modal_title": "🌟 Upstream has a new version 🌟",
+  "official_modal_desc": "The original LX Music Mobile (lyswhut/lx-music-mobile) has released v{latest}, while this custom build is based on v{base}. It will follow upstream updates; see Settings → Software Update for details.",
+  "official_btn_ok": "Got it"
 }

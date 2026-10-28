@@ -14,6 +14,7 @@ import settingState from '@/store/setting/state'
 import { bootLog } from '@/utils/bootLog'
 import { cheatTip } from '@/utils/tools'
 import { checkUpdate } from '@/core/version'
+import { checkOfficialUpdate } from '@/core/officialVersion'
 import { logger } from '@/utils/logger'
 
 let isFirstPush = true
@@ -24,6 +25,8 @@ const handlePushedHomeScreen = async() => {
       isFirstPush = false
       // 启动自动检查更新：有新版本时弹窗提示（与原版一致）
       void checkUpdate()
+      // 定制版：检查官方上游是否有新版本（官方有新版本时弹窗提醒一次）
+      void checkOfficialUpdate()
       void initDeeplink()
     }
   } else {

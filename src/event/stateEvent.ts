@@ -106,6 +106,10 @@ export class StateEvent extends Event {
     this.emit('versionInfoUpdated', info)
   }
 
+  officialVersionInfoUpdated(info: VersionState['official']) {
+    this.emit('officialVersionInfoUpdated', info)
+  }
+
   versionInfoIgnoreVersionUpdated(version: VersionState['ignoreVersion']) {
     this.emit('versionInfoIgnoreVersionUpdated', version)
   }

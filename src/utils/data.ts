@@ -16,6 +16,7 @@ const listScrollPositionKey = storageDataPrefix.listScrollPosition
 const listUpdateInfoKey = storageDataPrefix.listUpdateInfo
 const ignoreVersionKey = storageDataPrefix.ignoreVersion
 const ignoreVersionFailTipTimeKey = storageDataPrefix.ignoreVersionFailTipTimeKey
+const officialVersionShownPrefix = storageDataPrefix.officialVersionShown
 const searchSettingKey = storageDataPrefix.searchSetting
 const searchHistoryListKey = storageDataPrefix.searchHistoryList
 const songListSettingKey = storageDataPrefix.songListSetting
@@ -199,6 +200,23 @@ export const getIgnoreVersionFailTipTime = async() => {
   // eslint-disable-next-line require-atomic-updates
   if (ignoreVersionFailTipTime === undefined) ignoreVersionFailTipTime = (await getData<number | null>(ignoreVersionFailTipTimeKey))
   return ignoreVersionFailTipTime ?? 0
+}
+
+// 官方上游版本提醒去重：已弹过提示的官方版本号（同一官方版本只提醒一次，官方再出新版本才再提醒）
+let officialVersionShown: string | null
+export const saveOfficialVersionShown = (version: string | null) => {
+  officialVersionShown = version
+  if (version == null) {
+    void removeData(officialVersionShownPrefix)
+  } else {
+    void saveData(officialVersionShownPrefix, version)
+  }
+}
+// 获取已提醒过的官方版本号
+export const getOfficialVersionShown = async() => {
+  // eslint-disable-next-line require-atomic-updates
+  if (officialVersionShown === undefined) officialVersionShown = (await getData<string | null>(officialVersionShownPrefix)) ?? null
+  return officialVersionShown
 }
 
 let openStoragePath: string | null = ''

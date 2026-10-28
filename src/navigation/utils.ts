@@ -1,6 +1,7 @@
 import { Navigation } from 'react-native-navigation'
 import {
   VERSION_MODAL,
+  OFFICIAL_VERSION_MODAL,
   PACT_MODAL,
   SYNC_MODE_MODAL,
 } from './screenNames'
@@ -112,6 +113,36 @@ export const showVersionModal = () => {
     },
   })
 }
+
+// 官方上游版本更新弹窗（定制版专属）
+export const showOfficialVersionModal = () => {
+  const theme = themeState.theme
+
+  void Navigation.showOverlay({
+    component: {
+      name: OFFICIAL_VERSION_MODAL,
+      options: {
+        layout: {
+          componentBackgroundColor: 'transparent',
+        },
+        overlay: {
+          interceptTouchOutside: true,
+        },
+        statusBar: {
+          drawBehind: true,
+          visible: true,
+          style: getStatusBarStyle(theme.isDark),
+          backgroundColor: 'transparent',
+        },
+        navigationBar: {
+          backgroundColor: theme['c-content-background'],
+        },
+      },
+    },
+  })
+}
+
+export const hideOfficialVersionModal = async(componentId: string) => Navigation.dismissOverlay(componentId)
 
 export const showSyncModeModal = () => {
   const theme = themeState.theme

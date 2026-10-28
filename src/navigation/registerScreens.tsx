@@ -17,13 +17,11 @@ import {
   SONGLIST_DETAIL_SCREEN,
   COMMENT_SCREEN,
   VERSION_MODAL,
-  OFFICIAL_VERSION_MODAL,
   PACT_MODAL,
   SYNC_MODE_MODAL,
   // SETTING_SCREEN,
 } from './screenNames'
 import VersionModal from './components/VersionModal'
-import OfficialVersionModal from './components/OfficialVersionModal'
 import PactModal from './components/PactModal'
 import SyncModeModal from './components/SyncModeModal'
 
@@ -47,7 +45,6 @@ export default () => {
   Navigation.registerComponent(SONGLIST_DETAIL_SCREEN, () => WrappedComponent(SonglistDetail))
   Navigation.registerComponent(COMMENT_SCREEN, () => WrappedComponent(Comment))
   Navigation.registerComponent(VERSION_MODAL, () => WrappedComponent(VersionModal))
-  Navigation.registerComponent(OFFICIAL_VERSION_MODAL, () => WrappedComponent(OfficialVersionModal))
   Navigation.registerComponent(PACT_MODAL, () => WrappedComponent(PactModal))
   Navigation.registerComponent(SYNC_MODE_MODAL, () => WrappedComponent(SyncModeModal))
   // Navigation.registerComponent(SETTING_SCREEN, () => WrappedComponent(Setting))

@@ -6,19 +6,21 @@ import { LIST_IDS } from '@/config/constant'
 // 定制：砍掉「试听列表」（defaultList），我的列表只保留「我的收藏」与用户列表
 const filterList = (lists: InitState['allList']) => lists.filter(l => l.id != LIST_IDS.DEFAULT)
 
+// 定制：过滤后首位（我的收藏）重命名 + 返回副本（不直接修改全局 state 对象）
+const renameLoveList = (lists: InitState['allList']) => {
+  const _lists = filterList(lists)
+  if (!_lists.length) return []
+  return _lists.map((list, idx) => idx == 0 ? { ...list, name: global.i18n.t('list_name_love') } : list)
+}
+
 export const useMyList = () => {
   const [lists, setList] = useState(state.allList)
-  let _lists = filterList(lists)
-  _lists[0].name = global.i18n.t('list_name_love')
+  const _lists = renameLoveList(lists)
 
   useEffect(() => {
     const handleConfigUpdate = (keys: Array<keyof LX.AppSetting>) => {
       if (!keys.includes('common.langId')) return
-      setList((lists) => {
-        const _lists = filterList(lists)
-        _lists[0].name = global.i18n.t('list_name_love')
-        return [..._lists]
-      })
+      setList((lists) => renameLoveList(lists))
     }
     global.state_event.on('mylistUpdated', setList)
     global.state_event.on('configUpdated', handleConfigUpdate)

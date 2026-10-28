@@ -20,6 +20,8 @@ interface HealthItem {
   probeCount: number
   sleeping: boolean
   healthScore: number
+  // v25.2：真实播放请求最后使用时间戳（音源快照提供；0=从未用过）——五级分区"使用中"判定
+  lastUsedAt?: number
 }
 type HealthSnapshot = Record<string, HealthItem>
 
@@ -128,7 +130,18 @@ export default memo(() => {
     }
   }, [t, loadHealth, togglingId])
 
-  const items = snapshot ? Object.entries(snapshot).sort((a, b) => a[1].healthScore - b[1].healthScore) : []
+  // v-b47：五级分区排序——使用中(最近10分钟有真实请求) → 正常 → 待采样 → 休眠 → 已关，
+  // 组内按健康分降序（同分保持定义顺序）；"异常"源(0%+负分)留在正常组内自然沉底
+  const isUsing = (it: HealthItem) => !!it.lastUsedAt && (Date.now() - it.lastUsedAt) < 10 * 60 * 1000
+  const groupRank = (it: HealthItem) => {
+    if (!it.enabled) return it.sleeping ? 3 : 4
+    if (!hasSample(it)) return 2
+    return isUsing(it) ? 0 : 1
+  }
+  const items = snapshot ? Object.entries(snapshot).sort((a, b) => {
+    const g = groupRank(a[1]) - groupRank(b[1])
+    return g !== 0 ? g : b[1].healthScore - a[1].healthScore
+  }) : []
 
   // 聚合摘要：正常/熔断/半开/待采样/休眠/已关
   let summary: Record<'ok' | 'bad' | 'open' | 'half' | 'idle' | 'sleep' | 'off', number> = { ok: 0, bad: 0, open: 0, half: 0, idle: 0, sleep: 0, off: 0 }

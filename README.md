@@ -84,13 +84,16 @@
 
 | 文档 | 内容 |
 |---|---|
+| [AGENTS.md](./AGENTS.md) | AI/多账号协作入口：常用命令、实证验证链 L0-L4（Copilot/豆包自动读取） |
 | [MERGE_GUIDE.md](./MERGE_GUIDE.md) | 上游合并指南、高冲突区、设置迁移规则、代码地图、多账号协作 |
 | [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) | 定制版更新日志（b1~b23） |
 | [docs/DEV_SETUP.md](./docs/DEV_SETUP.md) | 开发环境搭建（新账号上手） |
 | [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md) | 多账号分工、提交规范、评审流程 |
-| [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) | 版本号规则、发布流程、验证与回滚 |
+| [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) | 版本号规则、发布流程、测试清单、验证与回滚 |
 | [docs/DOWNLOAD_DESIGN.md](./docs/DOWNLOAD_DESIGN.md) | 下载管理器技术设计 |
 | [docs/MUSIC_SOURCE_GUIDE.md](./docs/MUSIC_SOURCE_GUIDE.md) | 内置音源机制与音源仓库说明 |
+| [docs/KNOWN_ISSUES.md](./docs/KNOWN_ISSUES.md) | 已知缺陷/限制（编号化管理） |
+| [docs/UPSTREAM_LIFECYCLE.md](./docs/UPSTREAM_LIFECYCLE.md) | 上游依赖生命周期管理（增/活/衰/替） |
 | [FAQ.md](./FAQ.md) | 定制版常见问题 |
 
 <!--

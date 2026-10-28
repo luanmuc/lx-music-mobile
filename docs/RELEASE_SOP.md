@@ -30,7 +30,20 @@ push master（paths-ignore: publish/**、npm-version-info/**）
       └─ 提交 version.json + npm-version-info/package.json 回 master（不再触发构建）
 ```
 
-## 三、发布后验证清单（每次推送后必查）
+## 三、发布前测试清单（改动核心代码时必做）
+
+> 与 AGENTS.md「实证开发流程」配套：先过 L0-L4 验证链，push 前逐项自查。
+
+1. **语法**：`node scripts/check_ts_syntax.js` 0 错误（508 个 TS/TSX）
+2. **设置迁移**：若改默认值，确认已走迁移机制（见 MERGE_GUIDE），本地清 App 数据模拟老用户验证迁移生效
+3. **播放**：URL 刷新不卡死、切换音源、下载列表播放、通知栏歌词/按钮
+4. **下载**：并发任务、暂停/恢复、失败自动重试、仅 WiFi 开关、音质降级链、标签写入、下载目录权限
+5. **音源**：搜索、播放 URL 可播、音质降级、歌词/封面、健康探测
+6. **权限**：Android <10 存储权限引导、11-12 全文件访问引导、≥13 READ_MEDIA_AUDIO
+7. **更新**：多源版本检查、`bN` 版本号比较、启动自动更新
+8. **回归**：原版核心功能抽查（播放列表/收藏/设置页/榜单）
+
+## 四、发布后验证清单（每次推送后必查）
 
 在 [Actions](https://github.com/luanmuc/lx-music-mobile/actions) 页面确认：
 
@@ -41,7 +54,7 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 5. ✅ npm 包 `luanmuc-lx-music-version-info` 版本已发布（若 NPM_TOKEN 失效会有 `::error::` 提示，需更换 secret）
 6. ✅ 全部通过后才通知用户
 
-## 四、回滚方法
+## 五、回滚方法
 
 **场景 A：编译失败（Android Job 红）**
 
@@ -60,14 +73,14 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 2. 在新版本发布说明中注明"回滚了 X 行为"
 3. 无需删除旧 Release（保留审计记录）
 
-## 五、npm 版本信息包机制
+## 六、npm 版本信息包机制
 
 - 包名：`luanmuc-lx-music-version-info`（npm registry）
 - 用途：App 在线更新检查的版本数据源之一（与 `publish/version.json`、jsdelivr 多源并行，取最高版本）
 - 维护：CI 每次构建自动发布（`scripts/publish_npm_info.py`）；仓库内 `npm-version-info/package.json` 由 CI 更新并提交回
 - 若发布失败：App 会从其它源获取版本信息，不影响更新；但需尽快更换 GitHub secret `NPM_TOKEN`
 
-## 六、开发侧注意
+## 七、开发侧注意
 
 - 改文档/配置（README、docs/、.github/、CUSTOM_CHANGELOG.md 等）也会触发构建发版——这是预期行为，正好让发布说明反映文档变更
 - 只更新版本信息（`publish/**`、`npm-version-info/**`）不会触发构建，不会产生新版本号

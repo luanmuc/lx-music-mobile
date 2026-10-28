@@ -8,10 +8,26 @@ body:
     label: 解决方案检查
     description: 请确保你已完成以下所有操作
     options:
-      - label: 我已阅读 [常见问题](https://lyswhut.github.io/lx-music-doc/mobile/faq)，但没有找到解决方案。
+      - label: 我已阅读 [定制版常见问题](https://github.com/luanmuc/lx-music-mobile/blob/master/FAQ.md)，但没有找到解决方案。
         required: true
-      - label: 我已搜索 [Issue 列表](https://github.com/lyswhut/lx-music-mobile/issues?q=is%3Aissue+)，但没有发现类似的问题。
+      - label: 我已搜索 [Issue 列表](https://github.com/luanmuc/lx-music-mobile/issues?q=is%3Aissue+)，但没有发现类似的问题。
         required: true
+- type: dropdown
+  id: category
+  attributes:
+    label: 问题分类
+    description: 该问题属于哪个功能？
+    options:
+      - 下载
+      - 音质/音源
+      - 播放
+      - 权限
+      - 桌面歌词/通知栏
+      - 设置/界面
+      - 更新
+      - 其他
+  validations:
+    required: true
 - type: textarea
   id: expected-behavior
   attributes:
@@ -29,9 +45,9 @@ body:
 - type: input
   id: version
   attributes:
-    label: LX Music 版本
-    description: 你使用什么版本的 LX Music？
-    placeholder: 例如 1.6.0 arm64-v8a
+    label: 定制版版本
+    description: 你使用什么版本的定制版？可在「设置 → 关于」查看。
+    placeholder: 例如 1.9.1-b23 arm64-v8a
   validations:
     required: true
 - type: input

@@ -1,0 +1,74 @@
+# 发布 SOP（Release SOP）
+
+本仓库采用 **push 即发版** 的云编译模式：任何对 `master` 的推送（`publish/**`、`npm-version-info/**` 除外）都会触发 GitHub Actions 自动编译并发布新版本。
+
+## 一、版本号规则（必读）
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `package.json` 的 `version` | **恒为 `1.9.1`** | 由 CI 注入构建号，**禁止手改** |
+| 发布版本名 | `1.9.1-bN` | `N` = GitHub Actions run number（`GITHUB_RUN_NUMBER`），自动递增 |
+| `versionCode` | `80 + N` | `android/app/build.gradle` 从环境变量读取 |
+| Release tag | `v1.9.1-bN` | 每次构建唯一，prerelease 标记 |
+| 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/lx-music-source` 最新版，与代码解耦 |
+
+> 为什么禁止手改 version：`package.json` 的 version 不参与实际版本判定，改它会导致版本信息混乱（`buildNumber.ts` 与 `process.versions.app` 由 CI 注入）。要发版只需 push 代码。
+
+## 二、发布流程（CI 自动执行）
+
+```
+push master（paths-ignore: publish/**、npm-version-info/**）
+  └─ Job Android
+      ├─ 拉最新内置音源（GitHub Contents API → assets/builtin_source.js，>50KB + @name 校验）
+      ├─ 注入 APP_VERSION_NAME=1.9.1-b<run>、versionCode=80+run、buildNumber.ts
+      └─ ./gradlew assembleRelease → 5 个 ABI APK → upload-artifact
+  └─ Job Release（needs: Android）
+      ├─ 生成发布说明（scripts/gen_change_log.py：git log 自动生成本次变更 + APK MD5）
+      ├─ softprops/action-gh-release：创建 tag v1.9.1-b<run>，上传 APK
+      ├─ 更新 publish/version.json（版本+描述+最近历史）
+      ├─ 更新并发布 npm 版本信息包（luanmuc-lx-music-version-info）
+      └─ 提交 version.json + npm-version-info/package.json 回 master（不再触发构建）
+```
+
+## 三、发布后验证清单（每次推送后必查）
+
+在 [Actions](https://github.com/luanmuc/lx-music-mobile/actions) 页面确认：
+
+1. ✅ `Android` Job 编译成功（5 个 APK）
+2. ✅ `Release` Job 全部步骤绿
+3. ✅ 新 Release 已生成：tag `v1.9.1-bN`，发布说明 = 本次真实变更，包含 5 个 APK + MD5
+4. ✅ `publish/version.json` 已更新并提交回 master（最新提交为 "chore: 更新版本信息 v1.9.1-bN"）
+5. ✅ npm 包 `luanmuc-lx-music-version-info` 版本已发布（若 NPM_TOKEN 失效会有 `::error::` 提示，需更换 secret）
+6. ✅ 全部通过后才通知用户
+
+## 四、回滚方法
+
+**场景 A：编译失败（Android Job 红）**
+
+- 若原因在最近的代码改动：`git revert <提交>` 后推送，触发下一次构建
+- 若原因在 CI 配置：修复 `.github/workflows/release.yml` 或 `scripts/` 后推送
+- 若原因在音源拉取：检查 `luanmuc/lx-music-source` 仓库最新脚本是否损坏（>50KB + @name 校验失败），修复后重跑
+
+**场景 B：Release 已发但 version.json 未回写（Release Job 部分失败）**
+
+- 手动触发 `workflow_dispatch` 重跑 `Release` Job（无需重新编译，artifacts 可复用）
+- 或手动编辑 `publish/version.json` 提交（格式参考历史记录，注意版本号与已发 tag 一致）
+
+**场景 C：发布了错误版本（用户已安装）**
+
+1. `git revert` 出问题的提交，推送触发新构建（bN+1）
+2. 在新版本发布说明中注明"回滚了 X 行为"
+3. 无需删除旧 Release（保留审计记录）
+
+## 五、npm 版本信息包机制
+
+- 包名：`luanmuc-lx-music-version-info`（npm registry）
+- 用途：App 在线更新检查的版本数据源之一（与 `publish/version.json`、jsdelivr 多源并行，取最高版本）
+- 维护：CI 每次构建自动发布（`scripts/publish_npm_info.py`）；仓库内 `npm-version-info/package.json` 由 CI 更新并提交回
+- 若发布失败：App 会从其它源获取版本信息，不影响更新；但需尽快更换 GitHub secret `NPM_TOKEN`
+
+## 六、开发侧注意
+
+- 改文档/配置（README、docs/、.github/、CUSTOM_CHANGELOG.md 等）也会触发构建发版——这是预期行为，正好让发布说明反映文档变更
+- 只更新版本信息（`publish/**`、`npm-version-info/**`）不会触发构建，不会产生新版本号
+- 合并上游后推送同样走本流程

@@ -1,0 +1,83 @@
+# 多账号开发规范（DEV CONVENTIONS）
+
+本仓库由多个豆包账号共同开发。本文档定义分工、提交规范、评审与冲突裁决规则。
+
+## 一、仓库与分工
+
+| 仓库 | 归属 | 分工 |
+|---|---|---|
+| `luanmuc/lx-music-mobile`（本仓库） | 主账号 | App 逻辑、UI、CI、文档、发布 |
+| `luanmuc/lx-music-source` | 音源账号 | 聚合音源脚本（`builtin_source.js`），CI 构建时自动拉取 |
+| `luanmuc/react-native-track-player` | 播放器账号 | track-player fork（通知栏按钮等定制），版本升级需同步 fork |
+
+> 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 会被 CI 覆盖）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
+
+## 二、分支策略
+
+- 当前**单分支（master）直推**模式：直接 push 即触发云编译发版
+- 不引入 dev/PR 流程的原因：协作账号少、云编译发版是核心闭环、Review 通过文档规范+推送后验证清单保证
+- 若后续协作账号 >3 或频繁互相覆盖，评估引入 `dev` 分支 + PR 评审（届时更新本文档）
+
+## 三、提交信息规范
+
+统一 `Conventional Commits` 风格 + 中文描述（与现有提交保持一致）：
+
+```
+<type>(<scope>): <中文描述>
+
+示例：
+feat(download): 新增断点续传功能
+fix(player): 修复点击歌曲播放错歌的问题
+refactor(setting): 清理冗余迁移代码
+docs: 完善 MERGE_GUIDE
+chore(release): 更新版本信息 v1.9.1-b23
+```
+
+规则：
+
+- type：`feat` / `fix` / `refactor` / `docs` / `chore` / `merge` / `Revert`
+- scope 小写，用模块名（download/player/setting/source/ci/...）
+- **一次提交一个主题**；不要混入无关改动
+- 不要提交临时文件、node_modules、构建产物
+- CI 的"更新版本信息"与 merge 提交由自动流程产生，无需手写
+
+## 四、推送前 checklist（每条都要过）
+
+1. 语法检查 0 错误（见 [DEV_SETUP.md](./DEV_SETUP.md) 第五节）
+2. 是否动了「高冲突区」文件（见 [MERGE_GUIDE.md](../MERGE_GUIDE.md)）——若是，合并上游时按该文档处理
+3. 是否改了默认值——若改，必须走「设置迁移规则」（见 MERGE_GUIDE）
+4. `CUSTOM_CHANGELOG.md` 顶部已补记本次变更（发布说明引用真实变更）
+5. `git diff` 自查：没有调试残留、没有令牌/密钥、没有无关文件
+
+## 五、评审与冲突裁决
+
+- 无 PR 流程，评审靠**推送前自查 + 推送后 Actions 验证 + 群内同步**
+- 冲突裁决规则：
+  - 高冲突区文件：以本仓库为准（人工评估原版新功能是否移植）
+  - 播放器核心：以原版为准（本仓库只做最小适配）
+  - UI 风格：保持原版风格，只保留功能性改动
+- 两个账号同时改同一模块时，后推送者负责解决冲突，并在提交信息注明
+
+## 六、文档维护规则
+
+| 场景 | 动作 |
+|---|---|
+| 新增/变更功能 | 更新 `CUSTOM_CHANGELOG.md` 顶部段落 |
+| 修改默认值 | 走迁移规则 + 更新 README「默认设置差异」表 |
+| 修改 CI/发布 | 更新 [RELEASE_SOP.md](./RELEASE_SOP.md) |
+| 修改权限/下载逻辑 | 更新 [DOWNLOAD_DESIGN.md](./DOWNLOAD_DESIGN.md) |
+| 修改音源机制 | 更新 [MUSIC_SOURCE_GUIDE.md](./MUSIC_SOURCE_GUIDE.md) |
+| 合并上游 | 按 MERGE_GUIDE 流程 + 更新高冲突区清单 |
+
+## 七、账号权限矩阵
+
+| 操作 | 主账号 | 音源账号 | 播放器账号 |
+|---|---|---|---|
+| 本仓库推送 | ✅ | ✅（经评审） | ✅（经评审） |
+| Actions 触发/查看 | ✅ | ✅ | ✅ |
+| lx-music-source 推送 | 只读 | ✅ | 只读 |
+| track-player fork | 只读 | 只读 | ✅ |
+| npm 发布（NPM_TOKEN） | ✅（secret 管理） | — | — |
+| GitHub secrets 管理 | ✅ | — | — |
+
+> 原则：能 push 不等于能乱 push；任何对外可见的发布（Release/npm）都由主账号把关。

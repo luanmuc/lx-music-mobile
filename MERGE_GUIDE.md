@@ -3,11 +3,13 @@
 本仓库 `luanmuc/lx-music-mobile` 是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile) 的定制 fork。
 本文档说明如何把原版（上游）后续更新合并进来，以及冲突处理策略。
 
+> 面向用户的定制功能清单与默认设置差异见 [README.md](./README.md)；多账号分工与提交规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)；版本号与发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)。
+
 ## 仓库关系
 
 - 上游：`https://github.com/lyswhut/lx-music-mobile.git`（remote 名 `upstream`）
-- 分叉点：`fb848072`（原版 v1.9.1，即原版当前最新）
-- 定制基线：分叉点之上有 69+ 个定制提交（下载功能重写、内置音源、共存包、权限适配、默认设置预设等）
+- 分叉点：`fb848072`（原版 v1.9.1）
+- 定制基线：分叉点之上有 **36 个**定制提交（`git rev-list --count fb848072..HEAD` 可复核），内容包括下载管理器重写、内置音源、共存包、权限适配、默认设置预设等，详见 README 定制功能一览
 
 ## 合并流程
 
@@ -23,7 +25,7 @@ git add .
 git commit -m "merge: 合并上游更新"
 
 # 4. 全量语法检查
-# 483 个 TS/TSX 文件语法检查（无 node_modules 时用 typescript transpileModule 逐文件检查）
+# 508 个 TS/TSX 文件语法检查（无 node_modules 时用 typescript transpileModule 逐文件检查）
 
 # 5. 推送触发云编译
 git push origin master
@@ -43,7 +45,9 @@ git push origin master
 | `src/app.ts` | 启动权限分版本引导 | 以本仓库为准 |
 | `src/utils/tools.ts` | 权限返回值语义（GRANTED→true / NEVER_ASK_AGAIN→null / 其他→false） | 以本仓库为准 |
 | `src/config/constant.ts` | FileProvider authority、底部菜单含下载页、默认首页排行榜 | 以本仓库为准 |
-| `src/config/defaultSetting.ts` | 按用户截图预设的默认值 | 以本仓库为准 |
+| `src/config/defaultSetting.ts` | 定制默认值 + 设置迁移版本号 | 以本仓库为准 |
+| `src/config/migrateSetting.ts` | 设置迁移块（v1→v2 结构迁移） | 以本仓库为准 |
+| `src/screens/PlayDetail/components/PlayListModal.tsx` | 本仓库新建（播放列表弹窗） | 以本仓库为准 |
 | `android/app/src/main/...` | 原生模块（UtilsModule 分享/打开文件）、FileProvider 配置、图标、应用名 | 以本仓库为准，注意 `applicationId` 为 `com.luanmuc.lxmusic` |
 
 ## 一般文件冲突策略
@@ -55,37 +59,19 @@ git push origin master
 
 ## 合并后必查清单
 
-1. 全量语法检查 0 错误
+1. 全量语法检查 0 错误（508 个 TS/TSX）
 2. `APP_PROVIDER_NAME`（constant.ts）与 AndroidManifest 的 `${applicationId}.provider`、原生 shareFile/openFile 传参一致
 3. 内置音源兜底逻辑仍在（`has_imported_builtin_source` 标记 + 名称含「豆包定制」检测）
 4. 权限三分支（<30 / 30-32 / >=33）未被上游覆盖
 5. 下载列表播放（`getList('download')` 返回已完成任务）未被上游覆盖
 6. package.json 的 author/homepage/bugs 仍指向 `luanmuc`
+7. `CUSTOM_CHANGELOG.md` 顶部已补记本次合并的关键变更（人工维护）
 
 ## 已适配的原版更新类型
 
 - **版本升级**：原版发新 tag 时，合并后 bump 版本号，云编译自动发布新 tag
 - **音源**：不依赖原版，每次云编译自动从 `luanmuc/lx-music-source` 拉取最新内置音源
 - **依赖升级**：package.json 依赖随原版更新合入，云编译验证
-
----
-
-## 定制功能清单（fork 特有）
-
-| 功能 | 核心文件 | 说明 |
-|---|---|---|
-| 下载管理器（全新编写） | `src/core/downloadManager.ts` | 批量下载、暂停/继续/重试、并发控制、WiFi专属、自动重试、音频标签写入、分享/打开文件 |
-| 下载页面 UI | `src/screens/Home/Views/Download/index.tsx` | 下载中/已完成分组、进度条、速度显示 |
-| 下载状态管理 | `src/store/download/` | state + action + hook 三件套 |
-| 音质选择弹窗 | `src/components/OnlineList/QualitySelect.tsx` | 下载前选择音质，只显示歌曲实际支持的音质 |
-| 内置音源自动导入 | `src/core/init/userApi/index.ts` | CI 每次编译从 luanmuc/lx-music-source 拉取最新音源，启动时自动导入/更新 |
-| 共存包 | `android/app/build.gradle` | applicationId = `com.luanmuc.lxmusic`，可与原版共存 |
-| 权限分版本引导 | `src/app.ts` + `src/utils/tools.ts` | <10 普通存储 / 11-12 全文件访问 / ≥13 READ_MEDIA_AUDIO |
-| 底部播放栏加高 | `src/components/player/PlayerBar/` | 封面60px、按钮52px、上下边距加大 |
-| 上一曲按钮（竖屏） | `src/components/player/PlayerBar/components/ControlBtn.tsx` | 竖屏也显示上一曲（原版只有横屏显示） |
-| 播放列表按钮（三横杠） | `src/screens/PlayDetail/*/CommentBtn.tsx` | 图标用 `menu`，点开后可选择播放歌曲 |
-| 点击整列表播放 | `src/components/OnlineList/List.tsx` | `list.isClickPlayList` 默认 true，点击歌曲把整个列表设为临时播放列表 |
-| 进度条默认不可拖动 | `src/config/defaultSetting.ts` | `common.allowProgressBarSeek` 默认 false，设置里可开 |
 
 ---
 
@@ -96,14 +82,18 @@ git push origin master
 **正确流程**（每次改默认值都要做）：
 
 1. 改 `src/config/defaultSetting.ts` 里的默认值
-2. 把 `defaultSetting.version` 往上加一位（当前是 `2.1`，下次改默认值 → `2.2`）
-3. 在 `src/config/migrateSetting.ts` 末尾加迁移块：
+2. 把 `defaultSetting.version` 往上加一位（**当前是 `2.2`**，下次改默认值 → `2.3`）
+3. 在 `src/config/setting.ts` 的 `initSetting` 里加版本迁移块（`src/config/migrateSetting.ts` 只做 v1→v2 大版本结构迁移，2.x 的迁移统一放 setting.ts）：
    ```ts
-   if (compareVer(setting.version as string, '2.2') < 0) {
+   if (compareVer(setting.version as string, '2.3') < 0) {
      setting['xxx.newSetting'] = true  // 强制覆盖老用户的旧值
    }
    ```
 4. 这样老用户升级后自动应用新默认值，不需要清数据
+
+**已发生的迁移**（历史记录）：
+- `2.1`：按截图预设默认设置（音质 flac24bit、歌词翻译/罗马音默认开启、进度条不可拖、歌词居中、桌面歌词定位等）
+- `2.2`：桌面歌词默认关闭；默认优先音质 flac24bit（用户指定）
 
 **注意**：
 - 新增的设置项（之前不存在的）不需要迁移，`mergeSetting` 会自动用默认值填充
@@ -117,29 +107,35 @@ git push origin master
 | 要改什么 | 去哪里 |
 |---|---|
 | 新增底部菜单项 | `src/config/constant.ts` → `NAV_MENUS` |
-| 修改默认设置 | `src/config/defaultSetting.ts` + 加迁移块 |
+| 修改默认设置 | `src/config/defaultSetting.ts` + 按迁移规则加迁移块 |
 | 下载功能逻辑 | `src/core/downloadManager.ts` |
 | 下载页面 UI | `src/screens/Home/Views/Download/index.tsx` |
+| 扫描下载目录导入 | `src/screens/Home/Views/Mylist/MyList/listAction.ts` → `handleScanDownloadDir` |
+| 播放列表弹窗 | `src/screens/PlayDetail/components/PlayListModal.tsx` |
 | 播放栏 UI | `src/components/player/PlayerBar/` |
 | 播放器核心逻辑 | `src/core/player/player.ts` |
 | 在线列表点击行为 | `src/components/OnlineList/List.tsx` → `handlePress` |
+| 音质选择弹窗 | `src/components/OnlineList/QualitySelect.tsx` |
 | 音源 SDK（酷我等） | `src/utils/musicSdk/{kw,kg,mg,tx,wy,bd}/` |
 | 内置音源导入 | `src/core/init/userApi/index.ts` |
 | 权限请求 | `src/utils/tools.ts` → `requestStoragePermission` |
 | 启动权限引导 | `src/app.ts` |
 | 新增设置项 UI | `src/screens/Home/Views/Setting/settings/` |
+| 调试日志 | `src/utils/logger.ts`（开关在设置页） |
+| 在线更新检查 | `src/core/version.ts` + `src/utils/version.js` |
 | 国际化 | `src/lang/{zh-cn,zh-tw,en-us}.json` |
 | Android 原生 | `android/app/src/main/` |
-| CI 编译配置 | `.github/workflows/release.yml` |
+| CI 编译配置 | `.github/workflows/release.yml` + `scripts/` |
 
 ---
 
 ## 多账号协作说明
 
-本仓库由多个豆包账号共同开发。新账号接手时：
+本仓库由多个豆包账号共同开发。详细分工、提交规范与评审流程见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)，这里是最短上手路径：
 
-1. 先读本文件（`MERGE_GUIDE.md`）了解定制情况
+1. 先读本文件（`MERGE_GUIDE.md`）+ [docs/DEV_SETUP.md](./docs/DEV_SETUP.md) 搭建环境
 2. 克隆后看 `git log --oneline -30` 了解最近改了什么
 3. 改代码前先确认是否在「高冲突区」列表里
 4. 改完默认值必须走「设置迁移规则」流程
-5. 推送后 CI 自动编译，去 Actions 页面确认编译成功再通知用户
+5. 推送前更新 `CUSTOM_CHANGELOG.md` 顶部（发版说明会引用真实变更）
+6. 推送后去 Actions 页面确认编译成功，再核对发布链路（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) 发布后验证清单），全部通过再通知用户

@@ -1,20 +1,19 @@
-<p align="center"><a href="https://github.com/lyswhut/lx-music-mobile"><img width="200" src="https://github.com/lyswhut/lx-music-mobile/blob/master/doc/images/icon.png" alt="lx-music logo"></a></p>
+<p align="center"><a href="https://github.com/luanmuc/lx-music-mobile"><img width="200" src="https://github.com/luanmuc/lx-music-mobile/blob/master/doc/images/icon.png" alt="lx-music logo"></a></p>
 
-<h1 align="center">LX Music 移动版</h1>
+<h1 align="center">LX Music 移动版（洛雪音乐定制版）</h1>
 
 <p align="center">
-  <a href="https://github.com/lyswhut/lx-music-mobile/releases"><img src="https://img.shields.io/github/release/lyswhut/lx-music-mobile" alt="Release version"></a>
-  <a href="https://github.com/lyswhut/lx-music-mobile/actions/workflows/release.yml"><img src="https://github.com/lyswhut/lx-music-mobile/workflows/Build/badge.svg" alt="Build status"></a>
-  <a href="https://github.com/lyswhut/lx-music-mobile/actions/workflows/beta-pack.yml"><img src="https://github.com/lyswhut/lx-music-mobile/workflows/Build%20Beta/badge.svg" alt="Build status"></a>
-  <a href="https://github.com/facebook/react-native"><img src="https://img.shields.io/github/package-json/dependency-version/lyswhut/lx-music-mobile/react-native/master" alt="React native version"></a>
-  <!-- <a href="https://github.com/lyswhut/lx-music-mobile/releases"><img src="https://img.shields.io/github/downloads/lyswhut/lx-music-mobile/latest/total" alt="Downloads"></a> -->
-  <a href="https://github.com/lyswhut/lx-music-mobile/tree/dev"><img src="https://img.shields.io/github/package-json/v/lyswhut/lx-music-mobile/dev" alt="Dev branch version"></a>
-  <!-- <a href="https://github.com/lyswhut/lx-music-mobile/blob/master/LICENSE"><img src="https://img.shields.io/github/license/lyswhut/lx-music-mobile" alt="License"></a> -->
+  <a href="https://github.com/luanmuc/lx-music-mobile/releases"><img src="https://img.shields.io/github/release/luanmuc/lx-music-mobile" alt="Release version"></a>
+  <a href="https://github.com/luanmuc/lx-music-mobile/actions/workflows/release.yml"><img src="https://github.com/luanmuc/lx-music-mobile/workflows/Build/badge.svg" alt="Build status"></a>
+  <a href="https://github.com/facebook/react-native"><img src="https://img.shields.io/github/package-json/dependency-version/luanmuc/lx-music-mobile/react-native/master" alt="React native version"></a>
+  <a href="https://github.com/luanmuc/lx-music-mobile/blob/master/LICENSE"><img src="https://img.shields.io/github/license/luanmuc/lx-music-mobile" alt="License"></a>
 </p>
 
-<p align="center">一个基于 React Native 开发的音乐软件</p>
+<p align="center">一个基于 React Native 开发的音乐软件（定制版）</p>
 
 ## 说明
+
+本仓库是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile)（洛雪音乐移动版）的**定制版**，基于上游 v1.9.1（`fb848072`）重建，由多个豆包账号共同开发维护。
 
 所用技术栈：
 
@@ -23,60 +22,97 @@
 
 已支持的平台：
 
-- Android 5 及以上
+- Android 5 及以上（包名 `com.luanmuc.lxmusic`，可与原版共存安装）
 
-***注：目前没有计划支持 iOS 和 HarmonyOS NEXT**。*<br>
-*桌面版项目地址：<https://github.com/lyswhut/lx-music-desktop>*<br>
-*LX Music 项目发展调整与新项目计划：https://github.com/lyswhut/lx-music-desktop/issues/1912*
+> 桌面版项目地址：<https://github.com/lyswhut/lx-music-desktop><br>
+> 定制版更新日志：[CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) · 上游更新日志：[CHANGELOG.md](./CHANGELOG.md)
 
-软件变化请查看[更新日志](https://github.com/lyswhut/lx-music-mobile/blob/master/CHANGELOG.md)。
+## 下载安装
 
-软件下载请查看 [GitHub Releases](https://github.com/lyswhut/lx-music-mobile/releases)。
+- 前往 [GitHub Releases](https://github.com/luanmuc/lx-music-mobile/releases) 下载最新 `v1.9.1-bN` 安装包
+- 按 ABI 选择：`arm64-v8a`（主流新机）/ `armeabi-v7a`（老机）/ `x86_64`（模拟器）/ `universal`（全兼容大包）
+- App 内「设置 → 软件更新」可在线检查更新并自动下载安装
 
-使用常见问题请参阅[移动版常见问题](https://lyswhut.github.io/lx-music-doc/mobile/faq)。
+## 定制功能一览（与原版差异）
 
-目前本项目的原始发布地址只有 [**GitHub**](https://github.com/lyswhut/lx-music-mobile/releases)，其他渠道均为第三方转载发布，与本项目无关！
+| 功能 | 说明 |
+|---|---|
+| 下载管理器（全新） | 并行下载、暂停/恢复、失败自动重试、仅 WiFi 下载、自定义下载目录、下载完成通知 |
+| 音质选择 | 下载前选择音质，只显示歌曲实际支持的音质（Hi-Res/无损/APE/WAV/320K/192K/128K） |
+| 内置音源 | 内置「豆包定制」聚合音源（多后端自动降级），每次构建自动更新到最新版 |
+| 本地音乐 | 我的列表 → 扫描下载目录，自动导入已下载歌曲到「本地音乐」歌单 |
+| 播放体验 | 点击歌曲默认播放整个列表；播放页可打开播放列表弹窗切换歌曲 |
+| 播放栏 | 加高布局，竖屏也显示上一曲按钮；进度条默认不可拖动（可在设置开启） |
+| 通知栏 | 显示当前歌词；桌面歌词一键开关按钮 |
+| 设置页 | 竖屏二级分组改版；独立「清理缓存」页；调试日志开关 |
+| 听歌统计 | 侧边栏显示累计播放次数、今日次数、播放时长 |
+| 权限适配 | Android 5~10 普通存储 / 11-12 全文件访问 / 13+ 媒体权限，分版本引导 |
+| 在线更新增强 | 版本多源并行检查、APK 镜像下载、公共下载目录保存、旧包自动清理 |
+| 共存包 | 包名 `com.luanmuc.lxmusic`，可与原版/应用商店版共存 |
 
-为了提高使用门槛，本软件内的默认设置、UI 操作不以新手友好为目标，所以使用前建议先根据你的喜好浏览调整一遍软件设置，阅读一遍[音乐播放列表机制](https://lyswhut.github.io/lx-music-doc/mobile/faq/playlist)。
+### 默认设置差异（对照原版）
 
-### 数据同步服务
+| 设置项 | 定制版默认值 | 原版默认值 |
+|---|---|---|
+| 播放优先音质 | `flac24bit`（按源实际能力降级） | `128k` |
+| 点击列表歌曲 | 播放整个列表（`list.isClickPlayList`） | 播放单曲 |
+| 进度条拖动 | 关闭（设置里可开） | 开启 |
+| 缓存大小 | 1024MB | 原版默认 |
+| 音频卸载 | 开启 | 原版默认 |
+| 通知栏歌词 | 开启（显示当前歌词） | 开启 |
+| 通知栏封面 | 开启 | 开启 |
+| 主题 | green（新年皮肤自动切换） | 原版默认 |
 
-从 v1.0.0 起，我们发布了一个独立的[数据同步服务](https://github.com/lyswhut/lx-music-sync-server#readme)。如果你有服务器，可以将其部署到服务器上作为私人多端同步服务使用，详情看该项目说明。
+> 老用户升级后会自动应用新默认值（设置迁移机制），无需清除数据；你手动改过的设置不会被覆盖。
+
+## 使用提示
+
+- 本软件默认设置以实用为准，建议使用前先浏览一遍设置项
+- 音乐播放列表机制说明见 [FAQ.md](./FAQ.md)
+- 遇到问题先看 [FAQ.md](./FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.1-b23`）
 
 ## 贡献代码
 
-本项目欢迎 PR，但为了 PR 能顺利合并，需要注意以下几点：
+本项目欢迎贡献。当前采用**单分支（master）直推 + 云编译发版**模式：
 
-- 对于添加新功能的 PR，建议在提交 PR 前先创建 Issue 进行说明，以确认该功能是否确实需要；
-- 对于修复 bug 的 PR，请提供修复前后的说明及重现方式；
-- 对于其他类型的 PR，则适当附上说明。
+1. 新账号接手前先读 [MERGE_GUIDE.md](./MERGE_GUIDE.md)（开发协作规范）和 [docs/DEV_SETUP.md](./docs/DEV_SETUP.md)（环境搭建）
+2. 开发规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)
+3. 改动提交到 master 后推送，CI 自动编译发布新版本（`v1.9.1-bN`）
+4. 发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)
 
-贡献代码步骤：
+### 开发文档索引
 
-1. 参照[源码使用方法](https://lyswhut.github.io/lx-music-doc/mobile/use-source-code)设置开发环境；
-2. 克隆本仓库代码并切换至 `dev` 分支进行开发；
-3. 提交 PR 至 `dev` 分支。
+| 文档 | 内容 |
+|---|---|
+| [MERGE_GUIDE.md](./MERGE_GUIDE.md) | 上游合并指南、高冲突区、设置迁移规则、代码地图、多账号协作 |
+| [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) | 定制版更新日志（b1~b23） |
+| [docs/DEV_SETUP.md](./docs/DEV_SETUP.md) | 开发环境搭建（新账号上手） |
+| [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md) | 多账号分工、提交规范、评审流程 |
+| [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) | 版本号规则、发布流程、验证与回滚 |
+| [docs/DOWNLOAD_DESIGN.md](./docs/DOWNLOAD_DESIGN.md) | 下载管理器技术设计 |
+| [docs/MUSIC_SOURCE_GUIDE.md](./docs/MUSIC_SOURCE_GUIDE.md) | 内置音源机制与音源仓库说明 |
+| [FAQ.md](./FAQ.md) | 定制版常见问题 |
 
 <!--
 ## 用户界面
 
-<p><img width="100%" src="https://github.com/lyswhut/lx-music-mobile/blob/master/doc/images/app.png" alt="lx-music mobile UI"></p> -->
+<p><img width="100%" src="https://github.com/luanmuc/lx-music-mobile/blob/master/doc/images/app.png" alt="lx-music mobile UI"></p> -->
 
 ## 项目协议
 
-本项目基于 [Apache License 2.0](https://github.com/lyswhut/lx-music-mobile/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
+本项目基于 [Apache License 2.0](https://github.com/luanmuc/lx-music-mobile/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
 
 ---
 
-*词语约定：本协议中的“本项目”指 LX Music（洛雪音乐）移动版项目；“使用者”指签署本协议的使用者；“官方音乐平台”指对本项目内置的包括酷我、酷狗、咪咕等音乐源的官方平台统称；“版权数据”指包括但不限于图像、音频、名字等在内的他人拥有所属版权的数据。*
+*词语约定：本协议中的"本项目"指 LX Music（洛雪音乐）移动版项目；"使用者"指签署本协议的使用者；"官方音乐平台"指对本项目内置的包括酷我、酷狗、咪咕等音乐源的官方平台统称；"版权数据"指包括但不限于图像、音频、名字等在内的他人拥有所属版权的数据。*
 
 ### 一、数据来源
 
 1.1 本项目的各官方平台在线数据来源原理是从其公开服务器中拉取数据（与未登录状态在官方平台 APP 获取的数据相同），经过对数据简单地筛选与合并后进行展示，因此本项目不对数据的合法性、准确性负责。
 
-1.2 本项目本身没有获取某个音频数据的能力，本项目使用的在线音频数据来源来自软件设置内“自定义源”设置所选择的“源”返回的在线链接。例如播放某首歌，本项目所做的只是将希望播放的歌曲名、艺术家等信息传递给“源”，若“源”返回了一个链接，则本项目将认为这就是该歌曲的音频数据而进行使用，至于这是不是正确的音频数据本项目无法校验其准确性，所以使用本项目的过程中可能会出现希望播放的音频与实际播放的音频不对应或者无法播放的问题。
+1.2 本项目本身没有获取某个音频数据的能力，本项目使用的在线音频数据来源来自软件设置内"自定义源"设置所选择的"源"返回的在线链接。例如播放某首歌，本项目所做的只是将希望播放的歌曲名、艺术家等信息传递给"源"，若"源"返回了一个链接，则本项目将认为这就是该歌曲的音频数据而进行使用，至于这是不是正确的音频数据本项目无法校验其准确性，所以使用本项目的过程中可能会出现希望播放的音频与实际播放的音频不对应或者无法播放的问题。
 
-1.3 本项目的非官方平台数据（例如“我的列表”内列表）来自使用者本地系统或者使用者连接的同步服务，本项目不对这些数据的合法性、准确性负责。
+1.3 本项目的非官方平台数据（例如"我的列表"内列表）来自使用者本地系统或者使用者连接的同步服务，本项目不对这些数据的合法性、准确性负责。
 
 ### 二、版权数据
 
@@ -114,5 +150,4 @@
 
 ---
 
-若对此有疑问请 mail to: lyswhut+qq.com (请将 `+` 替换成 `@`)
-
+若对此有疑问请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈。

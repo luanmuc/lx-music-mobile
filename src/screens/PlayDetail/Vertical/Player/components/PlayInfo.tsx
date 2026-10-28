@@ -3,11 +3,12 @@ import { View } from 'react-native'
 
 import Progress from '@/components/player/ProgressBar'
 import Status from './Status'
-import { useProgress } from '@/store/player/hook'
+import { useProgress, usePlayQuality } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
 import { useBufferProgress } from '@/plugins/player'
+import { getPlayQualityLabel } from '@/core/music/utils'
 
 // const FONT_SIZE = 13
 
@@ -23,13 +24,21 @@ const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
 })
 
 export default () => {
+  const theme = useTheme()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
+  const playQuality = usePlayQuality()
+  const qualityLabel = getPlayQualityLabel(playQuality)
 
   // console.log('render playInfo')
 
   return (
     <>
+      {
+        qualityLabel
+          ? <View style={styles.quality}><Text size={12} color={theme['c-500']}>{qualityLabel}</Text></View>
+          : null
+      }
       <View style={styles.progress}><Progress progress={progress} duration={maxPlayTime} buffered={buffered} /></View>
       <View style={styles.info}>
         <PlayTimeCurrent timeStr={nowPlayTimeStr} />
@@ -49,6 +58,12 @@ const styles = createStyle({
     flexShrink: 0,
     flexDirection: 'column',
     justifyContent: 'center',
+  },
+  quality: {
+    flexGrow: 0,
+    flexShrink: 0,
+    paddingBottom: 3,
+    alignItems: 'flex-start',
   },
   info: {
     flexDirection: 'row',

@@ -548,3 +548,25 @@ export const handleGetOnlineLyricInfo = async({ musicInfo, onToggleSource, isRef
     })
   })
 }
+
+/**
+ * 当前播放音质的短标签映射（真实解析结果展示用）
+ * - 播放时由音乐源 SDK 解析 URL 后返回的实际音质（type），
+ *   与请求音质可能不同（如请求 flac 降级后实际为 128k）
+ * - 用于底部播放栏 / 播放页展示"当前播放的真实音质"
+ */
+export const PLAY_QUALITY_LABELS: Record<string, string> = {
+  flac24bit: 'FLAC24',
+  flac: 'FLAC',
+  wav: 'WAV',
+  ape: 'APE',
+  '320k': '320K',
+  '192k': '192K',
+  '128k': '128K',
+}
+
+/** 将音质值转为展示标签；空值/未知值返回空字符串（调用方据此隐藏） */
+export const getPlayQualityLabel = (quality: string): string => {
+  if (!quality) return ''
+  return PLAY_QUALITY_LABELS[quality] ?? quality.toUpperCase()
+}

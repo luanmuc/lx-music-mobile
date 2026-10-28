@@ -1,6 +1,7 @@
+import { View } from 'react-native'
 import { TouchableOpacity } from 'react-native'
 import { navigations } from '@/navigation'
-import { usePlayerMusicInfo } from '@/store/player/hook'
+import { usePlayerMusicInfo, usePlayQuality } from '@/store/player/hook'
 // import { toast } from '@/utils/tools'
 import { useSettingValue } from '@/store/setting/hook'
 import { useTheme } from '@/store/theme/hook'
@@ -9,11 +10,13 @@ import playerState from '@/store/player/state'
 import Text from '@/components/common/Text'
 import { LIST_IDS } from '@/config/constant'
 import { createStyle, formatMusicName } from '@/utils/tools'
+import { getPlayQualityLabel } from '@/core/music/utils'
 
 
 export default ({ isHome }: { isHome: boolean }) => {
   // const { t } = useTranslation()
   const musicInfo = usePlayerMusicInfo()
+  const playQuality = usePlayQuality()
   const downloadFileName = useSettingValue('download.fileName')
   const theme = useTheme()
 
@@ -37,10 +40,18 @@ export default ({ isHome }: { isHome: boolean }) => {
       ? formatMusicName(downloadFileName, musicInfo.name, musicInfo.singer)
       : musicInfo.name
     : ''
+  const qualityLabel = getPlayQualityLabel(playQuality)
   // console.log(playMusicInfo)
   return (
     <TouchableOpacity style={styles.container} onLongPress={handleLongPress} onPress={handlePress} activeOpacity={0.7} >
-      <Text color={theme['c-font-label']} numberOfLines={1}>{title}</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.titleText} color={theme['c-font-label']} numberOfLines={1}>{title}</Text>
+        {
+          qualityLabel
+            ? <Text size={10} color={theme['c-500']} style={styles.quality}>{qualityLabel}</Text>
+            : null
+        }
+      </View>
     </TouchableOpacity>
   )
 }
@@ -72,5 +83,18 @@ const styles = createStyle({
     // paddingBottom: 4,
     // height: '50%',
     // backgroundColor: 'rgba(0, 0, 0, .1)',
+  },
+  titleRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  titleText: {
+    flexShrink: 1,
+  },
+  quality: {
+    flexShrink: 0,
+    marginLeft: 4,
+    fontWeight: 'bold',
   },
 })

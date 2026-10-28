@@ -3,11 +3,12 @@ import { StyleSheet, View } from 'react-native'
 
 import Progress from '@/components/player/Progress'
 import Status from './Status'
-import { useProgress } from '@/store/player/hook'
+import { useProgress, usePlayQuality } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
 import { useBufferProgress } from '@/plugins/player'
+import { getPlayQualityLabel } from '@/core/music/utils'
 
 // const FONT_SIZE = 13
 
@@ -26,11 +27,18 @@ export default () => {
   const theme = useTheme()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
+  const playQuality = usePlayQuality()
+  const qualityLabel = getPlayQualityLabel(playQuality)
   // console.log('render playInfo')
 
   return (
     <View style={styles.container}>
       <View style={styles.status} >
+        {
+          qualityLabel
+            ? <Text size={11} color={theme['c-500']} style={styles.quality}>{qualityLabel}</Text>
+            : null
+        }
         <Status />
       </View>
       <View style={{ flexGrow: 0, flexShrink: 0, flexDirection: 'row' }} >
@@ -72,6 +80,13 @@ const styles = createStyle({
     flexGrow: 1,
     flexShrink: 1,
     paddingRight: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quality: {
+    flexShrink: 0,
+    marginRight: 6,
+    fontWeight: 'bold',
   },
 })
 // const styles = createStyle({

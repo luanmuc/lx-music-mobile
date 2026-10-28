@@ -22,10 +22,11 @@ interface HealthItem {
 }
 type HealthSnapshot = Record<string, HealthItem>
 
+// 音源熔断器语义：closed=正常放行、open=熔断(冷却中)、half-open=半开试探
 const STATE_COLOR: Record<HealthItem['state'], string> = {
-  open: '#52c41a',
+  closed: '#52c41a',
   'half-open': '#faad14',
-  closed: '#ff4d4f',
+  open: '#ff4d4f',
 }
 
 // 获取当前音源的健康查询器（任一声明 health action 的源均可，聚合结果与源无关）

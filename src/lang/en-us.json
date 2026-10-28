@@ -563,10 +563,11 @@
   "health_col_time": "Avg",
   "health_col_state": "State",
   "health_col_score": "Score",
-  "health_state_open": "OK",
+  "health_state_open": "Tripped",
   "health_state_half_open": "Half",
-  "health_state_closed": "Closed",
+  "health_state_closed": "OK",
   "health_state_disabled": "Off",
   "health_state_idle": "No data",
-  "health_footnote": "Note: \"-\" means no play/probe samples yet; updates after playback or health probe. State: OK/Half/Closed (sampled), No data (unsampled), Off (disabled at runtime)"
+  "health_footnote": "Note: \"-\" means no play/probe samples yet; updates after playback or health probe. State: OK/Half/Closed (sampled), No data (unsampled), Off (disabled at runtime)",
+  "health_state_half-open": "Half-open"
 }

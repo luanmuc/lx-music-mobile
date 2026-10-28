@@ -44,7 +44,7 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.isShowLyricProgressSetting': true,
 
   'desktopLyric.enable': false,
-  'desktopLyric.isLock': false,
+  'desktopLyric.isLock': true, // 桌面歌词默认锁定（定制；用户指定）
   'desktopLyric.width': 100,
   'desktopLyric.maxLineNum': 5,
   'desktopLyric.isSingleLine': false,

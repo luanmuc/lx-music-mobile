@@ -197,6 +197,50 @@ export default async(setting: LX.AppSetting) => {
                   }
                 }
                 break
+              case 'toggle':
+                // v16.5：源级开关（手动启用/停用某子源；停用带 manualOff 锁定，探测不自动复活）
+                apis[source].toggle = (id: string, enabled: boolean) => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'toggle',
+                        info: { id, enabled },
+                      },
+                    }).then(res => res.data).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
+              case 'probe':
+                // v16.5：手动触发一轮健康探测（并发 ~6s；探测中返回 running:true 不排队）
+                apis[source].probe = () => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'probe',
+                        info: {},
+                      },
+                    }).then(res => res.data).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
               default:
                 break
             }

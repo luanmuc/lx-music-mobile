@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useCallback } from 'react'
+import { memo, useState, useEffect, useCallback, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import Section from '../components/Section'
@@ -8,7 +8,7 @@ import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 
-// 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数）
+// 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数；v16.5：sleeping 休眠字段）
 interface HealthItem {
   name: string
   maxQuality: string
@@ -18,6 +18,7 @@ interface HealthItem {
   state: 'closed' | 'open' | 'half-open'
   reqCount: number
   probeCount: number
+  sleeping: boolean
   healthScore: number
 }
 type HealthSnapshot = Record<string, HealthItem>
@@ -29,12 +30,12 @@ const STATE_COLOR: Record<HealthItem['state'], string> = {
   open: '#ff4d4f',
 }
 
-// 获取当前音源的健康查询器（任一声明 health action 的源均可，聚合结果与源无关）
-const getHealthQuerier = (): (() => { promise: Promise<any> }) | null => {
+// 获取当前音源的健康查询器（任一声明对应 action 的源均可，聚合结果与源无关）
+const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe'): ((...args: any[]) => { promise: Promise<any> }) | null => {
   const apis = (global as any).lx?.apis as Record<string, any> | undefined
   if (!apis) return null
-  const sourceId = Object.keys(apis).find(id => typeof apis[id]?.getHealth === 'function')
-  return sourceId ? apis[sourceId].getHealth : null
+  const sourceId = Object.keys(apis).find(id => typeof apis[id]?.[fn] === 'function')
+  return sourceId ? apis[sourceId][fn] : null
 }
 
 // 无样本（未产生任何请求/探测）判定
@@ -46,12 +47,15 @@ export default memo(() => {
   const [snapshot, setSnapshot] = useState<HealthSnapshot | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [togglingId, setTogglingId] = useState('')
+  const [probeInfo, setProbeInfo] = useState('')
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const loadHealth = useCallback(async() => {
-    setLoading(true)
+  const loadHealth = useCallback(async(silent = false) => {
+    if (!silent) setLoading(true)
     setError('')
     try {
-      const querier = getHealthQuerier()
+      const querier = getQuerier('getHealth')
       if (!querier) {
         setError(t('health_no_source'))
         setSnapshot(null)
@@ -64,26 +68,123 @@ export default memo(() => {
       console.log(e)
       setError(String(e?.message || t('health_load_failed')))
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }, [t])
 
+  // v16.5：面板停留自动刷新（30s 静默轮询），卸载清理
   useEffect(() => {
     void loadHealth()
+    timerRef.current = setInterval(() => { void loadHealth(true) }, 30000)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
   }, [loadHealth])
 
+  // 手动探测：触发一轮健康探测（并发 ~6s）
+  const runProbe = useCallback(async() => {
+    const querier = getQuerier('probe')
+    if (!querier) {
+      setError(t('health_no_source'))
+      return
+    }
+    setProbeInfo(t('health_probing'))
+    try {
+      const { promise } = querier()
+      const res = await promise
+      if (res?.running) {
+        setProbeInfo(t('health_probe_running'))
+      } else if (res) {
+        const time = new Date(res.doneAt)
+        const hh = String(time.getHours()).padStart(2, '0')
+        const mm = String(time.getMinutes()).padStart(2, '0')
+        setProbeInfo(`${t('health_probe_done_at')} ${hh}:${mm} · ${res.active?.length ?? 0}${t('health_probe_active')} · ${res.sleeping?.length ?? 0}${t('health_probe_sleeping')}`)
+      }
+    } catch (e: any) {
+      setProbeInfo('')
+      setError(String(e?.message || t('health_load_failed')))
+      return
+    }
+    void loadHealth(true)
+  }, [t, loadHealth])
+
+  // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
+  const toggleSource = useCallback(async(item: HealthItem, id: string) => {
+    if (togglingId) return
+    const querier = getQuerier('toggle')
+    if (!querier) {
+      setError(t('health_no_source'))
+      return
+    }
+    setTogglingId(id)
+    try {
+      const { promise } = querier(id, !item.enabled)
+      await promise
+      await loadHealth(true)
+    } catch (e: any) {
+      setError(String(e?.message || t('health_toggle_failed')))
+    } finally {
+      setTogglingId('')
+    }
+  }, [t, loadHealth, togglingId])
+
   const items = snapshot ? Object.entries(snapshot).sort((a, b) => a[1].healthScore - b[1].healthScore) : []
+
+  // 聚合摘要：正常/熔断/半开/待采样/休眠/已关
+  let summary: Record<'ok' | 'open' | 'half' | 'idle' | 'sleep' | 'off', number> = { ok: 0, open: 0, half: 0, idle: 0, sleep: 0, off: 0 }
+  if (items.length) {
+    summary = items.reduce((acc, [, it]) => {
+      const sampled = hasSample(it)
+      if (!it.enabled) {
+        if (it.sleeping) acc.sleep++
+        else acc.off++
+      } else if (!sampled) {
+        acc.idle++
+      } else if (it.state === 'closed') {
+        acc.ok++
+      } else if (it.state === 'open') {
+        acc.open++
+      } else {
+        acc.half++
+      }
+      return acc
+    }, summary)
+  }
 
   return (
     <Section title={t('setting_health')}>
       <SubTitle title={t('health_desc')}>
-        <View style={styles.btn}>
+        <View style={styles.btnRow}>
           <Button onPress={() => void loadHealth()} disabled={loading}>{loading ? t('health_loading') : t('health_refresh')}</Button>
+          <View style={styles.btnGap} />
+          <Button onPress={() => void runProbe()}>{t('health_probe')}</Button>
         </View>
+        {
+          probeInfo ? (
+            <View style={styles.desc}>
+              <Text size={12} color={theme['c-font-label']}>{probeInfo}</Text>
+            </View>
+          ) : null
+        }
         {
           error ? (
             <View style={styles.desc}>
               <Text size={13} color={theme['c-font-label']}>{error}</Text>
+            </View>
+          ) : null
+        }
+        {
+          items.length ? (
+            <View style={[styles.summary, { backgroundColor: theme['c-primary-background-active'] }]}>
+              <Text size={12} color={theme['c-font-label']}>{t('health_summary')}</Text>
+              <View style={styles.summaryItems}>
+                <Text size={12} color="#52c41a">● {summary.ok}{t('health_sum_ok')}</Text>
+                <Text size={12} color="#ff4d4f">● {summary.open}{t('health_sum_open')}</Text>
+                <Text size={12} color="#faad14">● {summary.half}{t('health_sum_half')}</Text>
+                <Text size={12} color={theme['c-font-label']}>○ {summary.idle}{t('health_sum_idle')}</Text>
+                <Text size={12} color="#8c8c8c">○ {summary.sleep}{t('health_sum_sleep')}</Text>
+                <Text size={12} color={theme['c-font-label']}>○ {summary.off}{t('health_sum_off')}</Text>
+              </View>
             </View>
           ) : null
         }
@@ -100,17 +201,21 @@ export default memo(() => {
               </View>
               {
                 // v16.4：全部行直接渲染，表格随音源数量自动撑高（整页滚动，不再 maxHeight 截断）
+                // v16.5：状态胶囊可点按开关源
                 items.map(([id, item]) => {
                   const sampled = hasSample(item)
                   const rateText = item.successRate == null ? '-' : `${(item.successRate * 100).toFixed(0)}%`
                   const timeText = item.avgTime == null ? '-' : `${Math.round(item.avgTime)}ms`
-                  // 无样本：状态显示「待采样」（灰）；有样本熔断才显示红色「熔断」
-                  const stateText = item.enabled
-                    ? sampled ? t(`health_state_${item.state}`) : t('health_state_idle')
-                    : t('health_state_disabled')
-                  const stateColor = item.enabled
-                    ? sampled ? STATE_COLOR[item.state] : theme['c-font-label']
-                    : theme['c-font-label']
+                  let stateText: string
+                  let stateColor: string
+                  if (!item.enabled) {
+                    if (item.sleeping) { stateText = t('health_state_sleeping'); stateColor = '#8c8c8c' }
+                    else { stateText = t('health_state_disabled'); stateColor = theme['c-font-label'] }
+                  } else if (!sampled) {
+                    stateText = t('health_state_idle'); stateColor = theme['c-font-label']
+                  } else {
+                    stateText = t(`health_state_${item.state}`); stateColor = STATE_COLOR[item.state]
+                  }
                   const scoreText = !sampled ? '-' : item.healthScore.toFixed(2)
                   const scoreColor = !sampled ? theme['c-font-label']
                     : item.healthScore >= 0.3 ? '#52c41a' : item.healthScore >= -0.5 ? theme['c-font'] : '#ff4d4f'
@@ -122,7 +227,14 @@ export default memo(() => {
                       <Text size={12} style={styles.colSmall}>{item.maxQuality.toUpperCase()}</Text>
                       <Text size={12} style={styles.colSmall} color={rateColor}>{rateText}</Text>
                       <Text size={12} style={styles.colSmall} color={sampled ? theme['c-font'] : theme['c-font-label']}>{timeText}</Text>
-                      <Text size={12} style={styles.colSmall} color={stateColor}>{stateText}</Text>
+                      <View style={styles.colSmall}>
+                        <View
+                          style={[styles.stateChip, { borderColor: stateColor, opacity: togglingId === id ? 0.5 : 1 }]}
+                          onTouchEnd={() => { void toggleSource(item, id) }}
+                        >
+                          <Text size={10} color={stateColor}>{togglingId === id ? '…' : stateText}</Text>
+                        </View>
+                      </View>
                       <Text size={12} style={styles.colSmall} color={scoreColor}>{scoreText}</Text>
                     </View>
                   )
@@ -155,9 +267,26 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 8,
   },
-  btn: {
+  btnRow: {
     flexDirection: 'row',
     marginBottom: 8,
+  },
+  btnGap: {
+    width: 12,
+  },
+  summary: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  summaryItems: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
   },
   tableWrap: {
     marginTop: 4,
@@ -179,6 +308,12 @@ const styles = StyleSheet.create({
   },
   colSmall: {
     width: 58,
-    textAlign: 'center',
+    alignItems: 'center',
+  },
+  stateChip: {
+    borderRadius: 4,
+    borderWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
   },
 })

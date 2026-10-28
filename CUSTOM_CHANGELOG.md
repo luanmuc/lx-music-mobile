@@ -36,6 +36,18 @@
 
 ---
 
+---
+
+## [v1.9.1-b43 ~ b44] - 2026-10-28
+
+### 修复：preload handleRequest 补 toggle/probe 透传（b43 面板报 Cannot read property 'data' of undefined）
+- 白名单已含 toggle/probe（b43），但 preload 请求分发 handleRequest 的 switch 只有
+  musicUrl/lyric/pic/health 四个 case，toggle/probe 进来后 result 为 undefined，
+  响应 status:true 但 data 为空 → App 端 res.data 报错（点源级开关/手动探测时触发）
+- 补 case 'toggle'（校验 {id, enabled} 对象）与 case 'probe'（校验聚合对象）原样透传
+- 教训固化：音源新增 action 需改四处——音源 on(request) 分支 / preload handleRequest /
+  preload supportActions 白名单 / App 注册循环
+
 ## [v1.9.1-b42 ~ b43] - 2026-10-28
 
 ### 修复：preload 白名单补 toggle/probe（源级开关/手动探测真正注册）

@@ -263,6 +263,24 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
               data: response,
             }
             break
+          case 'toggle':
+            // v16.5：源级开关透传（{id, enabled}，App 健康面板行内开关消费）
+            if (typeof response != 'object' || response === null || typeof response.id != 'string' || typeof response.enabled != 'boolean') throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
+            }
+            break
+          case 'probe':
+            // v16.5：手动探测透传（{running, doneAt, round, active, sleeping}，App 健康面板手动探测消费）
+            if (typeof response != 'object' || response === null) throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
+            }
+            break
         }
         nativeCall(NATIVE_EVENTS_NAMES.response, { requestKey, status: true, result })
       }).catch(err => {

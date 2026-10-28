@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback, useRef } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, ScrollView } from 'react-native'
 
 import Section from '../components/Section'
 import SubTitle from '../components/SubTitle'
@@ -168,6 +168,7 @@ export default memo(() => {
   }
 
   return (
+    <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps={'always'}>
     <Section title={t('setting_health')}>
       <SubTitle title={t('health_desc')}>
         <View style={styles.btnRow}>
@@ -279,6 +280,7 @@ export default memo(() => {
         }
       </SubTitle>
     </Section>
+    </ScrollView>
   )
 })
 

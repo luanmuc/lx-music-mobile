@@ -586,5 +586,6 @@
   "health_sum_sleep": "休眠",
   "health_sum_off": "已关",
   "health_state_sleeping": "休眠中",
-  "health_toggle_failed": "切换失败，请重试"
+  "health_toggle_failed": "切换失败，请重试",
+  "nav_health": "音源健康"
 }

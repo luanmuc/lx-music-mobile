@@ -9,7 +9,6 @@ import CleanCache from './settings/CleanCache'
 import CustomSource from './settings/CustomSource'
 import Version from './settings/Version'
 import About from './settings/About'
-import Health from './settings/Health'
 
 // 竖屏首页：前 6 个为二级分组（点击进入）；custom_source / version 在首页直接展开（仍保留在清单中供横屏 tab 使用）
 export const SETTING_SCREENS = [
@@ -20,7 +19,6 @@ export const SETTING_SCREENS = [
   'list',
   'clean_cache',
   'custom_source',
-  'health',
   'version',
   'about',
 ] as const
@@ -55,7 +53,6 @@ const Main = forwardRef<MainType, {}>((props, ref) => {
       case 'list': return <List />
       case 'clean_cache': return <CleanCache />
       case 'custom_source': return <CustomSource />
-      case 'health': return <Health />
       case 'version': return <Version />
       case 'about': return <About />
       case 'basic':

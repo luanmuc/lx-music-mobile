@@ -207,11 +207,6 @@ declare global {
       'player.isShowNotificationLyric': boolean
 
       /**
-       * 播放详情页-是否缩放当前播放的歌词行
-       */
-      // 'playDetail.isZoomActiveLrc': boolean
-
-      /**
        * 播放详情页-是否允许通过歌词调整播放进度
        */
       // 'playDetail.isShowLyricProgressSetting': boolean
@@ -327,11 +322,6 @@ declare global {
       'list.isClickPlayList': boolean
 
       /**
-       * 是否显示歌曲来源（仅对我的列表有效）
-       */
-      'list.isShowSource': boolean
-
-      /**
        * 是否显示歌曲专辑名
        */
       'list.isShowAlbumName': boolean
@@ -340,11 +330,6 @@ declare global {
        * 是否显示歌曲时长
        */
       'list.isShowInterval': boolean
-
-      /**
-       * 是否自动恢复列表滚动位置（仅对我的列表有效）
-       */
-      'list.isSaveScrollLocation': boolean
 
       /**
        * 添加歌曲到我的列表时的方式

@@ -37,7 +37,6 @@ const defaultSetting: LX.AppSetting = {
   'player.isShowBluetoothFullLyric': false,
   'player.isShowNotificationLyric': true, // 通知栏标题显示当前歌词（与原版默认一致；需要时可手动关闭）
 
-  // 'playDetail.isZoomActiveLrc': false,
   // 'playDetail.isShowLyricProgressSetting': false,
   'playDetail.style.align': 'center',
   'playDetail.vertical.style.lrcFontSize': 210,
@@ -64,10 +63,8 @@ const defaultSetting: LX.AppSetting = {
   'search.isShowHistorySearch': false,
 
   'list.isClickPlayList': true, // 点击歌曲时默认播放整个列表（原版默认 false=单曲；定制开启以获得整列表连续播放）
-  'list.isShowSource': true,
   'list.isShowAlbumName': false,
   'list.isShowInterval': true,
-  'list.isSaveScrollLocation': true,
   'list.addMusicLocationType': 'top',
 
   'download.fileName': '歌名 - 歌手',

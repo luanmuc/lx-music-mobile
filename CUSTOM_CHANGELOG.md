@@ -16,6 +16,12 @@
 - 桥层 user-api-preload.js 新增 health 动作透传；userApi 按音源声明自动注册 getHealth
 - b37 修复：竖屏（手机）设置首页漏注册「音源健康」入口（横屏已注册）
 
+### 修复：音源健康面板「未检测到支持健康查询的音源」（b39 起生效）
+- **根因**：App 端 preload 的 `supportActions` 白名单只允许 kw/kg/tx/wy/mg 注册 `musicUrl`，v16.3 音源声明的 `health`（以及 wy/kw 的 `lyric/pic`）在 init 时被白名单过滤，导致 `getHealth` 从未注册——b36~b38 加了请求分支和注册分支，唯独漏了白名单这层
+- **修复**：`supportActions` 给全部平台补 `health`，wy 补 `lyric`、kw 补 `pic`（v15.0 歌词/封面功能一并落地）
+- **验证**：mock 宿主完整跑通「音源声明 → preload 白名单过滤 → 注册循环」，5 源全部注册 getHealth
+- 用户安装 b39 后需确认当前使用的音源是「豆包定制[聚合音源]」（设置-自定义音源中选中它），健康面板即有数据
+
 ### 修复：内置音源自动升级失效（b38 起生效）
 - App 内置音源升级靠 logInfo 中「聚合音源 vX.Y」版本串对比，音源 v14~v16 系列只更新了 @version 头，版本串停留在 v13.4，导致新 App 内置了新版音源内容却不触发自动重新导入，健康面板提示「未检测到支持健康查询的音源」
 - 音源仓库同步版本串为 v16.3（logInfo + updateAlert）；用户安装 b38 后内置音源自动升级为 v16.3，健康面板即有数据

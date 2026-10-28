@@ -101,6 +101,12 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
   // this.musicInfo.url = await getMusicPlayUrl(targetSong, type)
   setStatusText(global.i18n.t('player__getting_url'))
   addLoadTimeout()
+  // v-b45：获取链接中途提示——网络类全链失败最长约18s（3级音质降级×6s竞速），
+  // 8s 未返回先给用户"正在切换音源"反馈，避免长时间"获取中"无进展
+  const hintTimer = setTimeout(() => {
+    if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return
+    setStatusText(global.i18n.t('player__switching_source'))
+  }, 8000)
 
   // 取消切换音源功能后：一律使用当前歌曲本身请求播放链接，不再优先使用切换残留的 toggleMusicInfo
   // （历史切换过的歌曲 meta 里残留的 toggleMusicInfo 会导致请求错误平台的坏 URL，反复刷新失败）
@@ -118,6 +124,7 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
       setStatusText(global.i18n.t('toggle_source_try'))
     },
   }).then(url => {
+    clearTimeout(hintTimer)
     if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return null
 
     logger.musicResolve(
@@ -130,6 +137,7 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     )
     return url
   }).catch(async err => {
+    clearTimeout(hintTimer)
     // console.log('err', err.message)
     if (global.lx.isPlayedStop ||
       diffCurrentMusicInfo(musicInfo) ||

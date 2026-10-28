@@ -131,7 +131,7 @@ export default memo(() => {
   const items = snapshot ? Object.entries(snapshot).sort((a, b) => a[1].healthScore - b[1].healthScore) : []
 
   // 聚合摘要：正常/熔断/半开/待采样/休眠/已关
-  let summary: Record<'ok' | 'open' | 'half' | 'idle' | 'sleep' | 'off', number> = { ok: 0, open: 0, half: 0, idle: 0, sleep: 0, off: 0 }
+  let summary: Record<'ok' | 'bad' | 'open' | 'half' | 'idle' | 'sleep' | 'off', number> = { ok: 0, bad: 0, open: 0, half: 0, idle: 0, sleep: 0, off: 0 }
   if (items.length) {
     summary = items.reduce((acc, [, it]) => {
       const sampled = hasSample(it)
@@ -141,7 +141,10 @@ export default memo(() => {
       } else if (!sampled) {
         acc.idle++
       } else if (it.state === 'closed') {
-        acc.ok++
+        // v-b45：状态语义修正——断路器闭合但成功率 0% + 健康分<0（如上游整体不可用的源）
+        // 显示"异常"而非"正常"：闭合≠真实可用
+        if (it.successRate === 0 && it.healthScore < 0) acc.bad++
+        else acc.ok++
       } else if (it.state === 'open') {
         acc.open++
       } else {
@@ -179,7 +182,8 @@ export default memo(() => {
               <Text size={12} color={theme['c-font-label']}>{t('health_summary')}</Text>
               <View style={styles.summaryItems}>
                 <Text size={12} color="#52c41a">● {summary.ok}{t('health_sum_ok')}</Text>
-                <Text size={12} color="#ff4d4f">● {summary.open}{t('health_sum_open')}</Text>
+                <Text size={12} color="#ff4d4f">● {summary.bad}{t('health_sum_bad')}</Text>
+                <Text size={12} color="#faad14">● {summary.open}{t('health_sum_open')}</Text>
                 <Text size={12} color="#faad14">● {summary.half}{t('health_sum_half')}</Text>
                 <Text size={12} color={theme['c-font-label']}>○ {summary.idle}{t('health_sum_idle')}</Text>
                 <Text size={12} color="#8c8c8c">○ {summary.sleep}{t('health_sum_sleep')}</Text>
@@ -213,6 +217,9 @@ export default memo(() => {
                     else { stateText = t('health_state_disabled'); stateColor = theme['c-font-label'] }
                   } else if (!sampled) {
                     stateText = t('health_state_idle'); stateColor = theme['c-font-label']
+                  } else if (item.state === 'closed' && item.successRate === 0 && item.healthScore < 0) {
+                    // v-b45：断路器闭合但成功率 0% + 健康分<0 → "异常"（上游不可用的源不再显示"正常"）
+                    stateText = t('health_state_abnormal'); stateColor = '#ff4d4f'
                   } else {
                     stateText = t(`health_state_${item.state}`); stateColor = STATE_COLOR[item.state]
                   }

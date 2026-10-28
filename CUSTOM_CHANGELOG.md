@@ -34,6 +34,14 @@
 
 ---
 
+---
+
+## [v1.9.1-b42 ~ b43] - 2026-10-28
+
+### 修复：preload 白名单补 toggle/probe（源级开关/手动探测真正注册）
+- v16.5 音源声明了 toggle/probe，但 preload supportActions 白名单未含这两个 action，init 时被过滤导致开关/探测无法注册（b39 同款坑）
+- 白名单全部平台补 toggle/probe；端到端验证 5 源全含 health/toggle/probe，toggle 立即生效
+
 ## [v1.9.1-b41 ~ b42] - 2026-10-28
 
 ### 音源健康面板：「看」升级为「管」（配套音源 v16.5）

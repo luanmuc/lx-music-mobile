@@ -1,4 +1,5 @@
 // import { requestStoragePermission } from '@/utils/common'
+import RNFS from 'react-native-fs'
 import { temporaryDirectoryPath, existsFile, appendFile, unlink, writeFile, readFile } from '@/utils/fs'
 
 const logPath = temporaryDirectoryPath + '/error.log'
@@ -28,6 +29,17 @@ export const init = async() => {
 
 export const getLogs = async() => {
   return readFile(logPath)
+}
+
+// 调试日志（utils/logger.ts 写的 lx_debug_log.txt）——「查看日志」合并展示，补原日志系统缺陷
+const debugLogPath = RNFS.DocumentDirectoryPath + '/lx_debug_log.txt'
+export const getDebugLogs = async() => {
+  try {
+    if (!await RNFS.exists(debugLogPath)) return ''
+    return await RNFS.readFile(debugLogPath, 'utf8')
+  } catch {
+    return ''
+  }
 }
 
 export const clearLogs = async() => {

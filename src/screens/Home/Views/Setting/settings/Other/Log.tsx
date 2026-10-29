@@ -1,6 +1,6 @@
 import { memo, useRef, useState, useEffect } from 'react'
 import { View } from 'react-native'
-import { getLogs, clearLogs } from '@/utils/log'
+import { getLogs, clearLogs, getDebugLogs } from '@/utils/log'
 // import { gzip, ungzip } from 'pako'
 
 import SubTitle from '../../components/SubTitle'
@@ -20,12 +20,19 @@ export default memo(() => {
   const [isEnableUserApiLog, setIsEnableUserApiLog] = useState(global.lx.isEnableUserApiLog)
 
   const getErrorLog = () => {
-    void getLogs().then(log => {
+    // 合并读全局错误日志（error.log，含音源日志）与调试日志（lx_debug_log.txt，含音源标签诊断）
+    // ——原实现只读 error.log，logger 通道的诊断日志在「查看日志」里永远不可见（日志系统缺陷，已修）
+    void Promise.all([getLogs(), getDebugLogs()]).then(([errLog, dbgLog]) => {
       if (isUnmountedRef.current) return
-      const logArr = log.split(/^----lx log----\n|\n----lx log----\n|\n----lx log----$/)
-      // console.log(logArr)
-      logArr.reverse()
-      setLogText(logArr.join('\n\n').replace(/^\n+|\n+$/, ''))
+      const parts: string[] = []
+      if (errLog.trim()) {
+        const logArr = errLog.split(/^----lx log----\n|\n----lx log----\n|\n----lx log----$/)
+        parts.push(logArr.reverse().join('\n\n').replace(/^\n+|\n+$/, ''))
+      }
+      if (dbgLog.trim()) {
+        parts.push('==== 调试日志 ====\n' + dbgLog.trim().split('\n').reverse().join('\n'))
+      }
+      setLogText(parts.join('\n\n'))
     })
   }
 

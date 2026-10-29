@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b59",
-  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 7f5b9f8a b59 fix: 缓存命中子源读取改 await 同步回调（根治 onSource 被 finally 清空拦截）",
+  "version": "1.9.1-b60",
+  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- c45aee3c b60 诊断版：音源标签全链路日志（onSource 调用/放行/拦截 + setPlaySource 写入值，错误日志页可见） 配合音源 v25.11 沙箱兼容（setInterval→setTimeout）定位残余场景",
   "history": [
+    {
+      "version": "1.9.1-b59",
+      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 7f5b9f8a b59 fix: 缓存命中子源读取改 await 同步回调（根治 onSource 被 finally 清空拦截）"
+    },
     {
       "version": "1.9.1-b58",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 37c3eefc b58 fix: onSource 防串歌校验去掉 playerState.playMusicInfo 时序依赖（只留 gettingUrlId 归属校验）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b53",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 1f3699d0 b52 fix: 横屏 PlayInfo styles 语法修复（sourceGap 插入逗号错位）\n- a5266144 b52 播放页音源标签：显示当前歌曲实际交付链接的音源（平台名 · 子源名）"
-    },
-    {
-      "version": "1.9.1-b51",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 0e2ecfde b51 自定义音源挪到侧边栏并更名'音源管理'；侧边菜单排序：定时关闭→音源健康→音源管理"
     }
   ]
 }

@@ -23,7 +23,7 @@ export default async(setting: LX.AppSetting) => {
   //     info2.music = info2.list[info2.index]?.name
   //     info2.list = info2.list.length
   //   }
-  //   toast('恢复播放数据失败，请去错误日志查看', 'long')
+  //   toast(global.i18n.t('toast_restore_play_failed')), 'long')
   //   log.warn('Restore Play Info failed: ', JSON.stringify(info2, null, 2))
 
   //   return

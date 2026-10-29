@@ -473,9 +473,9 @@ export const startDownload = async(musicInfo: LX.Music.MusicInfoOnline, quality:
   const exists = downloadState.list.find(t => t.id === taskId)
   if (exists) {
     if (exists.isComplate) {
-      toast('该歌曲已下载完成')
+      toast(global.i18n.t('toast_download_already_done')))
     } else {
-      toast('该歌曲已在下载队列中')
+      toast(global.i18n.t('toast_download_in_queue')))
     }
     return
   }
@@ -502,7 +502,7 @@ export const startDownload = async(musicInfo: LX.Music.MusicInfoOnline, quality:
   downloadActions.addItem(task)
   save()
   void startNext()
-  toast('已加入下载队列')
+  toast(global.i18n.t('toast_added_to_queue')))
 }
 
 /**
@@ -547,7 +547,7 @@ export const startBatchDownload = async(musicList: LX.Music.MusicInfoOnline[], q
 export const retryDownload = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task) return
-  toast('正在重试下载...')
+  toast(global.i18n.t('toast_retrying_download')))
   downloadActions.updateItem({
     ...task,
     retryCount: 0,
@@ -581,7 +581,7 @@ export const pauseDownload = async(taskId: string) => {
       break
     }
   }
-  toast('已暂停')
+  toast(global.i18n.t('toast_paused')))
 }
 
 /**
@@ -657,7 +657,7 @@ export const clearCompleted = async() => {
   }
   downloadActions.setList(newList)
   save()
-  toast('已清空已完成任务')
+  toast(global.i18n.t('toast_cleared_finished')))
 }
 
 /**
@@ -694,7 +694,7 @@ export const pauseAllDownload = async() => {
     try { RNFS.stopDownload(jobId) } catch (e) {}
   }
   activeJobs.clear()
-  toast('已全部暂停')
+  toast(global.i18n.t('toast_paused_all')))
 }
 
 /**
@@ -712,7 +712,7 @@ export const resumeAllDownload = async() => {
   }
   save()
   void startNext()
-  toast('已继续全部下载任务')
+  toast(global.i18n.t('toast_resumed_all')))
 }
 
 /**
@@ -727,7 +727,7 @@ export const playDownload = async(index: number) => {
     // 播放器会通过 'progress' in musicInfo 走本地文件播放分支
     await playList(LIST_IDS.DOWNLOAD, index)
   } catch (e) {
-    toast('播放失败')
+    toast(global.i18n.t('toast_play_failed')))
   }
 }
 
@@ -737,13 +737,13 @@ export const playDownload = async(index: number) => {
 export const openDownloadedFile = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task || !task.isComplate || !task.metadata.filePath) {
-    toast('文件不存在')
+    toast(global.i18n.t('toast_file_not_exist')))
     return
   }
   try {
     const exists = await existsFile(task.metadata.filePath)
     if (!exists) {
-      toast('文件已被删除')
+      toast(global.i18n.t('toast_file_deleted')))
       return
     }
     if (Platform.OS === 'android') {
@@ -753,7 +753,7 @@ export const openDownloadedFile = async(taskId: string) => {
       await Linking.openURL(`file://${task.metadata.filePath}`)
     }
   } catch (e) {
-    toast('无法打开文件')
+    toast(global.i18n.t('toast_cannot_open_file')))
   }
 }
 
@@ -763,13 +763,13 @@ export const openDownloadedFile = async(taskId: string) => {
 export const shareDownloadedFile = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task || !task.isComplate || !task.metadata.filePath) {
-    toast('文件不存在')
+    toast(global.i18n.t('toast_file_not_exist')))
     return
   }
   try {
     const exists = await existsFile(task.metadata.filePath)
     if (!exists) {
-      toast('文件已被删除')
+      toast(global.i18n.t('toast_file_deleted')))
       return
     }
     if (Platform.OS === 'android') {
@@ -782,6 +782,6 @@ export const shareDownloadedFile = async(taskId: string) => {
       })
     }
   } catch (e) {
-    toast('分享失败')
+    toast(global.i18n.t('toast_share_failed')))
   }
 }

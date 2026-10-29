@@ -284,7 +284,11 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
   if (!musicInfo || !itemQuality) throw new Error(global.i18n.t('toggle_source_failed'))
 
   const cachedUrl = await getStoreMusicUrl(musicInfo, itemQuality)
-  if (cachedUrl && !isRefresh) return { url: cachedUrl, musicInfo, quality: itemQuality, isFromCache: true, subSource: '', subSourceName: '' }
+  if (cachedUrl && !isRefresh) {
+    // 与主请求路径一致：缓存命中读子源键（v25.9 起双写），老缓存无子源时降级空
+    const cachedSource = await getStoreMusicSource(musicInfo, itemQuality)
+    return { url: cachedUrl, musicInfo, quality: itemQuality, isFromCache: true, subSource: cachedSource?.id ?? '', subSourceName: cachedSource?.name ?? '' }
+  }
 
   let reqPromise
   try {

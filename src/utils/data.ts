@@ -366,14 +366,19 @@ export const hasMusicUrlByMusic = async(musicInfo: LX.Music.MusicInfo) => {
 }
 export const clearMusicUrlByMusic = async(musicInfo: LX.Music.MusicInfo) => {
   await removeDataMultiple(qualitys.map(q => `${storageDataPrefix.musicUrl}${musicInfo.id}_${q}`))
+  // 同步清理该歌曲的子源缓存键
+  await removeDataMultiple(qualitys.map(q => `${storageDataPrefix.musicSource}${musicInfo.id}_${q}`))
 }
 export const getMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`).then((url) => url ?? '')
 export const saveMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, url: string) => saveData(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`, url)
-export const saveMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, source: string) => saveData(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`, source)
-export const getStoreMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`).then((s) => s ?? '')
+export const saveMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, source: { id: string; name: string }) => saveData(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`, source)
+export const getStoreMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<{ id: string; name: string }>(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`)
 export const clearMusicUrl = async(keys?: string[]) => {
   if (!keys) keys = (await getAllKeys()).filter(key => key.startsWith(storageDataPrefix.musicUrl))
   await removeDataMultiple(keys)
+  // 同步清理子源缓存键（与 URL 键平行写入；只清 URL 会残留子源脏数据）
+  const sourceKeys = keys.map(k => k.replace(storageDataPrefix.musicUrl, storageDataPrefix.musicSource)).filter(k => k.startsWith(storageDataPrefix.musicSource))
+  if (sourceKeys.length) await removeDataMultiple(sourceKeys)
 }
 
 export const getLyric = async(musicInfo: LX.Music.MusicInfo) => getData<LX.Music.LyricInfo>(`${storageDataPrefix.lyric}${musicInfo.id}`).then(lrcInfo => lrcInfo ?? { lyric: '' })

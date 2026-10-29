@@ -216,7 +216,7 @@ export const handleScanDownloadDir = async() => {
     let dir = settingState.setting['download.dir']
     if (!dir) dir = `${RNFS.DownloadDirectoryPath}/lx-music`
     if (!(await RNFS.exists(dir))) {
-      toast('下载目录不存在')
+      toast(global.i18n.t('toast_download_dir_not_exist')))
       return
     }
     let targetList = listState.userList.find(l => l.id == LOCAL_MUSIC_LIST_ID)
@@ -227,6 +227,6 @@ export const handleScanDownloadDir = async() => {
     await handleImportMediaFile(targetList, dir)
   } catch (e) {
     console.error('[scanDownloadDir]', e)
-    toast('扫描本地音乐失败')
+    toast(global.i18n.t('toast_scan_local_failed')))
   }
 }

@@ -8,6 +8,16 @@
 
 ---
 
+## [v1.9.1-b79] - 2026-10-30
+
+### 双仓库全面审计 P3 清理项（代码卫生）
+- **player.ts 残留调试日志清理**：删除 4 处活动 `console.log`（delay next timeout 计时、取链失败 catch、两处歌词加载失败 catch）——错误链路已由 b70 诊断日志（log.diagnose）+ 状态提示兜底，不再刷控制台
+- **VM 桥 updateUrl 校验逻辑修正**（user-api-preload.js）：旧实现 `!regex && length>1024` 三条件同时满足才剔除非法 updateUrl，非法但短于 1024 的 URL 会原样透传原生弹窗；改为非字符串/超长/非法任一命中即剔除
+- **VM 桥 randomBytes 加密安全优先**：RN/Hermes 提供 `crypto.getRandomValues` 时使用（第三方音源签名场景防预测），不可用时降级 `Math.random`（能力检测，不引入依赖）
+- 配套：音源仓库同日 v27.3（S1 缓存类型/S4 封面/S5 脚本修复，见音源仓库 changelog）
+
+---
+
 ## [v1.9.1-b77] - 2026-10-29
 
 ### track-player fork 升级：合入上游音频卸载优化（依赖层）

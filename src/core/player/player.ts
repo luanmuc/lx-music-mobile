@@ -50,7 +50,6 @@ const createDelayNextTimeout = (delay: number) => {
     timeout = BackgroundTimer.setTimeout(() => {
       timeout = null
       if (global.lx.isPlayedStop) return
-      console.log('delay next timeout timeout', delay)
       void playNext(true)
     }, delay)
   }
@@ -181,8 +180,7 @@ export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
     if (!url) return
     setResource(musicInfo, url, playerState.progress.nowPlayTime)
   }).catch((err: any) => {
-    console.log(err)
-    // v16.3：音源失败原因友好化（原为 err.message 大段英文技术细节）
+    // v16.3：音源失败原因友好化（原为 err.message 大段英文技术细节；诊断链走 log.diagnose）
     setStatusText(formatPlayError(err))
     global.app_event.error()
     addDelayNextTimeout()
@@ -228,7 +226,6 @@ const handleRestorePlay = async(restorePlayInfo: LX.Player.SavedPlayInfo) => {
     })
     global.app_event.lyricUpdated()
   }).catch((err) => {
-    console.log(err)
     if (musicInfo.id != playMusicInfo.musicInfo?.id) return
     setStatusText(global.i18n.t('lyric__load_error'))
   })
@@ -260,7 +257,6 @@ const debouncePlay = debounceBackgroundTimer((musicInfo: LX.Player.PlayMusic) =>
     })
     global.app_event.lyricUpdated()
   }).catch((err) => {
-    console.log(err)
     if (musicInfo.id != playerState.playMusicInfo.musicInfo?.id) return
     setStatusText(global.i18n.t('lyric__load_error'))
   })

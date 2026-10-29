@@ -378,7 +378,9 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
   const handleShowUpdateAlert = (data, resolve, reject) => {
     if (!data || typeof data != 'object') return reject(new Error('parameter format error.'))
     if (!data.log || typeof data.log != 'string') return reject(new Error('log is required.'))
-    if (data.updateUrl && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(data.updateUrl) && data.updateUrl.length > 1024) delete data.updateUrl
+    // b79：updateUrl 校验修正——旧实现 `!regex.test && length>1024` 三个条件同时满足才删除，
+    // 非法但短于 1024 的 URL 会原样保留透传给原生弹窗；现改为非法/非字符串/超长任一命中即剔除
+    if (data.updateUrl && (typeof data.updateUrl != 'string' || data.updateUrl.length > 1024 || !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(data.updateUrl))) delete data.updateUrl
     if (data.log.length > 1024) data.log = data.log.substring(0, 1024) + '...'
     nativeCall(NATIVE_EVENTS_NAMES.showUpdateAlert, { log: data.log, updateUrl: data.updateUrl, name })
     resolve()
@@ -411,8 +413,14 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
       },
       randomBytes(size) {
         const byteArray = new Uint8Array(size)
-        for (let i = 0; i < size; i++) {
-          byteArray[i] = Math.floor(Math.random() * 256) // 随机生成一个字节的值（0-255）
+        // b79：加密安全随机优先——RN/Hermes 提供 crypto.getRandomValues 时使用（第三方音源签名场景防预测），
+        // 不可用时降级 Math.random（原实现；仅做能力检测，不引入额外依赖）
+        if (typeof globalThis.crypto === 'object' && globalThis.crypto !== null && typeof globalThis.crypto.getRandomValues === 'function') {
+          globalThis.crypto.getRandomValues(byteArray)
+        } else {
+          for (let i = 0; i < size; i++) {
+            byteArray[i] = Math.floor(Math.random() * 256) // 随机生成一个字节的值（0-255）
+          }
         }
         return byteArray
       },

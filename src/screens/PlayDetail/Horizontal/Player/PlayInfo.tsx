@@ -97,10 +97,10 @@ const styles = createStyle({
     paddingRight: 5,
     flexDirection: 'row',
     alignItems: 'center',
-  }
+  },
   sourceGap: {
     marginLeft: 6,
-  },,
+  },
 })
 // const styles = createStyle({
 //   container: {

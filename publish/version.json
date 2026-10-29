@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b64",
-  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- feb79502 b64 日志系统落地公共目录：父文件夹结构 + 4 类日志分文件 + 权限提示",
+  "version": "1.9.1-b65",
+  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- f13825b4 b64 体检修复（日志系统深度审查）：",
   "history": [
+    {
+      "version": "1.9.1-b64",
+      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- feb79502 b64 日志系统落地公共目录：父文件夹结构 + 4 类日志分文件 + 权限提示"
+    },
     {
       "version": "1.9.1-b63",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- a54e9924 b63 日志系统重构：独立「运行日志」分组 + 移除同步日志开关"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b58",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 37c3eefc b58 fix: onSource 防串歌校验去掉 playerState.playMusicInfo 时序依赖（只留 gettingUrlId 归属校验）"
-    },
-    {
-      "version": "1.9.1-b57",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- f65196af b56 fix: i18n 替换批次多括号语法错误（toast(global.i18n.t('x')) 多了一个右括号，19 处全量修复）\n- e8fba578 b56 体检修复批次： - 存储一致性：clearMusicUrl/clearMusicUrlByMusic 同步清理子源缓存键（@music_source__），清链接缓存不再残留脏数据 - 类型修复：saveMusicSource/getStoreMusicSource 签名改为 {id,name} 对象（原标 string 实存对象，类型标注错误，CI babel 不查类型隐藏至今） - 换源路径缓存命中读子源键（与主请求路径一致），换源缓存命中歌也能显示子源 - i18n：21 处中文硬编码 toast 全部接入 i18n（zh 原文/en 译文），errorHandle 异常弹窗文案同步国际化"
     }
   ]
 }

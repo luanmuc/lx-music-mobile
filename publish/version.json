@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b77",
-  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 43ca484d chore(deps): 升级 track-player fork 至 0f0acb4（合入上游音频卸载优化 + 保留通知栏定制）",
+  "version": "1.9.1-b78",
+  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- eec376a1 docs: 更新 track-player fork 依赖记录至 0f0acb4（b77 升级归档）",
   "history": [
+    {
+      "version": "1.9.1-b77",
+      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 43ca484d chore(deps): 升级 track-player fork 至 0f0acb4（合入上游音频卸载优化 + 保留通知栏定制）"
+    },
     {
       "version": "1.9.1-b76",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- dd821f9f chore: 移除误提交的 node_modules symlink（仓库污染清理，杜绝 git add 再次带入）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b72",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 7346cfa9 b72 修复播放页音源标签不显示子源名（根因：VM 桥 preload 丢弃 subSource）"
-    },
-    {
-      "version": "1.9.1-b71",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 4ce7da4f b71 修复两大根因：播放页 logger 未定义报错 + 日志权限双通道（按原版洛雪零权限逻辑）"
     }
   ]
 }

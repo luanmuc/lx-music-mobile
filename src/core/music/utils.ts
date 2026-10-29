@@ -8,6 +8,7 @@ import {
 import { langS2T, toNewMusicInfo, toOldMusicInfo } from '@/utils'
 import { assertApiSupport } from '@/utils/tools'
 import settingState from '@/store/setting/state'
+import { log } from '@/utils/log'
 import { requestMsg } from '@/utils/message'
 import BackgroundTimer from 'react-native-background-timer'
 import { apis } from '@/utils/musicSdk/api-source'
@@ -156,7 +157,16 @@ export const getOnlineOtherSourceMusicUrlByLocal = async(musicInfo: LX.Music.Mus
   quality: LX.Quality
   isFromCache: boolean
 }> => {
-  if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
+  // b70 诊断：音源初始化检查打点（若卡在此步说明 apiInitPromise 未 resolve；15s 兜底超时）
+  const initPromise = global.lx.apiInitPromise[0]
+  log.diagnose(`[播放诊断] 检查音源初始化: apiInitPromise类型=${initPromise instanceof Promise ? 'Promise' : String(initPromise)}`)
+  if (initPromise instanceof Promise) {
+    const initResult = await Promise.race([initPromise, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('音源初始化超时(15s)')), 15_000))])
+    if (!initResult) throw new Error('source init failed')
+    log.diagnose(`[播放诊断] 音源初始化完成: 结果=${!!initResult}`)
+  } else if (!initPromise) {
+    throw new Error('source init failed')
+  }
 
   const quality = '128k'
 
@@ -179,7 +189,16 @@ export const getOnlineOtherSourceLyricByLocal = async(musicInfo: LX.Music.MusicI
   lyricInfo: LX.Music.LyricInfo
   isFromCache: boolean
 }> => {
-  if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
+  // b70 诊断：音源初始化检查打点（若卡在此步说明 apiInitPromise 未 resolve；15s 兜底超时）
+  const initPromise = global.lx.apiInitPromise[0]
+  log.diagnose(`[播放诊断] 检查音源初始化: apiInitPromise类型=${initPromise instanceof Promise ? 'Promise' : String(initPromise)}`)
+  if (initPromise instanceof Promise) {
+    const initResult = await Promise.race([initPromise, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('音源初始化超时(15s)')), 15_000))])
+    if (!initResult) throw new Error('source init failed')
+    log.diagnose(`[播放诊断] 音源初始化完成: 结果=${!!initResult}`)
+  } else if (!initPromise) {
+    throw new Error('source init failed')
+  }
 
   const lyricInfo = await getCachedLyricInfo(musicInfo)
   if (lyricInfo && !isRefresh) return { lyricInfo, isFromCache: true }
@@ -199,7 +218,16 @@ export const getOnlineOtherSourceLyricByLocal = async(musicInfo: LX.Music.MusicI
 export const getOnlineOtherSourcePicByLocal = async(musicInfo: LX.Music.MusicInfoLocal): Promise<{
   url: string
 }> => {
-  if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
+  // b70 诊断：音源初始化检查打点（若卡在此步说明 apiInitPromise 未 resolve；15s 兜底超时）
+  const initPromise = global.lx.apiInitPromise[0]
+  log.diagnose(`[播放诊断] 检查音源初始化: apiInitPromise类型=${initPromise instanceof Promise ? 'Promise' : String(initPromise)}`)
+  if (initPromise instanceof Promise) {
+    const initResult = await Promise.race([initPromise, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('音源初始化超时(15s)')), 15_000))])
+    if (!initResult) throw new Error('source init failed')
+    log.diagnose(`[播放诊断] 音源初始化完成: 结果=${!!initResult}`)
+  } else if (!initPromise) {
+    throw new Error('source init failed')
+  }
 
   let reqPromise
   try {
@@ -265,7 +293,16 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
   subSource: string
   subSourceName: string
 }> => {
-  if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
+  // b70 诊断：音源初始化检查打点（若卡在此步说明 apiInitPromise 未 resolve；15s 兜底超时）
+  const initPromise = global.lx.apiInitPromise[0]
+  log.diagnose(`[播放诊断] 检查音源初始化: apiInitPromise类型=${initPromise instanceof Promise ? 'Promise' : String(initPromise)}`)
+  if (initPromise instanceof Promise) {
+    const initResult = await Promise.race([initPromise, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('音源初始化超时(15s)')), 15_000))])
+    if (!initResult) throw new Error('source init failed')
+    log.diagnose(`[播放诊断] 音源初始化完成: 结果=${!!initResult}`)
+  } else if (!initPromise) {
+    throw new Error('source init failed')
+  }
 
   let musicInfo: LX.Music.MusicInfoOnline | null = null
   let itemQuality: LX.Quality | null = null
@@ -325,7 +362,16 @@ export const handleGetOnlineMusicUrl = async({ musicInfo, quality, onToggleSourc
   subSource: string
   subSourceName: string
 }> => {
-  if (!await global.lx.apiInitPromise[0]) throw new Error('source init failed')
+  // b70 诊断：音源初始化检查打点（若卡在此步说明 apiInitPromise 未 resolve；15s 兜底超时）
+  const initPromise = global.lx.apiInitPromise[0]
+  log.diagnose(`[播放诊断] 检查音源初始化: apiInitPromise类型=${initPromise instanceof Promise ? 'Promise' : String(initPromise)}`)
+  if (initPromise instanceof Promise) {
+    const initResult = await Promise.race([initPromise, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('音源初始化超时(15s)')), 15_000))])
+    if (!initResult) throw new Error('source init failed')
+    log.diagnose(`[播放诊断] 音源初始化完成: 结果=${!!initResult}`)
+  } else if (!initPromise) {
+    throw new Error('source init failed')
+  }
   // console.log(musicInfo.source)
   const targetQuality = quality ?? getPlayQuality(settingState.setting['player.playQuality'], musicInfo)
 

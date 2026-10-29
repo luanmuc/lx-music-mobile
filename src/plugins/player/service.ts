@@ -95,6 +95,11 @@ const registerPlaybackService = async() => {
 
   TrackPlayer.addEventListener(TPEvent.PlaybackError, async(err: any) => {
     console.log('playback-error', err)
+    // b70 诊断：播放器错误打点（含错误内容——静默失败时可定位）
+    try {
+      const { log } = require('@/utils/log')
+      log.diagnose(`[播放诊断] 播放器错误: ${JSON.stringify(err?.message ?? err)?.slice(0, 300)}`)
+    } catch {}
     global.app_event.error()
     global.app_event.playerError()
   })

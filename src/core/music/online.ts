@@ -16,6 +16,7 @@ import {
   handleGetOnlinePicUrl,
   getCachedLyricInfo,
 } from './utils'
+import { log } from '@/utils/log'
 
 /* export const setMusicUrl = ({ musicInfo, type, url }: {
   musicInfo: LX.Music.MusicInfo
@@ -70,7 +71,11 @@ export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSou
     return cachedUrl
   }
 
-  return handleGetOnlineMusicUrl({ musicInfo, quality, onToggleSource, isRefresh, allowToggleSource }).then(({ url, quality: targetQuality, musicInfo: targetMusicInfo, isFromCache, subSource, subSourceName }) => {
+  // b70 诊断：获取链接全链路打点（写运行诊断日志，fire-and-forget 不阻塞）
+  const startTs = Date.now()
+  log.diagnose(`[播放诊断] 获取链接开始: 歌=${musicInfo.name} 源=${musicInfo.source} 音质=${targetQuality} 刷新=${isRefresh}`)
+  // b70 诊断：兜底超时——防止任何链路异常导致 promise 永不 settle（无限 00:00），25s 强制失败并打点
+  const urlPromise = handleGetOnlineMusicUrl({ musicInfo, quality, onToggleSource, isRefresh, allowToggleSource }).then(({ url, quality: targetQuality, musicInfo: targetMusicInfo, isFromCache, subSource, subSourceName }) => {
     const source = subSource ? { id: subSource, name: subSourceName || subSource } : null
     if (targetMusicInfo.id != musicInfo.id && !isFromCache) {
       void saveMusicUrl(targetMusicInfo, targetQuality, url)
@@ -80,7 +85,15 @@ export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSou
     if (source) void saveMusicSource(musicInfo, targetQuality, source)
     onQuality(targetQuality)
     onSource(source)
+    log.diagnose(`[播放诊断] 链接获取成功: 歌=${musicInfo.name} 耗时=${Date.now() - startTs}ms 缓存=${isFromCache} 子源=${subSourceName || subSource || '无'}`)
     return url
+  })
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(`URL获取超时(25s): 歌=${musicInfo.name} 源=${musicInfo.source}`)), 25_000)
+  })
+  return Promise.race([urlPromise, timeoutPromise]).catch(err => {
+    log.diagnose(`[播放诊断] 链接获取失败: 歌=${musicInfo.name} 错误=${err?.message}`)
+    throw err
   })
 }
 

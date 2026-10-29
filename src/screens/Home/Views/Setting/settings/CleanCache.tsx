@@ -4,7 +4,6 @@ import { View, StyleSheet } from 'react-native'
 import Section from '../components/Section'
 import SubTitle from '../components/SubTitle'
 import Button from '../components/Button'
-import Log from './Other/Log'
 import { toast, confirmDialog } from '@/utils/tools'
 import { getAppCacheSize, clearAppCache } from '@/utils/nativeModules/cache'
 import { getCacheSize, clearCache } from '@/plugins/player/utils'
@@ -124,8 +123,6 @@ export default memo(() => {
         }
       </SubTitle>
 
-      {/* 错误日志：查看 / 清空 / 开关（原"其他"分组内容并入） */}
-      <Log />
     </Section>
   )
 })

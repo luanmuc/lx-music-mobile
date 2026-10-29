@@ -6,6 +6,7 @@ import LyricDesktop from './settings/LyricDesktop'
 import Search from './settings/Search'
 import List from './settings/List'
 import CleanCache from './settings/CleanCache'
+import Log from './settings/Log'
 import Version from './settings/Version'
 import About from './settings/About'
 
@@ -17,6 +18,7 @@ export const SETTING_SCREENS = [
   'search',
   'list',
   'clean_cache',
+  'log',
   'version',
   'about',
 ] as const
@@ -50,6 +52,7 @@ const Main = forwardRef<MainType, {}>((props, ref) => {
       case 'search': return <Search />
       case 'list': return <List />
       case 'clean_cache': return <CleanCache />
+      case 'log': return <Log />
       case 'version': return <Version />
       case 'about': return <About />
       case 'basic':

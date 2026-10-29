@@ -46,7 +46,7 @@ global.lx = {
 
   // syncKeyInfo: {},
 
-  isEnableSyncLog: false,
+  // isEnableSyncLog: false, // 同步功能已停用（syncSetting 已注释），开关随日志系统重构移除
   isEnableUserApiLog: false,
 
   playerTrackId: '',

@@ -30,7 +30,7 @@ interface GlobalData {
   restorePlayInfo: LX.Player.SavedPlayInfo | null
   isScreenKeepAwake: boolean
   isPlayedStop: boolean
-  isEnableSyncLog: boolean
+  // isEnableSyncLog: boolean // 同步功能已停用，随日志重构移除
   isEnableUserApiLog: boolean
   playerTrackId: string
 

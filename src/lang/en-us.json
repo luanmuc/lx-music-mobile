@@ -344,7 +344,6 @@
   "setting_other_log_btn_clean": "Clear",
   "setting_other_log_btn_hide": "Close",
   "setting_other_log_btn_show": "View log",
-  "setting_other_log_sync_log": "Logging sync log",
   "setting_other_log_tip_clean_success": "Log cleanup complete",
   "setting_other_log_tip_null": "The log is empty~",
   "setting_other_log_user_api_log": "Logging Music API log",
@@ -610,5 +609,8 @@
   "toast_scan_local_failed": "Failed to scan local music",
   "toast_app_error": "The app encountered an error. If you can reproduce it, please screenshot and report on GitHub",
   "toast_storage_permission_denied": "Storage permission was permanently denied, please enable it manually in system settings",
-  "toast_app_error_detail": "The app hit a bug😭. Below is the error info. Please screenshot and report on GitHub (include what you were doing and the \"Error Log\" content in Settings). The app may misbehave now; long-press the volume key to restart"
+  "toast_app_error_detail": "The app hit a bug😭. Below is the error info. Please screenshot and report on GitHub (include what you were doing and the \"Error Log\" content in Settings). The app may misbehave now; long-press the volume key to restart",
+  "setting_log": "Run Logs",
+  "setting_log_desc": "Records app runtime and music source info for troubleshooting: global errors, aggregate source resolve/probe/health logs, playback source diagnostics, etc.",
+  "setting_log_view": "View & Clear"
 }

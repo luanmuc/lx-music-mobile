@@ -12,12 +12,12 @@ export default {
     writeLog.error(...params)
   },
   info(...params: any[]) {
-    if (global.lx.isEnableSyncLog) writeLog.info(...params)
+    writeLog.info(...params)
   },
   warn(...params: any[]) {
-    if (global.lx.isEnableSyncLog) writeLog.warn(...params)
+    writeLog.warn(...params)
   },
   error(...params: any[]) {
-    if (global.lx.isEnableSyncLog) writeLog.error(...params)
+    writeLog.error(...params)
   },
 }

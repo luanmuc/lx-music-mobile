@@ -1,27 +1,30 @@
 import { memo, useRef, useState, useEffect } from 'react'
 import { View } from 'react-native'
-import { getLogs, clearLogs, getDebugLogs } from '@/utils/log'
-// import { gzip, ungzip } from 'pako'
+import { getLogs, getDebugLogs, clearLogs } from '@/utils/log'
 
-import SubTitle from '../../components/SubTitle'
-import Button from '../../components/Button'
+import Section from '../components/Section'
+import SubTitle from '../components/SubTitle'
+import Button from '../components/Button'
 import { createStyle, toast } from '@/utils/tools'
 import ConfirmAlert, { type ConfirmAlertType } from '@/components/common/ConfirmAlert'
-import CheckBoxItem from '../../components/CheckBoxItem'
+import CheckBoxItem from '../components/CheckBoxItem'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 
+// 独立「运行日志」页（重构版）：
+// - 从「清理缓存」页提取，独立设置分组
+// - 移除已停用同步功能的「记录同步日志」开关（同步功能已停用，syncSetting 已注释）
+// - 保留「记录自定义源日志」（聚合音源解析/探测/健康日志）+ 查看/清空
+// - 查看日志合并读 error.log（全局错误+音源日志+运行诊断）与 lx_debug_log.txt（调试日志）
 export default memo(() => {
   const t = useI18n()
   const alertRef = useRef<ConfirmAlertType>(null)
   const [logText, setLogText] = useState('')
   const isUnmountedRef = useRef(true)
-  const [isEnableSyncErrorLog, setIsEnableSyncErrorLog] = useState(global.lx.isEnableSyncLog)
   const [isEnableUserApiLog, setIsEnableUserApiLog] = useState(global.lx.isEnableUserApiLog)
 
   const getErrorLog = () => {
-    // 合并读全局错误日志（error.log，含音源日志）与调试日志（lx_debug_log.txt，含音源标签诊断）
-    // ——原实现只读 error.log，logger 通道的诊断日志在「查看日志」里永远不可见（日志系统缺陷，已修）
+    // 合并读全局错误日志（error.log，含音源日志与运行诊断）与调试日志（lx_debug_log.txt）
     void Promise.all([getLogs(), getDebugLogs()]).then(([errLog, dbgLog]) => {
       if (isUnmountedRef.current) return
       const parts: string[] = []
@@ -48,16 +51,10 @@ export default memo(() => {
     })
   }
 
-  const handleSetEnableSyncErrorLog = (enable: boolean) => {
-    setIsEnableSyncErrorLog(enable)
-    global.lx.isEnableSyncLog = enable
-  }
-
   const handleSetEnableUserApiLog = (enable: boolean) => {
     setIsEnableUserApiLog(enable)
     global.lx.isEnableUserApiLog = enable
   }
-
 
   useEffect(() => {
     isUnmountedRef.current = false
@@ -67,12 +64,12 @@ export default memo(() => {
   }, [])
 
   return (
-    <>
-      <SubTitle title={t('setting_other_log')}>
-        <View style={styles.checkBox}>
-          <CheckBoxItem check={isEnableSyncErrorLog} label={t('setting_other_log_sync_log')} onChange={handleSetEnableSyncErrorLog} />
-          <CheckBoxItem check={isEnableUserApiLog} label={t('setting_other_log_user_api_log')} onChange={handleSetEnableUserApiLog} />
-        </View>
+    <Section title={t('setting_log')}>
+      <Text size={12} style={styles.desc}>{t('setting_log_desc')}</Text>
+      <View style={styles.checkBox}>
+        <CheckBoxItem check={isEnableUserApiLog} label={t('setting_other_log_user_api_log')} onChange={handleSetEnableUserApiLog} />
+      </View>
+      <SubTitle title={t('setting_log_view')}>
         <View style={styles.btn}>
           <Button onPress={openLogModal}>{t('setting_other_log_btn_show')}</Button>
         </View>
@@ -93,17 +90,19 @@ export default memo(() => {
           }
         </View>
       </ConfirmAlert>
-    </>
+    </Section>
   )
 })
 
 const styles = createStyle({
   checkBox: {
-    // paddingTop: 10,
-    paddingBottom: 15,
-    marginLeft: -25,
+    marginTop: 10,
   },
   btn: {
-    flexDirection: 'row',
+    marginTop: 10,
+  },
+  desc: {
+    marginTop: 8,
+    lineHeight: 20,
   },
 })

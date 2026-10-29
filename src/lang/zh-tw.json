@@ -344,7 +344,6 @@
   "setting_other_log_btn_clean": "清空",
   "setting_other_log_btn_hide": "關閉",
   "setting_other_log_btn_show": "查看日誌",
-  "setting_other_log_sync_log": "記錄同步日誌",
   "setting_other_log_tip_clean_success": "日誌清理完成",
   "setting_other_log_tip_null": "日誌是空的哦~",
   "setting_other_log_user_api_log": "記錄自訂來源 API 日誌",
@@ -586,5 +585,8 @@
   "health_sum_sleep": "休眠",
   "health_sum_off": "已關",
   "health_state_sleeping": "休眠中",
-  "health_toggle_failed": "切換失敗，請重試"
+  "health_toggle_failed": "切換失敗，請重試",
+  "setting_log": "运行日志",
+  "setting_log_desc": "記錄應用運行與音源解析資訊，用於排查問題：全域異常、聚合音源解析/探測/健康日誌、播放音源診斷等。",
+  "setting_log_view": "檢視與清理"
 }

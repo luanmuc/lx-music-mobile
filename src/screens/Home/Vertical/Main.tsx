@@ -7,6 +7,7 @@ import Leaderboard from '../Views/Leaderboard'
 import Download from '../Views/Download'
 import Setting from '../Views/Setting'
 import Health from '../Views/Setting/settings/Health'
+import CustomSource from '../Views/Setting/settings/CustomSource'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
 import { createStyle } from '@/utils/tools'
 import PagerView, { type PageScrollStateChangedNativeEvent, type PagerViewOnPageSelectedEvent } from 'react-native-pager-view'
@@ -230,6 +231,41 @@ const HealthPage = () => {
 
   return visible ? component : null
 }
+const SourcePage = () => {
+  const [visible, setVisible] = useState(commonState.navActiveId == 'nav_source')
+  const component = useMemo(() => <CustomSource />, [])
+  useEffect(() => {
+    let currentId: CommonState['navActiveId'] = commonState.navActiveId
+    const handleNavIdUpdate = (id: CommonState['navActiveId']) => {
+      currentId = id
+      if (id == 'nav_source') {
+        requestAnimationFrame(() => {
+          setVisible(true)
+        })
+      }
+    }
+    const handleHide = () => {
+      if (currentId != 'nav_setting') return
+      setVisible(false)
+    }
+    const handleConfigUpdated = (keys: Array<keyof LX.AppSetting>) => {
+      if (keys.some(k => hideKeys.includes(k))) handleHide()
+    }
+    global.state_event.on('navActiveIdUpdated', handleNavIdUpdate)
+    global.state_event.on('themeUpdated', handleHide)
+    global.state_event.on('languageChanged', handleHide)
+    global.state_event.on('configUpdated', handleConfigUpdated)
+
+    return () => {
+      global.state_event.off('navActiveIdUpdated', handleNavIdUpdate)
+      global.state_event.off('themeUpdated', handleHide)
+      global.state_event.off('languageChanged', handleHide)
+      global.state_event.off('configUpdated', handleConfigUpdated)
+    }
+  }, [])
+
+  return visible ? component : null
+}
 const SettingPage = () => {
   const [visible, setVisible] = useState(commonState.navActiveId == 'nav_setting')
   const component = useMemo(() => <Setting />, [])
@@ -256,8 +292,9 @@ const viewMap = {
   nav_top: 2,
   nav_love: 3,
   nav_download: 4,
-  nav_health: 5,
-  nav_setting: 6,
+  nav_setting: 5,
+  nav_health: 6,
+  nav_source: 7,
 }
 const indexMap = [
   'nav_search',
@@ -265,8 +302,9 @@ const indexMap = [
   'nav_top',
   'nav_love',
   'nav_download',
-  'nav_health',
   'nav_setting',
+  'nav_health',
+  'nav_source',
 ] as const
 
 const Main = () => {
@@ -365,11 +403,14 @@ const Main = () => {
       <View collapsable={false} key="nav_download" style={styles.pageStyle}>
         <DownloadPage />
       </View>
+      <View collapsable={false} key="nav_setting" style={styles.pageStyle}>
+        <SettingPage />
+      </View>
       <View collapsable={false} key="nav_health" style={styles.pageStyle}>
         <HealthPage />
       </View>
-      <View collapsable={false} key="nav_setting" style={styles.pageStyle}>
-        <SettingPage />
+      <View collapsable={false} key="nav_source" style={styles.pageStyle}>
+        <SourcePage />
       </View>
       {/* <View collapsable={false} key="nav_search" style={styles.pageStyle}>
         <Search />

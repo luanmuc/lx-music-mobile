@@ -15,7 +15,6 @@ import GroupSearch from '../settings/Search'
 import GroupList from '../settings/List'
 import GroupCleanCache from '../settings/CleanCache'
 import GroupAbout from '../settings/About'
-import CustomSource from '../settings/CustomSource'
 import Version from '../settings/Version'
 
 // 竖屏（手机）设置页：二级结构 + 首页直接展开区
@@ -54,7 +53,6 @@ export default memo(() => {
           </TouchableOpacity>
         ))}
         <View style={styles.expandBlock}>
-          <CustomSource />
           <Version />
         </View>
       </ScrollView>

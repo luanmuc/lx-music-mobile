@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { ScrollView } from 'react-native'
 
 import Section from '../components/Section'
 import Source from './Basic/Source'
@@ -10,9 +11,11 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_custom_source')}>
-      <Source />
-      <SourceName />
-    </Section>
+    <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps={'always'}>
+      <Section title={t('setting_custom_source')}>
+        <Source />
+        <SourceName />
+      </Section>
+    </ScrollView>
   )
 })

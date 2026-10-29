@@ -587,5 +587,6 @@
   "health_sum_off": " Off",
   "health_state_sleeping": "Sleeping",
   "health_toggle_failed": "Toggle failed, retry",
-  "nav_health": "Source Health"
+  "nav_health": "Source Health",
+  "nav_source": "Source Manager"
 }

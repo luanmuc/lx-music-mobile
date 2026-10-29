@@ -4,10 +4,18 @@ on:
   push:
     branches:
       - master
-    # 排除 publish/ 与 npm-version-info/：CI 自动提交版本信息文件时不触发新的构建（防循环）
+    # 排除不产出 APK 的路径：CI 自动回写版本信息文件（publish/npm-version-info）防循环；
+    # 文档类（README/AGENTS/CUSTOM_CHANGELOG/docs 等）不参与构建产物，改文档不浪费云编译
     paths-ignore:
       - 'publish/**'
       - 'npm-version-info/**'
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CUSTOM_CHANGELOG.md'
+      - 'CHANGELOG.md'
+      - 'FAQ.md'
+      - 'MERGE_GUIDE.md'
+      - 'docs/**'
   workflow_dispatch: {}
 
 # 仓库默认 GITHUB_TOKEN 为只读：下载 artifact 需 actions:read，创建 Release 需 contents:write

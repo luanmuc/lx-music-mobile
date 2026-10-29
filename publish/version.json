@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b62",
-  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）",
+  "version": "1.9.1-b63",
+  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- a54e9924 b63 日志系统重构：独立「运行日志」分组 + 移除同步日志开关",
   "history": [
+    {
+      "version": "1.9.1-b62",
+      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
+    },
     {
       "version": "1.9.1-b60",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- c45aee3c b60 诊断版：音源标签全链路日志（onSource 调用/放行/拦截 + setPlaySource 写入值，错误日志页可见） 配合音源 v25.11 沙箱兼容（setInterval→setTimeout）定位残余场景"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b55",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- ef2c76fb b55 fix: 缓存命中播放的子源不显示——onSource 异步回调被 diffCurrentMusicInfo 的 isPlay 条件拦截"
-    },
-    {
-      "version": "1.9.1-b54",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- ce9675a9 b54 fix: stateEvent 显式事件方法漏加 playSourceChanged 导致播放时 setPlaySource undefined 崩溃（TypeError undefined is not a function）"
     }
   ]
 }

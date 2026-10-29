@@ -29,8 +29,11 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = getLogPath()
 
-    // 确保日志目录存在
+    // 确保日志目录存在（RNFS.mkdir 不递归，逐级创建）
     try {
+      if (!await RNFS.exists(RNFS.DownloadDirectoryPath + '/lx-music')) {
+        await RNFS.mkdir(RNFS.DownloadDirectoryPath + '/lx-music')
+      }
       if (!await RNFS.exists(RNFS.DownloadDirectoryPath + '/lx-music/logs')) {
         await RNFS.mkdir(RNFS.DownloadDirectoryPath + '/lx-music/logs')
       }

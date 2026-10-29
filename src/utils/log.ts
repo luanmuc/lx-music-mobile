@@ -28,9 +28,11 @@ let testedByWrite = false
 // 启动缓冲：init 前产生的日志先暂存，权限可用时一次性写入（不丢早期日志）
 const tempLog: Array<{ category: LogCategory, time: string, text: string }> = []
 // 真实写测试：在公共日志目录创建测试文件，能写成功即视为有权限（唯一可靠标准）
+// 注意：RNFS.mkdir 不递归——父目录 lx-music 不存在（未下载过歌/目录被清理）时须逐级创建，否则误判无权限
 const testWritePermission = async(): Promise<boolean> => {
   try {
-    await RNFS.mkdir(LOGS_DIR)
+    if (!await RNFS.exists(LOG_ROOT)) await RNFS.mkdir(LOG_ROOT)
+    if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
     const testPath = LOGS_DIR + '/.perm_test'
     await RNFS.writeFile(testPath, '')
     await RNFS.unlink(testPath)
@@ -67,9 +69,9 @@ export const checkLogPermission = async(): Promise<boolean> => {
 export const isLogPermissionGranted = () => hasPermission
 const ensureLogsDir = async() => {
   try {
-    if (!await RNFS.exists(LOGS_DIR)) {
-      await RNFS.mkdir(LOGS_DIR)
-    }
+    // RNFS.mkdir 不递归，逐级创建
+    if (!await RNFS.exists(LOG_ROOT)) await RNFS.mkdir(LOG_ROOT)
+    if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
   } catch {}
   return LOGS_DIR
 }
@@ -104,6 +106,7 @@ export const init = async() => {
   try {
     await checkLogPermission()
     if (hasPermission) {
+      if (!await RNFS.exists(LOG_ROOT)) await RNFS.mkdir(LOG_ROOT)
       if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
     }
   } catch (e) {}

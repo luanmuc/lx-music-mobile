@@ -78,7 +78,9 @@ const ensureLogsDir = async() => {
 
 const writeLog = async(category: LogCategory, msg: string) => {
   // 无权限不写日志（不降级私有目录；查看页会提示开启权限）
-  if (hasPermission == null) await checkLogPermission()
+  // 注意：hasPermission 为 null（尚未检查）时直接跳过本次写，绝不在此处触发写测试/RNFS IO——
+  // 播放等热路径的日志写入只做 fire-and-forget appendFile，避免任何潜在阻塞
+  if (hasPermission == null) return
   if (!hasPermission) return
   // 兜底冲刷启动缓冲（防止 checkLogPermission 未经过的路径）
   if (tempLog.length) {

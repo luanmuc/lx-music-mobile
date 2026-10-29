@@ -22,10 +22,9 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
   // 音源标签诊断（tag=PlaySource）强制写：不依赖"调试日志"开关，装包即可用日志定位
   if (!force && !isEnabled()) return
   try {
-    // 无公共目录写权限不写（由「运行日志」页提示开启）——优先用缓存避免每次 native 调用
-    let granted = isLogPermissionGranted()
-    if (granted == null) granted = await checkLogPermission()
-    if (!granted) return
+    // 无公共目录写权限不写（由「运行日志」页提示开启）——只用缓存，绝不在写入路径触发写测试/RNFS IO
+    const granted = isLogPermissionGranted()
+    if (granted == null || !granted) return
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = getLogPath()
 

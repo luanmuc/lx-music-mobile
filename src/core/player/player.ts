@@ -1,5 +1,4 @@
 import { isInitialized, initial as playerInitial, isEmpty, setPause, setPlay, setResource, setStop, initTrackInfo } from '@/plugins/player'
-import { log } from '@/utils/log'
 import {
   setStatusText,
 } from '@/core/player/playStatus'
@@ -127,16 +126,10 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     //   - 播放结束 gettingUrlId 清空 → 任何晚到回调拦截 ✓
     // 不能依赖 playerState.playMusicInfo（更新时机随恢复播放/缓存异步回调/点歌入口而变，时序敏感）。
     onSource(source) {
-      if (global.lx.isPlayedStop) {
-        log.diagnose(`[音源标签] onSource 忽略(播放停止): 请求歌=${musicInfo.id} source=${JSON.stringify(source)}`)
-        return
-      }
+      if (global.lx.isPlayedStop) return
       if (createGettingUrlId(musicInfo) != global.lx.gettingUrlId) {
-        // v25.11 诊断：若缓存命中 await 修复后仍被拦，此日志可定位（错误日志页可见）
-        log.diagnose(`[音源标签] onSource 被拦: 请求歌=${musicInfo.id} gettingUrlId=${global.lx.gettingUrlId} source=${JSON.stringify(source)}`)
         return
       }
-      log.diagnose(`[音源标签] onSource 放行: 请求歌=${musicInfo.id} source=${JSON.stringify(source)}`)
       playerActions.setPlaySource(source)
     },
     onToggleSource(mInfo) {

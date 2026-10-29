@@ -10,7 +10,6 @@ import Text from '@/components/common/Text'
 import { useI18n } from '@/lang'
 import PlayQualityTag from '@/components/PlayQualityTag'
 import { useBufferProgress } from '@/plugins/player'
-import { log } from '@/utils/log'
 import { getPlayQualityLabel } from '@/core/music/utils'
 
 // const FONT_SIZE = 13
@@ -40,10 +39,6 @@ export default () => {
   const sourceLabel = (playSource?.name && platformName && playSource.name != platformName)
     ? `${platformName} · ${playSource.name}`
     : (playSource?.name || platformName || '')
-  // b61 诊断：UI 渲染时无子源（playSource 为空）打日志——区分"store 没值"与"store 有值 UI 没显示"
-  if (!playSource && platformName) {
-    log.diagnose(`[音源标签] UI 渲染 playSource 为空: platform=${platformName} 歌=${(playMusicInfo?.musicInfo as any)?.id}`)
-  }
 
   // console.log('render playInfo')
 

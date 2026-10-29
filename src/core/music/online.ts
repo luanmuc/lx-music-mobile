@@ -61,9 +61,12 @@ export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSou
   if (cachedUrl && !isRefresh) {
     onQuality(targetQuality)
     // v25.9：缓存命中读子源键（在线请求成功后双写，缓存播放也能显示「平台 · 子源名」）
-    void getStoreMusicSource(musicInfo, targetQuality).then(cachedSource => {
-      onSource(cachedSource ?? null)
-    })
+    // v25.11：必须 await 读子源后再回调——若用 void 异步回调，player.ts 的 finally 会在播放成功
+    // 后清空 gettingUrlId，异步回调晚到即被 onSource 防串歌校验拦截 → setPlaySource 永不执行 →
+    // 播放页只显示平台名（已用时序模拟 100% 复现）。await 后 onSource 在 getMusicUrl resolve 前
+    // 同步执行（gettingUrlId 仍为当前歌），校验放行。
+    const cachedSource = await getStoreMusicSource(musicInfo, targetQuality)
+    onSource(cachedSource ?? null)
     return cachedUrl
   }
 

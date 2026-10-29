@@ -128,7 +128,11 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     // 不能依赖 playerState.playMusicInfo（更新时机随恢复播放/缓存异步回调/点歌入口而变，时序敏感）。
     onSource(source) {
       if (global.lx.isPlayedStop) return
-      if (createGettingUrlId(musicInfo) != global.lx.gettingUrlId) return
+      if (createGettingUrlId(musicInfo) != global.lx.gettingUrlId) {
+        // v25.11 诊断：若缓存命中 await 修复后仍被拦，此日志可定位（错误日志页可见）
+        logger.error('PlaySource', `[音源标签] onSource 被拦: 请求歌=${musicInfo.id} gettingUrlId=${global.lx.gettingUrlId} source=${JSON.stringify(source)}`)
+        return
+      }
       playerActions.setPlaySource(source)
     },
     onToggleSource(mInfo) {

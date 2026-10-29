@@ -1,4 +1,5 @@
 import { isInitialized, initial as playerInitial, isEmpty, setPause, setPlay, setResource, setStop, initTrackInfo } from '@/plugins/player'
+import { logger } from '@/utils/logger'
 import {
   setStatusText,
 } from '@/core/player/playStatus'

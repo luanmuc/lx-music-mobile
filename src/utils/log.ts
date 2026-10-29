@@ -9,8 +9,16 @@ import { isExternalStorageManager } from '@/utils/nativeModules/utils'
 // 权限策略：无"所有文件访问"权限（Android 11+）或存储权限（Android 10-）时不写任何日志（不降级私有目录），
 //           由「运行日志」页提示用户开启权限
 
+// 双通道（b71，按原版洛雪零权限逻辑）：
+//   公共目录优先（用户偏好，需"所有文件访问"权限）→ Download/lx-music/logs
+//   公共不可用（未授权/ROM 判定不一致）→ 自动降级私有目录（应用沙箱，零权限，永不再提示去开启）
+//   日志永远可写可看；「运行日志」页显示当前生效目录
 const LOG_ROOT = RNFS.DownloadDirectoryPath + '/lx-music'
 const LOGS_DIR = LOG_ROOT + '/logs'
+const PRIVATE_LOG_ROOT = RNFS.temporaryDirectoryPath + '/lx-music'
+const PRIVATE_LOGS_DIR = PRIVATE_LOG_ROOT + '/logs'
+// 当前生效目录（checkLogPermission 后确定；null=未初始化）
+let activeLogsDir: string | null = null
 
 // 日志文件定义：分类 → 文件名 / 上限
 const LOG_FILES = {
@@ -44,23 +52,31 @@ const testWritePermission = async(): Promise<boolean> => {
     return false
   }
 }
+// 私有目录保底创建（应用沙箱永远可写，无需任何权限）
+const ensurePrivateDir = async(): Promise<string> => {
+  try {
+    if (!await RNFS.exists(PRIVATE_LOG_ROOT)) await RNFS.mkdir(PRIVATE_LOG_ROOT)
+    if (!await RNFS.exists(PRIVATE_LOGS_DIR)) await RNFS.mkdir(PRIVATE_LOGS_DIR)
+  } catch {}
+  return PRIVATE_LOGS_DIR
+}
 
 export const checkLogPermission = async(): Promise<boolean> => {
-  // 以真实写测试为准；系统 API 判断仅作快速通道（API 通过时不代表真能写，仍需写测试兜底）
+  // b71 双通道：真实写测试公共目录——成功→公共；失败→私有降级（原版零权限逻辑，永不再提示）
   try {
-    const apiGranted = await isExternalStorageManager()
-    if (apiGranted) {
-      hasPermission = await testWritePermission()
-    } else {
-      hasPermission = false
-    }
-    testedByWrite = true
+    hasPermission = await testWritePermission()
   } catch {
     hasPermission = false
-    testedByWrite = true
+  }
+  testedByWrite = true
+  // 确定生效目录
+  if (hasPermission) {
+    activeLogsDir = LOGS_DIR
+  } else {
+    activeLogsDir = await ensurePrivateDir()
   }
   // 权限变为可用时冲刷启动缓冲（不丢早期日志）
-  if (hasPermission && tempLog.length) {
+  if (tempLog.length) {
     const items = tempLog.splice(0)
     for (const item of items) {
       await writeLog(item.category, `${item.time} ${item.text}`)
@@ -80,11 +96,9 @@ const ensureLogsDir = async() => {
 }
 
 const writeLog = async(category: LogCategory, msg: string) => {
-  // 无权限不写日志（不降级私有目录；查看页会提示开启权限）
-  // 注意：hasPermission 为 null（尚未检查）时直接跳过本次写，绝不在此处触发写测试/RNFS IO——
-  // 播放等热路径的日志写入只做 fire-and-forget appendFile，避免任何潜在阻塞
+  // b71 双通道：公共不可用时自动写私有目录（原版零权限逻辑，日志永不丢弃）
+  // hasPermission 为 null（init 未完成）时先入启动缓冲，init 后冲刷——热路径零阻塞
   if (hasPermission == null) return
-  if (!hasPermission) return
   // 兜底冲刷启动缓冲（防止 checkLogPermission 未经过的路径）
   if (tempLog.length) {
     const items = tempLog.splice(0)
@@ -93,7 +107,7 @@ const writeLog = async(category: LogCategory, msg: string) => {
     }
   }
   const { name, max } = LOG_FILES[category]
-  const dir = await ensureLogsDir()
+  const dir = hasPermission ? await ensureLogsDir() : await ensurePrivateDir()
   const path = dir + '/' + name
   try {
     // 写前检查大小，超限先清空再写（归零重新积累，保留最新日志）
@@ -110,14 +124,19 @@ const writeLog = async(category: LogCategory, msg: string) => {
 export const init = async() => {
   try {
     await checkLogPermission()
+    // 公共可用→确保公共目录；否则确保私有目录（双通道，永不无日志）
     if (hasPermission) {
       if (!await RNFS.exists(LOG_ROOT)) await RNFS.mkdir(LOG_ROOT)
       if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
+    } else {
+      await ensurePrivateDir()
     }
   } catch (e) {}
 }
 
-export const getLogsDir = () => LOGS_DIR
+export const getLogsDir = () => activeLogsDir || LOGS_DIR
+// 是否使用公共目录（UI 显示用）
+export const isUsingPublicDir = () => hasPermission === true
 
 // 4 类日志的中文标签（供查看日志分段展示）
 export const LOG_CATEGORY_LABELS: Record<LogCategory, string> = {
@@ -133,8 +152,9 @@ export const getLogs = async(category?: LogCategory): Promise<string> => {
   if (!hasPermission) return ''
   const categories: LogCategory[] = category ? [category] : (['error', 'source', 'diagnose', 'debug'] as LogCategory[])
   const parts: string[] = []
+  const dir = activeLogsDir || (await ensurePrivateDir())
   for (const cat of categories) {
-    const path = LOGS_DIR + '/' + LOG_FILES[cat].name
+    const path = dir + '/' + LOG_FILES[cat].name
     try {
       if (await RNFS.exists(path)) {
         const text = await RNFS.readFile(path, 'utf8')
@@ -152,9 +172,10 @@ export const clearLogs = async(category?: LogCategory) => {
   if (hasPermission == null) await checkLogPermission()
   if (!hasPermission) return
   const categories: LogCategory[] = category ? [category] : (['error', 'source', 'diagnose', 'debug'] as LogCategory[])
+  const dir = activeLogsDir || (await ensurePrivateDir())
   for (const cat of categories) {
     try {
-      const path = LOGS_DIR + '/' + LOG_FILES[cat].name
+      const path = dir + '/' + LOG_FILES[cat].name
       if (await RNFS.exists(path)) await RNFS.writeFile(path, '', 'utf8')
     } catch {}
   }

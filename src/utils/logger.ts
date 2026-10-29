@@ -7,8 +7,9 @@ const MAX_LOG_SIZE = 512 * 1024 // 512KB，超过自动清空
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG'
 
-// b64：调试日志跟随日志系统统一存公共目录 lx-music/logs（无权限不写，不降级私有目录）
+// b71：调试日志双通道——公共目录（有"所有文件访问"权限）优先；公共不可用→私有目录（原版零权限逻辑，永不丢弃）
 const getLogPath = () => `${RNFS.DownloadDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
+const getPrivateLogPath = () => `${RNFS.temporaryDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
 
 const isEnabled = () => settingState.setting['common.enableDebugLog'] === true
 
@@ -22,19 +23,20 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
   // 音源标签诊断（tag=PlaySource）强制写：不依赖"调试日志"开关，装包即可用日志定位
   if (!force && !isEnabled()) return
   try {
-    // 无公共目录写权限不写（由「运行日志」页提示开启）——只用缓存，绝不在写入路径触发写测试/RNFS IO
+    // b71：公共目录可用→写公共；否则降级私有（只用缓存判定，不在写入路径触发写测试/RNFS IO）
     const granted = isLogPermissionGranted()
-    if (granted == null || !granted) return
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
-    const path = getLogPath()
+    const path = granted === true ? getLogPath() : getPrivateLogPath()
+    const dir = granted === true ? `${RNFS.DownloadDirectoryPath}/lx-music/logs` : `${RNFS.temporaryDirectoryPath}/lx-music/logs`
 
     // 确保日志目录存在（RNFS.mkdir 不递归，逐级创建）
     try {
-      if (!await RNFS.exists(RNFS.DownloadDirectoryPath + '/lx-music')) {
-        await RNFS.mkdir(RNFS.DownloadDirectoryPath + '/lx-music')
+      const base = dir.replace(/\/logs$/, '')
+      if (!await RNFS.exists(base)) {
+        await RNFS.mkdir(base)
       }
-      if (!await RNFS.exists(RNFS.DownloadDirectoryPath + '/lx-music/logs')) {
-        await RNFS.mkdir(RNFS.DownloadDirectoryPath + '/lx-music/logs')
+      if (!await RNFS.exists(dir)) {
+        await RNFS.mkdir(dir)
       }
     } catch {}
 

@@ -1,11 +1,11 @@
 import { memo, useRef, useState, useEffect } from 'react'
-import { View, Linking, Platform } from 'react-native'
-import { getLogs, clearLogs, checkLogPermission, getLogsDir, LOG_CATEGORY_LABELS, type LogCategory } from '@/utils/log'
+import { View } from 'react-native'
+import { getLogs, clearLogs, checkLogPermission, getLogsDir, isUsingPublicDir, LOG_CATEGORY_LABELS, type LogCategory } from '@/utils/log'
 
 import Section from '../components/Section'
 import SubTitle from '../components/SubTitle'
 import Button from '../components/Button'
-import { createStyle, toast, requestStoragePermission } from '@/utils/tools'
+import { createStyle, toast } from '@/utils/tools'
 import ConfirmAlert, { type ConfirmAlertType } from '@/components/common/ConfirmAlert'
 import CheckBoxItem from '../components/CheckBoxItem'
 import { useI18n } from '@/lang'
@@ -35,7 +35,6 @@ export default memo(() => {
     const granted = await checkLogPermission()
     if (isUnmountedRef.current) return
     setHasPermission(granted)
-    if (!granted) return // 无权限：显示提示条，不读日志
     setCurrentCategory(category)
     getErrorLog(category)
     alertRef.current?.setVisible(true)
@@ -52,25 +51,6 @@ export default memo(() => {
   const handleSetEnableUserApiLog = (enable: boolean) => {
     setIsEnableUserApiLog(enable)
     global.lx.isEnableUserApiLog = enable
-  }
-
-  // 开启权限：Android 11+ 跳系统设置页（全文件访问无法运行时弹窗）；Android 10- 直接弹系统权限框
-  const handleGrantPermission = () => {
-    if (Platform.OS === 'android' && Number(Platform.Version) >= 30) {
-      Linking.openSettings()
-    } else {
-      void requestStoragePermission().then(granted => {
-        if (isUnmountedRef.current) return
-        const ok = granted === true
-        setHasPermission(ok)
-        if (ok) {
-          // 授权成功后立即再校验（写测试确认）
-          void checkLogPermission().then(g => {
-            if (!isUnmountedRef.current) setHasPermission(g)
-          })
-        }
-      })
-    }
   }
 
   useEffect(() => {
@@ -90,33 +70,29 @@ export default memo(() => {
 
       {
         hasPermission === false ? (
-          <View style={styles.permTip}>
-            <Text size={13} style={styles.permTipText}>{t('setting_log_permission_tip')}</Text>
-            <View style={styles.permBtn}>
-              <Button onPress={handleGrantPermission}>{t('setting_log_permission_open')}</Button>
-            </View>
-          </View>
-        ) : (
-          <>
-            <Text size={12} style={styles.dirTip}>{t('setting_log_dir') + getLogsDir()}</Text>
-            <View style={styles.checkBox}>
-              <CheckBoxItem check={isEnableUserApiLog} label={t('setting_other_log_user_api_log')} onChange={handleSetEnableUserApiLog} />
-            </View>
-            {/* 4 类日志各一个查看按钮 */}
-            <SubTitle title={t('setting_log_view')}>
-              <View style={styles.btnGrid}>
-                {
-                  (Object.keys(LOG_CATEGORY_LABELS) as LogCategory[]).map(category => (
-                    <View key={category} style={styles.btnItem}>
-                      <Button onPress={() => openLogModal(category)}>{LOG_CATEGORY_LABELS[category]}</Button>
-                    </View>
-                  ))
-                }
-              </View>
-            </SubTitle>
-          </>
-        )
+          <Text size={12} style={styles.privateTip}>
+            {t('setting_log_private_tip') + getLogsDir()}
+          </Text>
+        ) : null
       }
+      <Text size={12} style={styles.dirTip}>
+        {hasPermission === false ? '' : t('setting_log_dir') + getLogsDir()}
+      </Text>
+      <View style={styles.checkBox}>
+        <CheckBoxItem check={isEnableUserApiLog} label={t('setting_other_log_user_api_log')} onChange={handleSetEnableUserApiLog} />
+      </View>
+      {/* 4 类日志各一个查看按钮（公共/私有目录均可查看） */}
+      <SubTitle title={t('setting_log_view')}>
+        <View style={styles.btnGrid}>
+          {
+            (Object.keys(LOG_CATEGORY_LABELS) as LogCategory[]).map(category => (
+              <View key={category} style={styles.btnItem}>
+                <Button onPress={() => openLogModal(category)}>{LOG_CATEGORY_LABELS[category]}</Button>
+              </View>
+            ))
+          }
+        </View>
+      </SubTitle>
 
       <ConfirmAlert
         ref={alertRef}
@@ -160,19 +136,9 @@ const styles = createStyle({
     marginTop: 8,
     color: '#999',
   },
-  permTip: {
-    marginTop: 12,
-    backgroundColor: '#fff7e6',
-    borderColor: '#ffd591',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-  },
-  permTipText: {
+  privateTip: {
+    marginTop: 8,
     lineHeight: 20,
-  },
-  permBtn: {
-    marginTop: 10,
-    flexDirection: 'row',
+    color: '#999',
   },
 })

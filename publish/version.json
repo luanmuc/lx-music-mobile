@@ -1,7 +1,11 @@
 {
-  "version": "1.9.1-b78",
-  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- eec376a1 docs: 更新 track-player fork 依赖记录至 0f0acb4（b77 升级归档）",
+  "version": "1.9.1-b79",
+  "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）",
   "history": [
+    {
+      "version": "1.9.1-b78",
+      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- eec376a1 docs: 更新 track-player fork 依赖记录至 0f0acb4（b77 升级归档）"
+    },
     {
       "version": "1.9.1-b77",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 43ca484d chore(deps): 升级 track-player fork 至 0f0acb4（合入上游音频卸载优化 + 保留通知栏定制）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b73",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- caaa0828 b73 修复播放页音源标签不显示子源名（真正根因：core/music/index.ts 在线分支未透传 onSource）"
-    },
-    {
-      "version": "1.9.1-b72",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 7346cfa9 b72 修复播放页音源标签不显示子源名（根因：VM 桥 preload 丢弃 subSource）"
     }
   ]
 }

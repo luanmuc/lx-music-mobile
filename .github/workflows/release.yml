@@ -26,11 +26,13 @@ jobs:
       - name: Download latest music source
         run: |
           echo "Downloading latest music source (lx-source.js)..."
-          # 使用 GitHub Contents API（Accept: raw）获取音源仓库 master 最新内容，
-          # 绕过 raw.githubusercontent.com 的 CDN 缓存，确保每次编译都拉到最新提交
+          # 本仓库不内置音源副本：builtin_source.js 由每次编译时从音源仓库 master 拉取最新版本覆盖生成。
+          # 使用 GitHub Contents API（Accept: raw + ?ref=master）获取最新提交内容，
+          # 绕过 raw.githubusercontent.com 的 CDN 缓存，确保每次编译都拉到最新
+          mkdir -p android/app/src/main/assets
           curl -fsSL -H "Authorization: Bearer ${{ github.token }}" \
             -H "Accept: application/vnd.github.raw" \
-            "https://api.github.com/repos/luanmuc/lx-music-source/contents/lx-source.js" \
+            "https://api.github.com/repos/luanmuc/lx-music-source/contents/lx-source.js?ref=master" \
             -o android/app/src/main/assets/builtin_source.js
           # 内容校验：文件须大于50KB且含 @name 标记（第一行为 /*! 注释符，取前5行匹配）
           [ "$(stat -c%s android/app/src/main/assets/builtin_source.js)" -gt 50000 ] || { echo "音源文件过小"; exit 1; }

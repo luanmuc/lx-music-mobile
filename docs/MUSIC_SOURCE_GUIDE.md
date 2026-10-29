@@ -9,22 +9,22 @@ musicSdk（内置官方源）  ──┐
   kw/kg/mg/tx/wy/bd/xm  │  统一接口：getMusicUrl / getLyric / getPic
                          ├─→  apis 对象（global.lx.apis）
 自定义源（QuickJS 脚本）──┘   qualitys（global.lx.qualityList）
-  assets/builtin_source.js   ↑
+  assets/builtin_source.js   ↑   （构建时自动生成，见下）
   （豆包定制聚合源）        core/music/* 通过 apis 调用，不区分来源
 ```
 
 - **官方源**：`src/utils/musicSdk/{kw,kg,mg,tx,wy,bd,xm}/`，直接请求平台公开接口，随上游更新
 - **自定义源**：JS 脚本在 QuickJS 线程执行（`android/.../userApi/`），与 RN 通过 `onScriptAction/sendAction` 双向通信
-- **聚合源**：内置 `assets/builtin_source.js` = 「豆包定制[聚合音源]」，由**独立仓库** `luanmuc/lx-music-source` 维护
+- **聚合源**：内置 `assets/builtin_source.js`（**由每次构建从 `luanmuc/lx-music-source` 拉取最新生成，本仓库不内置副本**）= 「豆包定制[聚合音源]」，由**独立仓库** `luanmuc/lx-music-source` 维护
 
 ## 二、内置音源的发布链路（重要）
 
-1. **CI 拉取**：`.github/workflows/release.yml` 每次构建时，通过 GitHub Contents API 从 `luanmuc/lx-music-source` 拉取最新脚本 → 覆盖 `assets/builtin_source.js`
-2. **校验**：文件 >50KB 且包含 `@name` 声明才通过，防止拉取到损坏文件
+1. **CI 拉取**：`.github/workflows/release.yml` 每次构建时，通过 GitHub Contents API（`?ref=master`）从 `luanmuc/lx-music-source` 拉取最新脚本 → **生成** `assets/builtin_source.js`（本仓库**不内置音源副本**，该文件由每次构建自动创建；仓库内若删除/不存在也由构建重建）
+2. **校验**：文件 >50KB 且包含 `@name` 声明才通过，防止拉取到损坏文件；拉取失败（curl 非 0）即构建中断，不会出无音源的包
 3. **启动导入**：App 启动时 `core/init/userApi/index.ts` 读取内置脚本，与已导入版本比对（正则提取 `聚合音源 vX.Y`），版本更新则自动导入/替换，并清理旧版（含历史 bug 残留的多份「豆包定制」源）
 4. **运行时**：音源脚本在 QuickJS 中运行，向 App 注册 `musicUrl/lyric/pic` 等 actions，App 侧统一调用
 
-> ⚠️ **禁止在本仓库直接改 `assets/builtin_source.js`**：它每次构建都会被覆盖。改音源请到 [luanmuc/lx-music-source](https://github.com/luanmuc/lx-music-source)。
+> ⚠️ **本仓库不再内置 `assets/builtin_source.js` 静态副本**（v1.9.1-b74 起移除）：它由每次构建自动生成并覆盖。改音源请到 [luanmuc/lx-music-source](https://github.com/luanmuc/lx-music-source)；本地调试可用最新脚本手动放置同名文件。
 
 ## 三、自定义源脚本契约（QuickJS）
 
@@ -50,11 +50,13 @@ musicSdk（内置官方源）  ──┐
 
 **透传链路（b72/b73 修复后全链路打通）**：
 `音源脚本 getUrlWithFallback 返回 → VM 桥 user-api-preload.js handleRequest.musicUrl（b72 起透传 subSource/subSourceName）→ apis[source].getMusicUrl（init/userApi）→ handleGetOnlineMusicUrl 解构 → online.ts 构造 {id, name} → player.ts onSource → setPlaySource → PlayInfo 渲染`
-> 历史教训：preload（APK 资产）与 `core/music/index.ts` 路由层都曾丢字段（b72/b73 两轮根因修复），改动透传链必须回归验证（音源 v26.4 已规划回归用例）。
+> 历史教训：preload（APK 资产）与 `core/music/index.ts` 路由层都曾丢字段（b72/b73 两轮根因修复），改动透传链必须回归验证（音源 v26.3 已固化子源透出回归用例，冒烟覆盖 10+ 处 subSource 断言）。
 
 App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`android/app/src/main/java/cn/toside/music/mobile/userApi/`。
 
-## 四、聚合源内部结构（豆包定制 v25.11）
+## 四、聚合源内部结构（豆包定制 v26.3）
+
+> 每次构建自动拉取音源仓库 master 最新版，以下为当前（v26.3）结构；随音源迭代会更新。
 
 当前内置聚合源含多个后端，按需路由与降级：
 

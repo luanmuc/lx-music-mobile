@@ -10,7 +10,7 @@
 | 发布版本名 | `1.9.1-bN` | `N` = GitHub Actions run number（`GITHUB_RUN_NUMBER`），自动递增 |
 | `versionCode` | `80 + N` | `android/app/build.gradle` 从环境变量读取 |
 | Release tag | `v1.9.1-bN` | 每次构建唯一，prerelease 标记 |
-| 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/lx-music-source` 最新版，与代码解耦 |
+| 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/lx-music-source` 最新版（`?ref=master`），与代码解耦；**仓库不内置音源副本**，由构建生成 `assets/builtin_source.js` |
 
 > 为什么禁止手改 version：`package.json` 的 version 不参与实际版本判定，改它会导致版本信息混乱（`buildNumber.ts` 与 `process.versions.app` 由 CI 注入）。要发版只需 push 代码。
 
@@ -19,7 +19,7 @@
 ```
 push master（paths-ignore: publish/**、npm-version-info/**）
   └─ Job Android
-      ├─ 拉最新内置音源（GitHub Contents API → assets/builtin_source.js，>50KB + @name 校验）
+      ├─ 拉最新内置音源（GitHub Contents API ?ref=master → 生成 assets/builtin_source.js，>50KB + @name 校验；仓库不内置副本）
       ├─ 注入 APP_VERSION_NAME=1.9.1-b<run>、versionCode=80+run、buildNumber.ts
       └─ ./gradlew assembleRelease → 5 个 ABI APK → upload-artifact
   └─ Job Release（needs: Android）

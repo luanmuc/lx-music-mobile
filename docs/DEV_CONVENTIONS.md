@@ -10,7 +10,7 @@
 | `luanmuc/lx-music-source` | 音源账号 | 聚合音源脚本（`builtin_source.js`），CI 构建时自动拉取 |
 | `luanmuc/react-native-track-player` | 播放器账号 | track-player fork（通知栏按钮等定制），版本升级需同步 fork |
 
-> 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 会被 CI 覆盖）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
+> 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 由每次构建从 `luanmuc/lx-music-source` 拉取最新生成，本仓库不内置副本）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
 
 ## 二、分支策略
 

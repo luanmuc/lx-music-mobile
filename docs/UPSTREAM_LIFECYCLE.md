@@ -9,7 +9,7 @@
 |---|---|---|---|
 | `lyswhut/lx-music-mobile`（上游原版） | fork 源头 | fork 点 `fb848072`（v1.9.1） | 中：上游持续开发，分叉后差异累积 |
 | `luanmuc/lx-music-source`（音源） | CI 构建时拉取 | 每次构建取最新 master | 高：依赖第三方接口（K7） |
-| `luanmuc/react-native-track-player`（fork） | 播放器依赖 | commit `e1989e7` | 中：上游升级需重新应用定制补丁（K5） |
+| `luanmuc/react-native-track-player`（fork） | 播放器依赖 | commit `0f0acb4`（b77 升级：自 `e1989e7` 重放定制补丁至上游 `8f56952` 基线） | 中：上游升级需重新应用定制补丁（K5） |
 | npm 包 `luanmuc-lx-music-version-info` | 更新检查数据源 | CI 自动发布 | 低：NPM_TOKEN 失效时发布失败 |
 
 ## 二、四阶段框架

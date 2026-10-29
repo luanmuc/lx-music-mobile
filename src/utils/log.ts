@@ -28,14 +28,17 @@ let testedByWrite = false
 // 启动缓冲：init 前产生的日志先暂存，权限可用时一次性写入（不丢早期日志）
 const tempLog: Array<{ category: LogCategory, time: string, text: string }> = []
 // 真实写测试：在公共日志目录创建测试文件，能写成功即视为有权限（唯一可靠标准）
-// 注意：RNFS.mkdir 不递归——父目录 lx-music 不存在（未下载过歌/目录被清理）时须逐级创建，否则误判无权限
+// 注意 1：RNFS.mkdir 不递归——父目录 lx-music 不存在（未下载过歌/目录被清理）时须逐级创建，否则误判无权限
+// 注意 2：只以"能创建"为准——删除测试文件失败（unlink 在部分 ROM 上可能延迟/受限）不影响权限结论
 const testWritePermission = async(): Promise<boolean> => {
   try {
     if (!await RNFS.exists(LOG_ROOT)) await RNFS.mkdir(LOG_ROOT)
     if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
     const testPath = LOGS_DIR + '/.perm_test'
     await RNFS.writeFile(testPath, '')
-    await RNFS.unlink(testPath)
+    try {
+      await RNFS.unlink(testPath)
+    } catch {}
     return true
   } catch {
     return false

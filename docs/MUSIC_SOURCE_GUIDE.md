@@ -40,14 +40,26 @@ musicSdk（内置官方源）  ──┐
 
 脚本内可调用 App 提供的 `request`（HTTP 请求，带 UA/防爬头）、`logInfo` 等能力。
 
+**musicUrl 返回契约（v25.8+ / b52+ 起）**——支持三态：
+
+| 返回形态 | 说明 |
+|---|---|
+| `string`（URL） | 旧音源裸链接，子源未知（播放页只显示平台名） |
+| `{url, type}` | 携带实际交付音质（v11.13+），子源未知 |
+| `{url, type, subSource, subSourceName}` | **推荐**：携带实际交付子源（id + 中文名），播放页显示「平台 · 子源名」（如「酷我音乐 · 溯音酷我」） |
+
+**透传链路（b72/b73 修复后全链路打通）**：
+`音源脚本 getUrlWithFallback 返回 → VM 桥 user-api-preload.js handleRequest.musicUrl（b72 起透传 subSource/subSourceName）→ apis[source].getMusicUrl（init/userApi）→ handleGetOnlineMusicUrl 解构 → online.ts 构造 {id, name} → player.ts onSource → setPlaySource → PlayInfo 渲染`
+> 历史教训：preload（APK 资产）与 `core/music/index.ts` 路由层都曾丢字段（b72/b73 两轮根因修复），改动透传链必须回归验证（音源 v26.4 已规划回归用例）。
+
 App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`android/app/src/main/java/cn/toside/music/mobile/userApi/`。
 
-## 四、聚合源内部结构（豆包定制 v11.11）
+## 四、聚合源内部结构（豆包定制 v25.11）
 
 当前内置聚合源含多个后端，按需路由与降级：
 
-- 后端：溯音酷我 / 星海 / 酷我官方 / 长青 / 念心 / 网易云 outer / GDAPI 等
-- 特性：音质校验（探测歌曲实际可用音质）、双音质分域探测、探测歌曲池轮换、失败兜底降级、URL 有效期处理
+- 后端：溯音酷我 / 星海后端 / 酷我官方 / 长青 / 念心 / 网易云 outer / GDAPI / Juhe 聚合等
+- 特性：音质校验（探测歌曲实际可用音质）、双音质分域探测、探测歌曲池轮换、失败兜底降级、URL 有效期处理、健康探测自愈（休眠/自动关闭/复活）、子源透出（v25.8+）、沙箱兼容（v25.11）
 - 音质优先级：`flac24bit → flac → wav → ape → 320k → 192k → 128k`（与 App 端 `core/music/utils.ts` 的 `FULL_QUALITYS_LIST` 对齐）
 
 ## 五、如何测试音源

@@ -11,8 +11,11 @@
 | K4 | **与上游 lyswhut 分叉**（fork 点 `fb848072`），原版新功能/修复未跟踪 | 原版后续改进缺失 | 全仓库 | ⬜ 由 [UPSTREAM_LIFECYCLE.md](./UPSTREAM_LIFECYCLE.md) 管理 |
 | K5 | **track-player fork 定制依赖**：通知栏按钮等改动基于 `luanmuc/react-native-track-player` 的 commit `e1989e7` | 上游升级需重新应用定制补丁，升级阻塞 | `package.json` + 原生层 | 🟡 观察中（升级评估见 UPSTREAM_LIFECYCLE） |
 | K6 | **内置音源快照构建时覆盖**：本地改 `assets/builtin_source.js` 会被 CI 拉取覆盖 | 本地调试困惑 | `assets/builtin_source.js` | ✅ 设计如此（音源唯一权威 = `luanmuc/lx-music-source`，见 [MUSIC_SOURCE_GUIDE.md](./MUSIC_SOURCE_GUIDE.md)） |
-| K7 | **音源依赖第三方接口**：部分平台接口不稳/IP 封禁（酷我 CDN 系、溯音咪咕） | 个别平台播放失败 | 音源仓库 `lx-source.js` | 🟡 跟踪中（音源仓库缺陷表 D 系列 + 健康探测自愈） |
-| K8 | **Android 11-12 下载目录需引导开启"所有文件访问"** | 首次下载多一步授权 | `core/downloadManager.ts` 权限矩阵 | ✅ 有引导弹窗（见 [DOWNLOAD_DESIGN.md](./DOWNLOAD_DESIGN.md) 第六节） |
+| K7 | **音源依赖第三方接口**：部分平台接口不稳/IP 封禁（酷我 CDN 系、溯音咪咕） | 个别平台播放失败 | 音源仓库 `lx-source.js` | 🟡 跟踪中（音源仓库缺陷表 D 系列 + 健康探测自愈；mg 待音源 v26.0 实测恢复） |
+| K8 | **公共目录写入依赖"所有文件访问"授权**：各 ROM 判定口径不一（部分设备授权后仍判定失败） | 日志/下载公共目录不可写 | `utils/log.ts` + 下载权限矩阵 | ✅ b71 双通道根治：公共目录可用→写公共；不可用→自动降级应用私有目录（日志永不丢弃）；下载仍需公共目录时保留引导弹窗（见 [DOWNLOAD_DESIGN.md](./DOWNLOAD_DESIGN.md) 第六节） |
+| K9 | **播放页音源标签不显示子源名**（历史多轮修复未达根因层） | 播放页只显示平台名（「酷我音乐」），不显示「· 溯音酷我」 | `user-api-preload.js`（b72）+ `core/music/index.ts`（b73） | ✅ b72/b73 修复（VM 桥 preload 丢 subSource + index.ts 丢 onSource，两处透传补齐）；回归用例入音源 v26.4 |
+| K10 | **播放卡死**：`Property 'logger' doesn't exist`（logger 导入链断裂） | 所有在线歌点播后播放栏 00:00 卡死 | `core/player/player.ts` | ✅ b71 修复（`import { logger } from '@/utils/logger'`） |
+| K11 | **日志权限误判**：系统「所有文件访问」判定与真实写能力不一致 → 反复提示去开启 | 有权限仍提示；无日志可看 | `utils/log.ts` | ✅ b71 双通道根治（真实写测试为准 + 私有目录兜底 + 移除强制提示） |
 
 ## 维护规则
 

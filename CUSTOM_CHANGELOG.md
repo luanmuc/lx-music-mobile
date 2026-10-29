@@ -8,6 +8,22 @@
 
 ---
 
+## [v1.9.1-b72 ~ b73] - 2026-10-29
+
+### 修复：播放页音源标签不显示子源名（「平台·子源名」真正落地，两轮根因）
+- **b72 修复（第一层根因）**：VM 桥 `user-api-preload.js` 的 `handleRequest.musicUrl` 分支组装 `result.data` 时只保留 `{type, url}`，**丢弃音源返回的 `subSource/subSourceName`** → App 侧 `res.data.subSource` 恒为空。此前清数据无效（preload 是 APK 资产）、改 App 逻辑无效（断点在更底层 VM 桥）、音源日志显示「[溯音酷我]解析成功」但 App 拿不到（音源侧日志与 App 侧字段是两条独立链路）——全部由此解释
+- **b73 修复（第二层根因）**：`core/music/index.ts` 的 getMusicUrl 在线分支传了 `onQuality` 但**漏传 `onSource`** → online.ts 用默认空函数 → source 构造成功（诊断日志「子源=溯音酷我」）但 `setPlaySource` 永不执行 → UI 恒为 null
+- **验证**：运行诊断日志由「子源=无」→「子源=溯音酷我」；装 b73 后播放页显示「酷我音乐 · 溯音酷我」格式
+- 诊断打点保留在「运行日志 → 运行诊断」（获取链接开始/成功/失败/子源）
+
+### 修复：全局播放卡死（`Property 'logger' doesn't exist`）+ 日志权限双通道（b71）
+- **播放卡死根因**：`core/player/player.ts` 143/159/296 行用 `logger.musicResolve/error/player`，但 b62 起 import 链就断裂（b64 误改成 `log`、b68 删掉 import），`logger` 从未正确导入 → 每次播放抛 ReferenceError → 播放中断、进度条 00:00
+- **修复**：`import { logger } from '@/utils/logger'`（原版洛雪正确导入）
+- **权限误判根治**：按原版洛雪零权限逻辑改**双通道**——公共目录可用→写公共 `Download/lx-music/logs`（用户偏好）；公共不可用→自动降级应用私有目录（日志永不丢弃）；「运行日志」页移除「去开启权限」强制提示，4 类日志按钮永远可看，只显示当前生效目录说明
+- **日志系统重建回顾（b63~b71）**：日志从「清理缓存」拆出「运行日志」独立分组；4 类日志分文件（error 1MB / source 1MB / diagnose 512KB / debug 512KB，超限自动清空）；下载迁移至公共 `Download/lx-music/{music, logs}`；启动缓冲双兜底；迁移时序修复；mkdir 递归修复；真实写测试判定
+
+---
+
 ## [v1.9.1-b36 ~ b37] - 2026-10-28
 
 ### 新增：播放失败原因友好摘要 + 设置页「音源健康」面板（音源 v16.3 联动）

@@ -19,17 +19,40 @@ const LOG_FILES = {
   diagnose: { name: 'diagnose.log',     max: 512 * 1024 },  // 运行诊断 512KB
   debug:    { name: 'lx_debug_log.txt', max: 512 * 1024 },  // 调试日志 512KB
 } as const
-type LogCategory = keyof typeof LOG_FILES
+export type LogCategory = keyof typeof LOG_FILES
 
 // 权限状态缓存：init 与「运行日志」页打开时刷新；写入用缓存值（避免高频 native 调用）
 let hasPermission: boolean | null = null
+// 真实写测试标记：以真实创建文件为准（不依赖系统 API 语义差异，如各 ROM 的"所有文件访问"显示名不同）
+let testedByWrite = false
 // 启动缓冲：init 前产生的日志先暂存，权限可用时一次性写入（不丢早期日志）
 const tempLog: Array<{ category: LogCategory, time: string, text: string }> = []
-export const checkLogPermission = async(): Promise<boolean> => {
+// 真实写测试：在公共日志目录创建测试文件，能写成功即视为有权限（唯一可靠标准）
+const testWritePermission = async(): Promise<boolean> => {
   try {
-    hasPermission = await isExternalStorageManager()
+    await RNFS.mkdir(LOGS_DIR)
+    const testPath = LOGS_DIR + '/.perm_test'
+    await RNFS.writeFile(testPath, '')
+    await RNFS.unlink(testPath)
+    return true
+  } catch {
+    return false
+  }
+}
+
+export const checkLogPermission = async(): Promise<boolean> => {
+  // 以真实写测试为准；系统 API 判断仅作快速通道（API 通过时不代表真能写，仍需写测试兜底）
+  try {
+    const apiGranted = await isExternalStorageManager()
+    if (apiGranted) {
+      hasPermission = await testWritePermission()
+    } else {
+      hasPermission = false
+    }
+    testedByWrite = true
   } catch {
     hasPermission = false
+    testedByWrite = true
   }
   // 权限变为可用时冲刷启动缓冲（不丢早期日志）
   if (hasPermission && tempLog.length) {
@@ -88,24 +111,27 @@ export const init = async() => {
 
 export const getLogsDir = () => LOGS_DIR
 
-// 合并读取 4 类日志，分段展示（==== 分类 ====）
-export const getLogs = async(): Promise<string> => {
+// 4 类日志的中文标签（供查看日志分段展示）
+export const LOG_CATEGORY_LABELS: Record<LogCategory, string> = {
+  error: '全局错误',
+  source: '音源日志',
+  diagnose: '运行诊断',
+  debug: '调试日志',
+}
+
+// 读取日志：category 缺省读全部（分段展示）；指定则只读该类
+export const getLogs = async(category?: LogCategory): Promise<string> => {
   if (hasPermission == null) await checkLogPermission()
   if (!hasPermission) return ''
+  const categories: LogCategory[] = category ? [category] : (['error', 'source', 'diagnose', 'debug'] as LogCategory[])
   const parts: string[] = []
-  const order: Array<[LogCategory, string]> = [
-    ['error', '全局错误'],
-    ['source', '音源日志'],
-    ['diagnose', '运行诊断'],
-    ['debug', '调试日志'],
-  ]
-  for (const [category, label] of order) {
-    const path = LOGS_DIR + '/' + LOG_FILES[category].name
+  for (const cat of categories) {
+    const path = LOGS_DIR + '/' + LOG_FILES[cat].name
     try {
       if (await RNFS.exists(path)) {
         const text = await RNFS.readFile(path, 'utf8')
         if (text.trim()) {
-          parts.push('==== ' + label + ' ====\n' + text.trim())
+          parts.push('==== ' + LOG_CATEGORY_LABELS[cat] + ' ====\n' + text.trim())
         }
       }
     } catch {}
@@ -113,13 +139,14 @@ export const getLogs = async(): Promise<string> => {
   return parts.join('\n\n')
 }
 
-// 清空全部日志（4 类）
-export const clearLogs = async() => {
+// 清空日志：category 缺省清全部；指定则只清该类
+export const clearLogs = async(category?: LogCategory) => {
   if (hasPermission == null) await checkLogPermission()
   if (!hasPermission) return
-  for (const file of Object.values(LOG_FILES)) {
+  const categories: LogCategory[] = category ? [category] : (['error', 'source', 'diagnose', 'debug'] as LogCategory[])
+  for (const cat of categories) {
     try {
-      const path = LOGS_DIR + '/' + file.name
+      const path = LOGS_DIR + '/' + LOG_FILES[cat].name
       if (await RNFS.exists(path)) await RNFS.writeFile(path, '', 'utf8')
     } catch {}
   }

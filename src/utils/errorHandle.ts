@@ -10,7 +10,7 @@ const errorHandler = (e: Error, isFatal: boolean) => {
   ]
   if (isFatal) {
     if (excludedErrors.some((excludedError) => e.message.includes(excludedError))) {
-      toast(global.i18n.t('toast_app_error')))
+      toast(global.i18n.t('toast_app_error'))
     } else {
       Alert.alert(
         '💥Unexpected error occurred💥',

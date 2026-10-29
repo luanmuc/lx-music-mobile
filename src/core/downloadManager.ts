@@ -473,9 +473,9 @@ export const startDownload = async(musicInfo: LX.Music.MusicInfoOnline, quality:
   const exists = downloadState.list.find(t => t.id === taskId)
   if (exists) {
     if (exists.isComplate) {
-      toast(global.i18n.t('toast_download_already_done')))
+      toast(global.i18n.t('toast_download_already_done'))
     } else {
-      toast(global.i18n.t('toast_download_in_queue')))
+      toast(global.i18n.t('toast_download_in_queue'))
     }
     return
   }
@@ -502,7 +502,7 @@ export const startDownload = async(musicInfo: LX.Music.MusicInfoOnline, quality:
   downloadActions.addItem(task)
   save()
   void startNext()
-  toast(global.i18n.t('toast_added_to_queue')))
+  toast(global.i18n.t('toast_added_to_queue'))
 }
 
 /**
@@ -547,7 +547,7 @@ export const startBatchDownload = async(musicList: LX.Music.MusicInfoOnline[], q
 export const retryDownload = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task) return
-  toast(global.i18n.t('toast_retrying_download')))
+  toast(global.i18n.t('toast_retrying_download'))
   downloadActions.updateItem({
     ...task,
     retryCount: 0,
@@ -581,7 +581,7 @@ export const pauseDownload = async(taskId: string) => {
       break
     }
   }
-  toast(global.i18n.t('toast_paused')))
+  toast(global.i18n.t('toast_paused'))
 }
 
 /**
@@ -657,7 +657,7 @@ export const clearCompleted = async() => {
   }
   downloadActions.setList(newList)
   save()
-  toast(global.i18n.t('toast_cleared_finished')))
+  toast(global.i18n.t('toast_cleared_finished'))
 }
 
 /**
@@ -694,7 +694,7 @@ export const pauseAllDownload = async() => {
     try { RNFS.stopDownload(jobId) } catch (e) {}
   }
   activeJobs.clear()
-  toast(global.i18n.t('toast_paused_all')))
+  toast(global.i18n.t('toast_paused_all'))
 }
 
 /**
@@ -712,7 +712,7 @@ export const resumeAllDownload = async() => {
   }
   save()
   void startNext()
-  toast(global.i18n.t('toast_resumed_all')))
+  toast(global.i18n.t('toast_resumed_all'))
 }
 
 /**
@@ -727,7 +727,7 @@ export const playDownload = async(index: number) => {
     // 播放器会通过 'progress' in musicInfo 走本地文件播放分支
     await playList(LIST_IDS.DOWNLOAD, index)
   } catch (e) {
-    toast(global.i18n.t('toast_play_failed')))
+    toast(global.i18n.t('toast_play_failed'))
   }
 }
 
@@ -737,13 +737,13 @@ export const playDownload = async(index: number) => {
 export const openDownloadedFile = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task || !task.isComplate || !task.metadata.filePath) {
-    toast(global.i18n.t('toast_file_not_exist')))
+    toast(global.i18n.t('toast_file_not_exist'))
     return
   }
   try {
     const exists = await existsFile(task.metadata.filePath)
     if (!exists) {
-      toast(global.i18n.t('toast_file_deleted')))
+      toast(global.i18n.t('toast_file_deleted'))
       return
     }
     if (Platform.OS === 'android') {
@@ -753,7 +753,7 @@ export const openDownloadedFile = async(taskId: string) => {
       await Linking.openURL(`file://${task.metadata.filePath}`)
     }
   } catch (e) {
-    toast(global.i18n.t('toast_cannot_open_file')))
+    toast(global.i18n.t('toast_cannot_open_file'))
   }
 }
 
@@ -763,13 +763,13 @@ export const openDownloadedFile = async(taskId: string) => {
 export const shareDownloadedFile = async(taskId: string) => {
   const task = downloadState.list.find(t => t.id === taskId)
   if (!task || !task.isComplate || !task.metadata.filePath) {
-    toast(global.i18n.t('toast_file_not_exist')))
+    toast(global.i18n.t('toast_file_not_exist'))
     return
   }
   try {
     const exists = await existsFile(task.metadata.filePath)
     if (!exists) {
-      toast(global.i18n.t('toast_file_deleted')))
+      toast(global.i18n.t('toast_file_deleted'))
       return
     }
     if (Platform.OS === 'android') {
@@ -782,6 +782,6 @@ export const shareDownloadedFile = async(taskId: string) => {
       })
     }
   } catch (e) {
-    toast(global.i18n.t('toast_share_failed')))
+    toast(global.i18n.t('toast_share_failed'))
   }
 }

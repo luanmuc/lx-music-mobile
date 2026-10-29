@@ -84,7 +84,7 @@ export const requestStoragePermission = async() => {
     if (granteds.every(r => r === PermissionsAndroid.RESULTS.GRANTED)) return true
     if (granteds.includes(PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN)) {
       // 用户选择了"不再询问"，权限已被永久拒绝，需引导去系统设置开启
-      toast(global.i18n.t('toast_storage_permission_denied')))
+      toast(global.i18n.t('toast_storage_permission_denied'))
       return null
     }
     return false

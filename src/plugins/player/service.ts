@@ -40,7 +40,7 @@ const toggleDesktopLyric = async() => {
     } catch {
       // 悬浮窗权限未授予：回滚设置并提示（后台无法弹权限引导，提示用户手动开启）
       updateSetting({ 'desktopLyric.enable': false })
-      try { toast(global.i18n.t('toast_desktop_lyric_permission_failed'))) } catch { /* 后台场景 toast 可能不可用 */ }
+      try { toast(global.i18n.t('toast_desktop_lyric_permission_failed')) } catch { /* 后台场景 toast 可能不可用 */ }
     }
   }
 }

@@ -13,7 +13,7 @@
 README.md                   用户视角：定制功能一览/默认设置差异/文档索引
 MERGE_GUIDE.md              开发协作：高冲突区/设置迁移规则/代码地图（合并上游前必读）
 FAQ.md                      定制版常见问题
-CUSTOM_CHANGELOG.md         b1~b74 定制历史（每次迭代在顶部补记）
+CUSTOM_CHANGELOG.md         b1~b79 定制历史（每次迭代在顶部补记）
 docs/RELEASE_SOP.md         发布流程/版本号规则/测试清单（push 即发版）
 docs/DEV_CONVENTIONS.md     多账号开发规范详情（分工/提交/评审裁决）
 docs/DEV_SETUP.md           开发环境搭建

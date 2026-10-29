@@ -26,6 +26,7 @@ export const getMusicUrl = async({
   onToggleSource,
   allowToggleSource,
   onQuality,
+  onSource,
 }: {
   musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
   isRefresh?: boolean
@@ -33,11 +34,12 @@ export const getMusicUrl = async({
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   allowToggleSource?: boolean
   onQuality?: (quality: LX.Quality) => void
+  onSource?: (source: { id: string; name: string } | null) => void
 }): Promise<string> => {
   if ('progress' in musicInfo) {
-    return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
+    return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
   } else if (musicInfo.source == 'local') {
-    return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource })
+    return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
   } else {
     return getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource, onQuality })
   }

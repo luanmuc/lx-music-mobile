@@ -1,7 +1,9 @@
 import {
   saveLyric,
   saveMusicUrl,
+  saveMusicSource,
   getMusicUrl as getStoreMusicUrl,
+  getStoreMusicSource,
 } from '@/utils/data'
 import { updateListMusics } from '@/core/list'
 import settingState from '@/store/setting/state'
@@ -39,13 +41,14 @@ export const setPic = (datas: {
  */
 
 
-export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSource = true, onToggleSource = () => {}, onQuality = () => {} }: {
+export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSource = true, onToggleSource = () => {}, onQuality = () => {}, onSource = () => {} }: {
   musicInfo: LX.Music.MusicInfoOnline
   quality?: LX.Quality
   isRefresh: boolean
   allowToggleSource?: boolean
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   onQuality?: (quality: LX.Quality) => void
+  onSource?: (source: { id: string; name: string } | null) => void
 }): Promise<string> => {
   // if (!musicInfo._types[type]) {
   //   // 兼容旧版酷我源搜索列表过滤128k音质的bug
@@ -57,13 +60,23 @@ export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSou
   const cachedUrl = await getStoreMusicUrl(musicInfo, targetQuality)
   if (cachedUrl && !isRefresh) {
     onQuality(targetQuality)
+    // v25.9：缓存命中读子源键（在线请求成功后双写，缓存播放也能显示「平台 · 子源名」）
+    void getStoreMusicSource(musicInfo, targetQuality).then(cachedSource => {
+      onSource(cachedSource ?? null)
+    })
     return cachedUrl
   }
 
-  return handleGetOnlineMusicUrl({ musicInfo, quality, onToggleSource, isRefresh, allowToggleSource }).then(({ url, quality: targetQuality, musicInfo: targetMusicInfo, isFromCache }) => {
-    if (targetMusicInfo.id != musicInfo.id && !isFromCache) void saveMusicUrl(targetMusicInfo, targetQuality, url)
+  return handleGetOnlineMusicUrl({ musicInfo, quality, onToggleSource, isRefresh, allowToggleSource }).then(({ url, quality: targetQuality, musicInfo: targetMusicInfo, isFromCache, subSource, subSourceName }) => {
+    const source = subSource ? { id: subSource, name: subSourceName || subSource } : null
+    if (targetMusicInfo.id != musicInfo.id && !isFromCache) {
+      void saveMusicUrl(targetMusicInfo, targetQuality, url)
+      if (source) void saveMusicSource(targetMusicInfo, targetQuality, source)
+    }
     void saveMusicUrl(musicInfo, targetQuality, url)
+    if (source) void saveMusicSource(musicInfo, targetQuality, source)
     onQuality(targetQuality)
+    onSource(source)
     return url
   })
 }

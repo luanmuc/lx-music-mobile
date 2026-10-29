@@ -3,10 +3,11 @@ import { View } from 'react-native'
 
 import Progress from '@/components/player/ProgressBar'
 import Status from './Status'
-import { useProgress, usePlayQuality } from '@/store/player/hook'
+import { useProgress, usePlayQuality, usePlaySource, usePlayMusicInfo } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import { useI18n } from '@/lang'
 import PlayQualityTag from '@/components/PlayQualityTag'
 import { useBufferProgress } from '@/plugins/player'
 import { getPlayQualityLabel } from '@/core/music/utils'
@@ -25,18 +26,38 @@ const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
 })
 
 export default () => {
+  const t = useI18n()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
   const playQuality = usePlayQuality()
   const qualityLabel = getPlayQualityLabel(playQuality)
+  // v25.9：实际交付链接的子源（平台名 + 子源名；子源未知时仅平台名）
+  const playSource = usePlaySource()
+  const playMusicInfo = usePlayMusicInfo()
+  const src = (playMusicInfo?.musicInfo as any)?.source
+  const platformName = src && src != 'local' ? t(`source_real_${src}` as any) : ''
+  const sourceLabel = (playSource?.name && platformName && playSource.name != platformName)
+    ? `${platformName} · ${playSource.name}`
+    : (playSource?.name || platformName || '')
 
   // console.log('render playInfo')
 
   return (
     <>
       {
-        qualityLabel
-          ? <View style={styles.quality}><PlayQualityTag label={qualityLabel} showLabel size={12} /></View>
+        (qualityLabel || sourceLabel)
+          ? <View style={styles.quality}>
+              {
+                qualityLabel
+                  ? <PlayQualityTag label={qualityLabel} prefix={t('quality_tag')} size={12} />
+                  : null
+              }
+              {
+                sourceLabel
+                  ? <View style={styles.sourceGap}><PlayQualityTag label={sourceLabel} prefix={t('source_tag')} size={12} /></View>
+                  : null
+              }
+            </View>
           : null
       }
       <View style={styles.progress}><Progress progress={progress} duration={maxPlayTime} buffered={buffered} /></View>
@@ -63,7 +84,12 @@ const styles = createStyle({
     flexGrow: 0,
     flexShrink: 0,
     paddingBottom: 3,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sourceGap: {
+    marginLeft: 6,
   },
   info: {
     flexDirection: 'row',

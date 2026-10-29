@@ -588,5 +588,7 @@
   "health_state_sleeping": "Sleeping",
   "health_toggle_failed": "Toggle failed, retry",
   "nav_health": "Source Health",
-  "nav_source": "Source Manager"
+  "nav_source": "Source Manager",
+  "quality_tag": "Quality",
+  "source_tag": "Source"
 }

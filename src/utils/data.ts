@@ -369,6 +369,8 @@ export const clearMusicUrlByMusic = async(musicInfo: LX.Music.MusicInfo) => {
 }
 export const getMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`).then((url) => url ?? '')
 export const saveMusicUrl = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, url: string) => saveData(`${storageDataPrefix.musicUrl}${musicInfo.id}_${type}`, url)
+export const saveMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality, source: string) => saveData(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`, source)
+export const getStoreMusicSource = async(musicInfo: LX.Music.MusicInfo, type: LX.Quality) => getData<string>(`${storageDataPrefix.musicSource}${musicInfo.id}_${type}`).then((s) => s ?? '')
 export const clearMusicUrl = async(keys?: string[]) => {
   if (!keys) keys = (await getAllKeys()).filter(key => key.startsWith(storageDataPrefix.musicUrl))
   await removeDataMultiple(keys)

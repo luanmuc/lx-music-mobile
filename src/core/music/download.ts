@@ -9,11 +9,12 @@ import {
 import { buildLyricInfo, getCachedLyricInfo } from './utils'
 import { existsFile } from '@/utils/fs'
 
-export const getMusicUrl = async({ musicInfo, isRefresh, allowToggleSource = true, onToggleSource = () => {} }: {
+export const getMusicUrl = async({ musicInfo, isRefresh, allowToggleSource = true, onToggleSource = () => {}, onSource = () => {} }: {
   musicInfo: LX.Download.ListItem
   isRefresh: boolean
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   allowToggleSource?: boolean
+  onSource?: (source: { id: string; name: string } | null) => void
 }): Promise<string> => {
   // 已下载完成的歌曲直接播放本地文件，不消耗流量
   if (!isRefresh && musicInfo.isComplate && musicInfo.metadata.filePath) {
@@ -26,7 +27,7 @@ export const getMusicUrl = async({ musicInfo, isRefresh, allowToggleSource = tru
     }
   }
 
-  return getOnlineMusicUrl({ musicInfo: musicInfo.metadata.musicInfo, isRefresh, onToggleSource, allowToggleSource })
+  return getOnlineMusicUrl({ musicInfo: musicInfo.metadata.musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
 }
 
 export const getPicUrl = async({ musicInfo, isRefresh, listId, onToggleSource = () => {} }: {

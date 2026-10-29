@@ -107,7 +107,13 @@ export default async(setting: LX.AppSetting) => {
                       // eslint-disable-next-line @typescript-eslint/promise-function-async
                     }).then(res => {
                       // 音源返回实际交付音质（res.data.type，v11.13+）；旧音源无该字段时回退请求音质
-                      return { type: (res.data as { type?: LX.Quality })?.type ?? type, url: (res.data as { url: string }).url }
+                      // v25.9：透传实际子源（subSource id + subSourceName 中文名），旧音源无字段时为空字符串
+                      return {
+                        type: (res.data as { type?: LX.Quality })?.type ?? type,
+                        url: (res.data as { url: string }).url,
+                        subSource: (res.data as { subSource?: string })?.subSource ?? '',
+                        subSourceName: (res.data as { subSourceName?: string })?.subSourceName ?? '',
+                      }
                     }).catch(err => {
                       console.log(err.message)
                       throw err

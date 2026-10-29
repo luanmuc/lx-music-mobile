@@ -119,6 +119,11 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     musicInfo,
     isRefresh,
     onQuality,
+    // v25.9：记录实际交付链接的子源（id + 中文名），播放页音源标签展示
+    onSource(source) {
+      if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return
+      playerActions.setPlaySource(source)
+    },
     onToggleSource(mInfo) {
       if (diffCurrentMusicInfo(musicInfo)) return
       setStatusText(global.i18n.t('toggle_source_try'))
@@ -160,6 +165,7 @@ export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
   // 命中过期 URL 缓存后刷新不执行，却仍提示"URL 过期，正在刷新 URL..."，导致播放卡死
   if (!isRefresh && !diffCurrentMusicInfo(musicInfo)) return
   playerActions.setPlayQuality('')
+  playerActions.setPlaySource(null)
   if (cancelDelayRetry) cancelDelayRetry()
   global.lx.gettingUrlId = createGettingUrlId(musicInfo)
   void getMusicPlayUrl(musicInfo, isRefresh).then((url) => {

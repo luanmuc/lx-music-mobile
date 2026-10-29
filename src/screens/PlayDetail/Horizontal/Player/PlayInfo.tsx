@@ -3,10 +3,11 @@ import { StyleSheet, View } from 'react-native'
 
 import Progress from '@/components/player/Progress'
 import Status from './Status'
-import { useProgress, usePlayQuality } from '@/store/player/hook'
+import { useProgress, usePlayQuality, usePlaySource, usePlayMusicInfo } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import { useI18n } from '@/lang'
 import PlayQualityTag from '@/components/PlayQualityTag'
 import { useBufferProgress } from '@/plugins/player'
 import { getPlayQualityLabel } from '@/core/music/utils'
@@ -25,10 +26,19 @@ const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
 })
 
 export default () => {
+  const t = useI18n()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
   const playQuality = usePlayQuality()
   const qualityLabel = getPlayQualityLabel(playQuality)
+  // v25.9：实际交付链接的子源（平台名 + 子源名；子源未知时仅平台名）
+  const playSource = usePlaySource()
+  const playMusicInfo = usePlayMusicInfo()
+  const src = (playMusicInfo?.musicInfo as any)?.source
+  const platformName = src && src != 'local' ? t(`source_real_${src}` as any) : ''
+  const sourceLabel = (playSource?.name && platformName && playSource.name != platformName)
+    ? `${platformName} · ${playSource.name}`
+    : (playSource?.name || platformName || '')
   // console.log('render playInfo')
 
   return (
@@ -36,7 +46,12 @@ export default () => {
       <View style={styles.status} >
         {
           qualityLabel
-            ? <PlayQualityTag label={qualityLabel} showLabel size={11} />
+            ? <PlayQualityTag label={qualityLabel} prefix={t('quality_tag')} size={11} />
+            : null
+        }
+        {
+          sourceLabel
+            ? <View style={styles.sourceGap}><PlayQualityTag label={sourceLabel} prefix={t('source_tag')} size={11} /></View>
             : null
         }
         <Status />
@@ -82,7 +97,10 @@ const styles = createStyle({
     paddingRight: 5,
     flexDirection: 'row',
     alignItems: 'center',
-  },
+  }
+  sourceGap: {
+    marginLeft: 6,
+  },,
 })
 // const styles = createStyle({
 //   container: {

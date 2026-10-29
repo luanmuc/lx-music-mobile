@@ -67,6 +67,20 @@ export const usePlayQuality = () => {
   return value
 }
 
+// v25.9：当前播放歌曲实际交付链接的子源（id + 中文名；null=未知/未请求）
+export const usePlaySource = () => {
+  const [value, update] = useState(state.playSource)
+
+  useEffect(() => {
+    global.state_event.on('playSourceChanged', update)
+    return () => {
+      global.state_event.off('playSourceChanged', update)
+    }
+  }, [])
+
+  return value
+}
+
 export const useIsPlay = () => {
   const [value, update] = useState(state.isPlay)
 

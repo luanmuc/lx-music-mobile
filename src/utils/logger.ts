@@ -16,8 +16,9 @@ const formatTime = () => {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${d.getMilliseconds().toString().padStart(3, '0')}`
 }
 
-const writeLog = async (level: LogLevel, tag: string, message: string) => {
-  if (!isEnabled()) return
+const writeLog = async (level: LogLevel, tag: string, message: string, force = false) => {
+  // 音源标签诊断（tag=PlaySource）强制写：不依赖"调试日志"开关，装包即可用日志定位
+  if (!force && !isEnabled()) return
   try {
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = getLogPath()
@@ -38,13 +39,13 @@ const writeLog = async (level: LogLevel, tag: string, message: string) => {
 
 export const logger = {
   info: (tag: string, message: string) => {
-    void writeLog('INFO', tag, message)
+    void writeLog('INFO', tag, message, tag === 'PlaySource')
   },
   warn: (tag: string, message: string) => {
     void writeLog('WARN', tag, message)
   },
   error: (tag: string, message: string) => {
-    void writeLog('ERROR', tag, message)
+    void writeLog('ERROR', tag, message, tag === 'PlaySource')
   },
   debug: (tag: string, message: string) => {
     void writeLog('DEBUG', tag, message)

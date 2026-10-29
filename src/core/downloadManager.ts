@@ -10,7 +10,7 @@ import { getDownloadQuality, FULL_QUALITYS_LIST } from '@/core/music/utils'
 import { toast, requestStoragePermission } from '@/utils/tools'
 import { existsFile, moveFile, unlink } from '@/utils/fs'
 import { playList } from '@/core/player/player'
-import { shareFile as nativeShareFile, getWIFIIPV4Address, openFileInFileManager, writeAudioTag } from '@/utils/nativeModules/utils'
+import { shareFile as nativeShareFile, getWIFIIPV4Address, openFileInFileManager, writeAudioTag, isExternalStorageManager } from '@/utils/nativeModules/utils'
 
 const DOWNLOAD_STORAGE_KEY = storageDataPrefix.downloadList
 
@@ -606,7 +606,6 @@ export const migrateDownloadDir = async() => {
   try {
     if (!await checkStoragePermissions()) {
       // Android 11+ 用全文件权限判断
-      const { isExternalStorageManager } = await import('@/utils/nativeModules/utils')
       if (!await isExternalStorageManager()) return
     }
     const oldRoot = RNFS.DownloadDirectoryPath + '/lx-music'
@@ -626,17 +625,23 @@ export const migrateDownloadDir = async() => {
       }
     }
     // 同步更新下载记录 filePath：旧前缀 Download/lx-music/ → Download/lx-music/music/
-    if (movedAny && downloadState.list.length) {
-      const updated = downloadState.list.map(t => {
-        if (t.filePath?.startsWith(oldPrefix) && !t.filePath.startsWith(musicDir + '/')) {
-          return { ...t, filePath: musicDir + '/' + t.filePath.slice(oldPrefix.length) }
+    // 直接从存储读记录（不依赖内存 downloadState.list——initDownloadList 是 void 异步，可能未完成）
+    if (movedAny) {
+      const stored = await getData(DOWNLOAD_STORAGE_KEY) as LX.Download.ListItem[] | null
+      if (stored?.length) {
+        let changed = false
+        const updated = stored.map(t => {
+          if (t.filePath?.startsWith(oldPrefix) && !t.filePath.startsWith(musicDir + '/')) {
+            changed = true
+            return { ...t, filePath: musicDir + '/' + t.filePath.slice(oldPrefix.length) }
+          }
+          return t
+        })
+        if (changed) {
+          await saveData(DOWNLOAD_STORAGE_KEY, updated)
+          // 若内存列表已加载，同步更新
+          if (downloadState.list.length) downloadState.list = updated
         }
-        return t
-      })
-      // 仅当有变化才写回
-      if (updated.some((t, i) => t.filePath !== downloadState.list[i].filePath)) {
-        downloadState.list = updated
-        save()
       }
     }
   } catch (e) {}

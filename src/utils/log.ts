@@ -23,14 +23,25 @@ type LogCategory = keyof typeof LOG_FILES
 
 // 权限状态缓存：init 与「运行日志」页打开时刷新；写入用缓存值（避免高频 native 调用）
 let hasPermission: boolean | null = null
+// 启动缓冲：init 前产生的日志先暂存，权限可用时一次性写入（不丢早期日志）
+const tempLog: Array<{ category: LogCategory, time: string, text: string }> = []
 export const checkLogPermission = async(): Promise<boolean> => {
   try {
     hasPermission = await isExternalStorageManager()
   } catch {
     hasPermission = false
   }
+  // 权限变为可用时冲刷启动缓冲（不丢早期日志）
+  if (hasPermission && tempLog.length) {
+    const items = tempLog.splice(0)
+    for (const item of items) {
+      await writeLog(item.category, `${item.time} ${item.text}`)
+    }
+  }
   return hasPermission
 }
+// 只读缓存（高频写入用，避免每次 native 调用）；null 表示尚未检查过
+export const isLogPermissionGranted = () => hasPermission
 const ensureLogsDir = async() => {
   try {
     if (!await RNFS.exists(LOGS_DIR)) {
@@ -44,6 +55,13 @@ const writeLog = async(category: LogCategory, msg: string) => {
   // 无权限不写日志（不降级私有目录；查看页会提示开启权限）
   if (hasPermission == null) await checkLogPermission()
   if (!hasPermission) return
+  // 兜底冲刷启动缓冲（防止 checkLogPermission 未经过的路径）
+  if (tempLog.length) {
+    const items = tempLog.splice(0)
+    for (const item of items) {
+      await writeLog(item.category, `${item.time} ${item.text}`)
+    }
+  }
   const { name, max } = LOG_FILES[category]
   const dir = await ensureLogsDir()
   const path = dir + '/' + name
@@ -59,20 +77,11 @@ const writeLog = async(category: LogCategory, msg: string) => {
   }
 }
 
-// 启动缓冲：init 前产生的日志先暂存，权限检查完成后一次性写入
-const tempLog: Array<{ category: LogCategory, time: string, text: string }> = []
 export const init = async() => {
   try {
     await checkLogPermission()
     if (hasPermission) {
       if (!await RNFS.exists(LOGS_DIR)) await RNFS.mkdir(LOGS_DIR)
-    }
-    // 冲刷启动缓冲
-    if (tempLog.length) {
-      const items = tempLog.splice(0)
-      for (const item of items) {
-        await writeLog(item.category, `${item.time} ${item.text}`)
-      }
     }
   } catch (e) {}
 }
@@ -141,9 +150,9 @@ export const log = {
   },
   // 兼容原 log.info/log.warn（各处排障日志）→ 归类到运行诊断
   info(...msgs: any[]) {
-    this.diagnose(...msgs)
+    log.diagnose(...msgs)
   },
   warn(...msgs: any[]) {
-    this.diagnose(...msgs)
+    log.diagnose(...msgs)
   },
 }

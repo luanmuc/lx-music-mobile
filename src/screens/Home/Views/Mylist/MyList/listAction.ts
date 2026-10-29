@@ -214,7 +214,7 @@ const LOCAL_MUSIC_LIST_NAME = '本地音乐'
 export const handleScanDownloadDir = async() => {
   try {
     let dir = settingState.setting['download.dir']
-    if (!dir) dir = `${RNFS.DownloadDirectoryPath}/lx-music`
+    if (!dir) dir = `${RNFS.DownloadDirectoryPath}/lx-music/music` // b64：下载目录迁移至 music 子目录
     if (!(await RNFS.exists(dir))) {
       toast(global.i18n.t('toast_download_dir_not_exist'))
       return

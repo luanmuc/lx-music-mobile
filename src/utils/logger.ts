@@ -1,6 +1,6 @@
 import RNFS from 'react-native-fs'
 import settingState from '@/store/setting/state'
-import { checkLogPermission } from '@/utils/log'
+import { isLogPermissionGranted, checkLogPermission } from '@/utils/log'
 
 const LOG_FILE_NAME = 'lx_debug_log.txt'
 const MAX_LOG_SIZE = 512 * 1024 // 512KB，超过自动清空
@@ -22,8 +22,10 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
   // 音源标签诊断（tag=PlaySource）强制写：不依赖"调试日志"开关，装包即可用日志定位
   if (!force && !isEnabled()) return
   try {
-    // 无公共目录写权限不写（由「运行日志」页提示开启）
-    if (!await checkLogPermission()) return
+    // 无公共目录写权限不写（由「运行日志」页提示开启）——优先用缓存避免每次 native 调用
+    let granted = isLogPermissionGranted()
+    if (granted == null) granted = await checkLogPermission()
+    if (!granted) return
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = getLogPath()
 

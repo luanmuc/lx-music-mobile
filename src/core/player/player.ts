@@ -119,9 +119,12 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     musicInfo,
     isRefresh,
     onQuality,
-    // v25.9：记录实际交付链接的子源（id + 中文名），播放页音源标签展示
+    // v25.9+：记录实际交付链接的子源（id + 中文名），播放页音源标签展示
+    // 注意：缓存命中时 onSource 是异步回调（播放已开始 isPlay=true），不能套用 diffCurrentMusicInfo 的
+    // isPlay 拦截，否则缓存命中的歌永远显示不了子源。防串歌改为双校验：请求所属歌 == 当前播放歌。
     onSource(source) {
-      if (global.lx.isPlayedStop || diffCurrentMusicInfo(musicInfo)) return
+      if (global.lx.isPlayedStop) return
+      if (createGettingUrlId(musicInfo) != global.lx.gettingUrlId || musicInfo.id != playerState.playMusicInfo.musicInfo?.id) return
       playerActions.setPlaySource(source)
     },
     onToggleSource(mInfo) {

@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.net.wifi.WifiInfo;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Environment;
@@ -591,6 +592,24 @@ public class UtilsModule extends ReactContextBaseJavaModule {
         promise.reject("ERROR", e);
       }
     }).start();
+  }
+
+  @ReactMethod
+  public void isExternalStorageManager(Promise promise) {
+    try {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        // Android 11+：判断"所有文件访问"（MANAGE_EXTERNAL_STORAGE）是否已开启
+        promise.resolve(Environment.isExternalStorageManager());
+      } else {
+        // Android 10 及以下：判断普通存储写权限
+        Activity activity = getCurrentActivity();
+        boolean granted = activity != null
+          && activity.checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+        promise.resolve(granted);
+      }
+    } catch (Exception e) {
+      promise.reject("ERROR", e);
+    }
   }
 }
 

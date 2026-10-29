@@ -588,5 +588,8 @@
   "health_toggle_failed": "切換失敗，請重試",
   "setting_log": "运行日志",
   "setting_log_desc": "記錄應用運行與音源解析資訊，用於排查問題：全域異常、聚合音源解析/探測/健康日誌、播放音源診斷等。",
-  "setting_log_view": "檢視與清理"
+  "setting_log_view": "檢視與清理",
+  "setting_log_permission_tip": "日誌未記錄：需開啟儲存權限，日誌才能儲存到公共目錄 lx-music/logs",
+  "setting_log_permission_open": "去開啟",
+  "setting_log_dir": "日誌目錄："
 }

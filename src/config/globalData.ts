@@ -47,7 +47,7 @@ global.lx = {
   // syncKeyInfo: {},
 
   // isEnableSyncLog: false, // 同步功能已停用（syncSetting 已注释），开关随日志系统重构移除
-  isEnableUserApiLog: false,
+  isEnableUserApiLog: true, // 音源日志默认开启（b64：日志系统加固，默认全开便于排障）
 
   playerTrackId: '',
 

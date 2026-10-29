@@ -45,30 +45,30 @@ export const setUserApiAllowShowUpdateAlert = async(id: string, enable: boolean)
 export const log = {
   r_info(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    writeLog.info(...params)
+    writeLog.source(...params)
   },
   r_warn(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    writeLog.warn(...params)
+    writeLog.source(...params)
   },
   r_error(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    writeLog.error(...params)
+    writeLog.source(...params)
   },
   log(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    if (global.lx.isEnableUserApiLog) writeLog.info(...params)
+    if (global.lx.isEnableUserApiLog) writeLog.source(...params)
   },
   info(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    if (global.lx.isEnableUserApiLog) writeLog.info(...params)
+    if (global.lx.isEnableUserApiLog) writeLog.source(...params)
   },
   warn(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    if (global.lx.isEnableUserApiLog) writeLog.warn(...params)
+    if (global.lx.isEnableUserApiLog) writeLog.source(...params)
   },
   error(...params: any[]) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    if (global.lx.isEnableUserApiLog) writeLog.error(...params)
+    if (global.lx.isEnableUserApiLog) writeLog.source(...params)
   },
 }

@@ -14,7 +14,7 @@ const defaultSetting: LX.AppSetting = {
   'common.showExitBtn': true,
   'common.useSystemFileSelector': true,
   'common.alwaysKeepStatusbarHeight': false,
-  'common.enableDebugLog': false, // 调试日志开关（默认关闭，开启后收集详细运行日志便于排障）
+  'common.enableDebugLog': true, // 调试日志开关（b64 起默认开启，收集详细运行日志便于排障）
 
   'player.startupAutoPlay': false,
   'player.startupPushPlayDetailScreen': false,

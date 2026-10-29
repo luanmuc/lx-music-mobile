@@ -612,5 +612,8 @@
   "toast_app_error_detail": "The app hit a bug😭. Below is the error info. Please screenshot and report on GitHub (include what you were doing and the \"Error Log\" content in Settings). The app may misbehave now; long-press the volume key to restart",
   "setting_log": "Run Logs",
   "setting_log_desc": "Records app runtime and music source info for troubleshooting: global errors, aggregate source resolve/probe/health logs, playback source diagnostics, etc.",
-  "setting_log_view": "View & Clear"
+  "setting_log_view": "View & Clear",
+  "setting_log_permission_tip": "Logs not recorded: enable storage permission to save logs to public folder lx-music/logs",
+  "setting_log_permission_open": "Enable",
+  "setting_log_dir": "Log folder: "
 }

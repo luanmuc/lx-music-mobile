@@ -16,6 +16,7 @@ import { cheatTip } from '@/utils/tools'
 import { checkUpdate } from '@/core/version'
 import { checkOfficialUpdate } from '@/core/officialVersion'
 import { logger } from '@/utils/logger'
+import { migrateDownloadDir } from '@/core/downloadManager'
 
 let isFirstPush = true
 const handlePushedHomeScreen = async() => {
@@ -63,6 +64,8 @@ export default async() => {
   bootLog('Player inited.')
   await dataInit(setting)
   bootLog('Data inited.')
+  // b64：老下载目录迁移（Download/lx-music 根下 → music/ 子目录），异步后台执行不阻塞启动
+  void migrateDownloadDir()
   await initCommonState(setting)
   bootLog('Common State inited.')
 

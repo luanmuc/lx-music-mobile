@@ -28,6 +28,8 @@ export const getDeviceName = async(): Promise<string> => {
 }
 
 export const isNotificationsEnabled = UtilsModule.isNotificationsEnabled as () => Promise<boolean>
+// Android 11+ 判断"所有文件访问"权限；Android 10- 判断普通存储写权限（日志公共目录写入前置条件）
+export const isExternalStorageManager = UtilsModule.isExternalStorageManager as () => Promise<boolean>
 
 export const requestNotificationPermission = async() => new Promise<boolean>((resolve) => {
   let subscription = AppState.addEventListener('change', (state) => {

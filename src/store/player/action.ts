@@ -1,6 +1,6 @@
 import { arrPush, arrUnshift, formatPlayTime2 } from '@/utils'
 import state from './state'
-import { logger } from '@/utils/log'
+import { log } from '@/utils/log'
 
 type PlayerMusicInfoKeys = keyof LX.Player.MusicInfo
 const musicInfoKeys: PlayerMusicInfoKeys[] = Object.keys(state.musicInfo) as PlayerMusicInfoKeys[]
@@ -31,7 +31,7 @@ export default {
   // v25.9：记录实际交付链接的子源（id + 中文名），配合播放页音源标签「平台 · 子源名」
   setPlaySource(source: { id: string; name: string } | null) {
     state.playSource = source
-    log.info(`[音源标签] setPlaySource 写入: ${JSON.stringify(source)}`)
+    log.diagnose(`[音源标签] setPlaySource 写入: ${JSON.stringify(source)}`)
     global.state_event.playSourceChanged(source)
   },
   setMusicInfo(_musicInfo: Partial<LX.Player.MusicInfo>) {

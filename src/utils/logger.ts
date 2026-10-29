@@ -1,12 +1,14 @@
 import RNFS from 'react-native-fs'
 import settingState from '@/store/setting/state'
+import { checkLogPermission } from '@/utils/log'
 
 const LOG_FILE_NAME = 'lx_debug_log.txt'
 const MAX_LOG_SIZE = 512 * 1024 // 512KB，超过自动清空
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG'
 
-const getLogPath = () => `${RNFS.DocumentDirectoryPath}/${LOG_FILE_NAME}`
+// b64：调试日志跟随日志系统统一存公共目录 lx-music/logs（无权限不写，不降级私有目录）
+const getLogPath = () => `${RNFS.DownloadDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
 
 const isEnabled = () => settingState.setting['common.enableDebugLog'] === true
 
@@ -20,8 +22,17 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
   // 音源标签诊断（tag=PlaySource）强制写：不依赖"调试日志"开关，装包即可用日志定位
   if (!force && !isEnabled()) return
   try {
+    // 无公共目录写权限不写（由「运行日志」页提示开启）
+    if (!await checkLogPermission()) return
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = getLogPath()
+
+    // 确保日志目录存在
+    try {
+      if (!await RNFS.exists(RNFS.DownloadDirectoryPath + '/lx-music/logs')) {
+        await RNFS.mkdir(RNFS.DownloadDirectoryPath + '/lx-music/logs')
+      }
+    } catch {}
 
     // 检查文件大小，超过则清空
     try {

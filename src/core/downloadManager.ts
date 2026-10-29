@@ -113,7 +113,8 @@ const getDownloadDir = async(): Promise<string> => {
   // Android 11+：向公共下载目录直接写入必须拥有"所有文件访问"权限
   // （READ_MEDIA_AUDIO 等媒体权限只读，不能授权写入公共目录）
   // 先尝试创建目录，失败则弹窗引导用户去设置页开启全文件访问
-  const dir = `${RNFS.DownloadDirectoryPath}/lx-music`
+  // b64：公共目录父文件夹结构 Download/lx-music/{music, logs}——下载音乐进 music 子目录
+  const dir = `${RNFS.DownloadDirectoryPath}/lx-music/music`
   try {
     await RNFS.mkdir(dir)
     return dir
@@ -597,6 +598,48 @@ export const resumeDownload = async(taskId: string) => {
   } as any)
   save()
   void startNext()
+}
+
+// b64 目录迁移：老版本下载文件散在 Download/lx-music 根目录 → 迁移到 music/ 子目录，
+// 并同步更新下载记录里的 filePath（绝对路径）——只迁移一次，幂等（已存在 music/ 下的不动）
+export const migrateDownloadDir = async() => {
+  try {
+    if (!await checkStoragePermissions()) {
+      // Android 11+ 用全文件权限判断
+      const { isExternalStorageManager } = await import('@/utils/nativeModules/utils')
+      if (!await isExternalStorageManager()) return
+    }
+    const oldRoot = RNFS.DownloadDirectoryPath + '/lx-music'
+    const musicDir = oldRoot + '/music'
+    if (!await RNFS.exists(oldRoot)) return
+    if (!await RNFS.exists(musicDir)) await RNFS.mkdir(musicDir)
+    const items = await RNFS.readDir(oldRoot)
+    const oldPrefix = oldRoot + '/'
+    let movedAny = false
+    for (const item of items) {
+      // 只迁移文件（跳过 logs/ music/ 等子目录）
+      if (item.isFile()) {
+        try {
+          await RNFS.moveFile(item.path, musicDir + '/' + item.name)
+          movedAny = true
+        } catch (e) {}
+      }
+    }
+    // 同步更新下载记录 filePath：旧前缀 Download/lx-music/ → Download/lx-music/music/
+    if (movedAny && downloadState.list.length) {
+      const updated = downloadState.list.map(t => {
+        if (t.filePath?.startsWith(oldPrefix) && !t.filePath.startsWith(musicDir + '/')) {
+          return { ...t, filePath: musicDir + '/' + t.filePath.slice(oldPrefix.length) }
+        }
+        return t
+      })
+      // 仅当有变化才写回
+      if (updated.some((t, i) => t.filePath !== downloadState.list[i].filePath)) {
+        downloadState.list = updated
+        save()
+      }
+    }
+  } catch (e) {}
 }
 
 // 初始化：从存储恢复下载列表

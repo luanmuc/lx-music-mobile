@@ -222,12 +222,17 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
         let result
         switch (data.action) {
           case 'musicUrl':
-            // 兼容两种返回：字符串 URL（旧音源）；{url, type} 对象（v11.13+ 音源携带实际交付音质）
+            // 兼容三种返回：字符串 URL（旧音源）；{url, type} 对象（v11.13+ 携带实际交付音质）；
+            // {url, type, subSource, subSourceName}（v25.8+/b52+ 携带实际子源——播放页音源标签显示「平台·子源名」）
             let musicUrl = response
             let actualType = data.info.type
+            let subSource = ''
+            let subSourceName = ''
             if (typeof response === 'object' && response !== null && typeof response.url === 'string') {
               musicUrl = response.url
               if (typeof response.type === 'string') actualType = response.type
+              if (typeof response.subSource === 'string') subSource = response.subSource
+              if (typeof response.subSourceName === 'string') subSourceName = response.subSourceName
             }
             if (typeof musicUrl != 'string' || musicUrl.length > 2048 || !/^https?:/.test(musicUrl)) throw new Error('failed')
             result = {
@@ -236,6 +241,8 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
               data: {
                 type: actualType,
                 url: musicUrl,
+                subSource,
+                subSourceName,
               },
             }
             break

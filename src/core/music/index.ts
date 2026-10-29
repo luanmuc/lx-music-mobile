@@ -41,7 +41,9 @@ export const getMusicUrl = async({
   } else if (musicInfo.source == 'local') {
     return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
   } else {
-    return getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource, onQuality })
+    // v-b73：必须透传 onSource——player.ts 的 onSource（setPlaySource）经此路由到 online.ts，
+    // 若丢失则在线播放永远收不到子源回调 → 播放页音源标签只显示平台名（历史多轮修复未达此层）
+    return getOnlineMusicUrl({ musicInfo, isRefresh, quality, onToggleSource, allowToggleSource, onQuality, onSource })
   }
 }
 

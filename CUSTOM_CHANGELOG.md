@@ -4,7 +4,18 @@
 
 - 上游（lyswhut/lx-music-mobile）的更新日志见 [CHANGELOG.md](./CHANGELOG.md)
 - 每次云编译的**实时发布说明**由 CI 从 git 提交自动生成（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)），本文件是人工维护的归档
-- 版本号规则：`1.9.1-bN`，N 为 GitHub Actions 构建序号（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)）
+- 版本号规则：`1.9.2-bN`，N 为底座版本内构建序号；底座（官方原版）升版后从 b1 重新计数（如 1.9.1-b79 → 1.9.2-b1）；versionCode 由 `publish/build-state.json` 状态文件驱动持续递增，保证覆盖安装（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)）
+
+---
+
+## [v1.9.2-b1] - 2026-11-01
+
+### 底座升级：跟随官方原版 v1.9.2（fork 点 fb848072 之后的 6 个上游提交）
+- **kg 歌单修复**（同步上游 `e6be258c`）：重启用新接口 `get_other_list_file` + 重写分页逻辑，修复无法打开 kg 歌单 / 部分歌单歌曲丢失的问题（仅合入 `kg/songList.js`，跳过上游 changelog）
+- **默认禁用音频卸载**（同步上游 `025d7822` + `b3afb18c`）：`defaultSetting` 默认值 `true→false`，设置版本 `2.2→2.3`，老用户升级自动关闭（设置项保留，可手动重开）
+- **track-player fork 升级**（`0f0acb4→001e2dd`）：移除音频卸载参数中的不必要设置（注释 `setIsGaplessSupportRequired(true)`，同步上游 `d76fe8f`，让更多设备/格式可进入卸载模式）
+- **版本号体系调整**：底座升 1.9.2 后 bN 从 **b1 重新计数**（1.9.2-b1）；versionCode 改由 `publish/build-state.json` 驱动（159→160）持续递增，老用户可正常覆盖安装
+- 上游其余 3 个提交（1.9.2-beta.0 版本号 / 发布 v1.9.2 / CHANGELOG）为纯发布记录，定制版有独立 bN 体系，未合并
 
 ---
 

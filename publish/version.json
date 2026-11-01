@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b3",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 15a776f1 ci: 修复 build-state.json 状态持久化（Release job 用 Android outputs 重写后提交）",
+  "version": "1.9.2-b4",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 0c356dff docs: 新增「文档同步规范」（强制）+ 文档一致性检查脚本",
   "history": [
+    {
+      "version": "1.9.2-b3",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 15a776f1 ci: 修复 build-state.json 状态持久化（Release job 用 Android outputs 重写后提交）"
+    },
     {
       "version": "1.9.2-b2",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.1-b77",
       "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- 43ca484d chore(deps): 升级 track-player fork 至 0f0acb4（合入上游音频卸载优化 + 保留通知栏定制）"
-    },
-    {
-      "version": "1.9.1-b76",
-      "desc": "基于洛雪音乐原版 v1.9.1 的定制版构建。本次更新：\n- dd821f9f chore: 移除误提交的 node_modules symlink（仓库污染清理，杜绝 git add 再次带入）"
     }
   ]
 }

@@ -237,9 +237,10 @@ export default memo(() => {
                   } else {
                     stateText = t(`health_state_${item.state}`); stateColor = STATE_COLOR[item.state]
                   }
-                  const scoreText = !sampled ? '-' : item.healthScore.toFixed(2)
+                  // 健康分 10 分制（音源 v27.4 起快照 ×10）：一位小数；阈值 ≥3 绿 / ≥−5 默认 / <−5 红
+                  const scoreText = !sampled ? '-' : item.healthScore.toFixed(1)
                   const scoreColor = !sampled ? theme['c-font-label']
-                    : item.healthScore >= 0.3 ? '#52c41a' : item.healthScore >= -0.5 ? theme['c-font'] : '#ff4d4f'
+                    : item.healthScore >= 3 ? '#52c41a' : item.healthScore >= -5 ? theme['c-font'] : '#ff4d4f'
                   const rateColor = !sampled || item.successRate == null ? theme['c-font-label']
                     : item.successRate >= 0.6 ? theme['c-font'] : '#ff4d4f'
                   return (

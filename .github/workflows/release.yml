@@ -29,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       build: ${{ steps.buildstate.outputs.build }}
+      versionCode: ${{ steps.buildstate.outputs.versionCode }}
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
@@ -168,6 +169,18 @@ jobs:
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           VER="${PACKAGE_VERSION}-b${{ needs.Android.outputs.build }}"
+          # 回写 build-state.json 为本次实际构建状态：Android job 的计算结果只存在于其工作区，
+          # Release job 独立 checkout（拿到的仍是仓库旧值），必须在提交前用 outputs 重写，
+          # 否则 build/versionCode 状态永不持久化，下次构建会重复同一 bN
+          node -e "
+            const fs = require('fs');
+            const f = 'publish/build-state.json';
+            const p = JSON.parse(fs.readFileSync(f, 'utf8'));
+            p.baseVersion = process.argv[1];
+            p.build = Number(process.argv[2]);
+            p.versionCode = Number(process.argv[3]);
+            fs.writeFileSync(f, JSON.stringify(p, null, 2) + '\n');
+          " "${PACKAGE_VERSION}" "${{ needs.Android.outputs.build }}" "${{ needs.Android.outputs.versionCode }}"
           git config user.name "luanmuc"
           git config user.email "luanmuc@users.noreply.github.com"
           git add publish/version.json publish/build-state.json npm-version-info/package.json

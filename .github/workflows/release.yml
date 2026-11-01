@@ -27,6 +27,8 @@ jobs:
   Android:
     name: Android
     runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.buildstate.outputs.build }}
     steps:
       - name: Check out git repository
         uses: actions/checkout@v4
@@ -53,17 +55,37 @@ jobs:
       - name: Setup Env
         uses: ./.github/actions/setup
 
+      - name: Compute build number
+        # 构建序号与 versionCode 统一由 publish/build-state.json 状态文件驱动：
+        # 底座版本（package.json version）变化时 bN 从 1 重新计数（如 1.9.2-b1），
+        # versionCode 持续递增（保证老用户可覆盖安装）。
+        id: buildstate
+        run: |
+          node -e "
+            const fs = require('fs');
+            const f = 'publish/build-state.json';
+            const p = JSON.parse(fs.readFileSync(f, 'utf8'));
+            const cur = require('./package.json').version;
+            if (p.baseVersion !== cur) { p.baseVersion = cur; p.build = 0; }
+            p.build += 1; p.versionCode += 1;
+            fs.writeFileSync(f, JSON.stringify(p, null, 2) + '\n');
+          "
+          echo "build=$(node -p "JSON.parse(require('fs').readFileSync('publish/build-state.json','utf8')).build")" >> "$GITHUB_OUTPUT"
+          echo "versionCode=$(node -p "JSON.parse(require('fs').readFileSync('publish/build-state.json','utf8')).versionCode")" >> "$GITHUB_OUTPUT"
+
       - name: Build Release APK
         env:
           DISABLE_SVG: 1
         shell: bash
         run: |
-          # 每次构建注入唯一版本标识：versionName=1.9.1-b<run>、versionCode 递增
-          # （build.gradle 支持 env 覆盖，package.json 保持 1.9.1 不变以维持 release tag 逻辑）
+          # 版本标识注入：versionName=1.9.2-b<build>（底座内计数）、versionCode 持续递增
+          # （build.gradle 支持 env 覆盖，package.json 的 version 与底座同步，release tag 自动跟随）
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          export APP_VERSION_NAME="${PACKAGE_VERSION}-b${GITHUB_RUN_NUMBER}"
-          export APP_VERSION_CODE=$((80 + GITHUB_RUN_NUMBER))
-          echo "export const buildNumber = 'b${GITHUB_RUN_NUMBER}'" > src/config/buildNumber.ts
+          BUILD_NUM=${{ steps.buildstate.outputs.build }}
+          APP_VERSION_CODE=${{ steps.buildstate.outputs.versionCode }}
+          export APP_VERSION_NAME="${PACKAGE_VERSION}-b${BUILD_NUM}"
+          export APP_VERSION_CODE="${APP_VERSION_CODE}"
+          echo "export const buildNumber = 'b${BUILD_NUM}'" > src/config/buildNumber.ts
           echo "构建版本: ${APP_VERSION_NAME} (versionCode ${APP_VERSION_CODE})"
           cd android
           # release 变体自动打包 JS bundle（debug 变体不含 bundle，安装后无法独立运行）；
@@ -111,7 +133,7 @@ jobs:
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
-          echo "RUN_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+          echo "RUN_NUMBER=${{ needs.Android.outputs.build }}" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -145,9 +167,9 @@ jobs:
       - name: Commit version info
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          VER="${PACKAGE_VERSION}-b${{ github.run_number }}"
+          VER="${PACKAGE_VERSION}-b${{ needs.Android.outputs.build }}"
           git config user.name "luanmuc"
           git config user.email "luanmuc@users.noreply.github.com"
-          git add publish/version.json npm-version-info/package.json
+          git add publish/version.json publish/build-state.json npm-version-info/package.json
           git commit -m "chore: 更新版本信息 v${VER}" || echo "无改动，跳过提交"
           git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:master || echo "推送失败（后续发布不影响已完成的 Release）"

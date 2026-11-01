@@ -9,7 +9,7 @@ import { version as baseVersion } from '../../package.json'
 // ============================================================
 
 const officialAddress = [
-  // 权威：GitHub API releases/latest（tag_name 形如 "v1.9.1"）
+  // 权威：GitHub API releases/latest（tag_name 形如 "v1.9.2"）
   'https://api.github.com/repos/lyswhut/lx-music-mobile/releases/latest',
   // jsdelivr 读官方仓库根 package.json（国内必达，version 字段与 release 同步）
   'https://cdn.jsdelivr.net/gh/lyswhut/lx-music-mobile@master/package.json',

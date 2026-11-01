@@ -7,7 +7,7 @@ import { createStateEventHub } from '@/event/stateEvent'
 if (process.versions == null) {
   // @ts-expect-error
   process.versions = {
-    // 显示真实构建版本：如 1.9.1-b13（CI 注入 buildNumber，本地开发为空则显示 1.9.1）
+    // 显示真实构建版本：如 1.9.2-b13（CI 注入 buildNumber，本地开发为空则显示 1.9.2）
     app: buildNumber ? `${version}-${buildNumber}` : version,
   }
 } else process.versions.app = buildNumber ? `${version}-${buildNumber}` : version

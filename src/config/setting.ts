@@ -122,6 +122,10 @@ export const initSetting = async() => {
       setting['desktopLyric.textPosition.y'] = 'center'
       setting['common.sourceNameType'] = 'real'
     }
+    // v2.3 迁移：同步上游 v1.9.2「默认禁用音频卸载」，老用户升级后自动关闭（可手动重开）
+    if (compareVer(setting.version as string, '2.3') < 0) {
+      if (setting['player.isEnableAudioOffload']) setting['player.isEnableAudioOffload'] = false
+    }
   }
 
   const updatedSetting = updateSetting(setting, true)

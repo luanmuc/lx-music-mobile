@@ -21,7 +21,7 @@ docs/DOWNLOAD_DESIGN.md     下载管理器技术设计（改下载代码前必�
 docs/MUSIC_SOURCE_GUIDE.md  音源体系与 QuickJS 契约
 docs/KNOWN_ISSUES.md        已知缺陷/限制（编号化管理）
 docs/UPSTREAM_LIFECYCLE.md  上游依赖生命周期管理（增/活/衰/替）
-scripts/                    工具（check_ts_syntax.js / gen_change_log.py）
+scripts/                    工具（check_ts_syntax.js / gen_change_log.py / check_docs_consistency.js）
 publish/                    CI 生成的版本信息（勿手改，构建时自动覆盖）
 ```
 
@@ -30,6 +30,9 @@ publish/                    CI 生成的版本信息（勿手改，构建时自�
 ```bash
 # 语法检查（508 个 TS/TSX，每次改动后必跑）
 node scripts/check_ts_syntax.js
+
+# 文档一致性检查（推送前必跑：扫描文档中过时版本号/依赖引用，见「文档同步规范」）
+node scripts/check_docs_consistency.js
 
 # 提交 + 推送（push 即触发云编译发版 v1.9.2-bN）
 git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push origin master
@@ -75,6 +78,36 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 - **依据**：实测日期 / 对象 / 结果，或上游提交/文档链接；
 - **验证**：跑过 L0-L4 哪些层、结果；
 - **结论**：可用 / 不可用 / 降级 + 原因。
+
+## 文档同步规范（强制，无需提醒）
+
+> 原则：**文档是交付物的一部分**。代码 / 版本 / CI 每次变更，必须同步更新相关文档并随变更一起提交（或紧随其后的 docs 提交），**不得等用户提醒**。用户已明确要求"文档要及时自动更新"。
+
+### 1. 触发场景与必同步文档
+
+| 改动类型 | 必同步文档 |
+|---|---|
+| 底座版本 / 版本号变更 | `docs/RELEASE_SOP.md`（版本规则）、`docs/UPSTREAM_LIFECYCLE.md`（基线+合并记录）、`CUSTOM_CHANGELOG.md`（顶部补记）、`MERGE_GUIDE.md`（分叉点/提交数）、README / AGENTS / FAQ 版本引用 |
+| track-player / 依赖升级 | `docs/UPSTREAM_LIFECYCLE.md` 依赖清单、`docs/KNOWN_ISSUES.md` K5、`CUSTOM_CHANGELOG.md` |
+| 默认设置 / 设置迁移 | `MERGE_GUIDE.md` 迁移历史、`docs/KNOWN_ISSUES.md`、README「默认设置差异」表 |
+| CI / 发布流程改动 | `docs/RELEASE_SOP.md`、AGENTS.md（常用命令 / 发布） |
+| 功能新增 / 缺陷修复 | `CUSTOM_CHANGELOG.md` 顶部 + 对应功能文档（DOWNLOAD_DESIGN / MUSIC_SOURCE_GUIDE 等）+ `docs/KNOWN_ISSUES.md` 状态 |
+| 上游合并 | 按 `MERGE_GUIDE.md` 合并后必查清单 + 上表版本行 |
+
+### 2. 推送前必跑
+
+```bash
+node scripts/check_docs_consistency.js   # 文档一致性检查：过时引用清零才可推送
+```
+
+脚本以 `package.json` 底座版本、track-player 锁定 commit、`publish/build-state.json` 为基准，扫描文档中残留的旧版本号 / 旧依赖引用。新增"易过时引用"时，在脚本 `RULES` 中登记一条即可。
+
+### 3. 执行规则
+
+1. **同提交或紧随提交**：文档改动与代码改动放同一笔提交，或紧随其后独立 docs 提交，不留到"以后"；
+2. **文档即代码**：改默认值 / 版本号 / 依赖锁定 / CI 流程时，与代码同步改文档，避免代码先入库文档被遗忘；
+3. **历史归档除外**：`CUSTOM_CHANGELOG.md` / `CHANGELOG.md` 的历史版本号记录不改写，只在其顶部补新条目；
+4. **检查清单**：推送前跑一次一致性脚本 + 目视核对相关文档，全部清零才算完成。
 
 ## 发布
 

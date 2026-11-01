@@ -13,7 +13,7 @@
 
 ## 说明
 
-本仓库是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile)（洛雪音乐移动版）的**定制版**，基于上游 v1.9.1（`fb848072`）重建，由多个豆包账号共同开发维护。
+本仓库是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile)（洛雪音乐移动版）的**定制版**，fork 自上游 v1.9.1（`fb848072`），已合并至上游 **v1.9.2**（`0669d1b6`），由多个豆包账号共同开发维护。
 
 所用技术栈：
 
@@ -29,7 +29,7 @@
 
 ## 下载安装
 
-- 前往 [GitHub Releases](https://github.com/luanmuc/lx-music-mobile/releases) 下载最新 `v1.9.1-bN` 安装包
+- 前往 [GitHub Releases](https://github.com/luanmuc/lx-music-mobile/releases) 下载最新 `v1.9.2-bN` 安装包
 - 按 ABI 选择：`arm64-v8a`（主流新机）/ `armeabi-v7a`（老机）/ `x86_64`（模拟器）/ `universal`（全兼容大包）
 - App 内「设置 → 软件更新」可在线检查更新并自动下载安装
 
@@ -71,7 +71,7 @@
 
 - 本软件默认设置以实用为准，建议使用前先浏览一遍设置项
 - 音乐播放列表机制说明见 [FAQ.md](./FAQ.md)
-- 遇到问题先看 [FAQ.md](./FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.1-b23`）
+- 遇到问题先看 [FAQ.md](./FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.2-b23`）
 
 ## 贡献代码
 
@@ -79,7 +79,7 @@
 
 1. 新账号接手前先读 [MERGE_GUIDE.md](./MERGE_GUIDE.md)（开发协作规范）和 [docs/DEV_SETUP.md](./docs/DEV_SETUP.md)（环境搭建）
 2. 开发规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)
-3. 改动提交到 master 后推送，CI 自动编译发布新版本（`v1.9.1-bN`）
+3. 改动提交到 master 后推送，CI 自动编译发布新版本（`v1.9.2-bN`）
 4. 发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)
 
 ### 开发文档索引

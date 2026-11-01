@@ -5,7 +5,7 @@
 
 ## 项目一句话
 
-洛雪音乐（lx-music-mobile）**定制版** App：基于上游 lyswhut 原版 v1.9.1（fork 点 `fb848072`）重建的共存包（`com.luanmuc.lxmusic`），内置豆包定制聚合音源（云编译时从 `luanmuc/lx-music-source` 自动拉取）。
+洛雪音乐（lx-music-mobile）**定制版** App：fork 自上游 lyswhut 原版 v1.9.1（fork 点 `fb848072`），已合并至上游 v1.9.2（`0669d1b6`）的共存包（`com.luanmuc.lxmusic`），内置豆包定制聚合音源（云编译时从 `luanmuc/lx-music-source` 自动拉取）。
 
 ## 目录结构
 
@@ -31,7 +31,7 @@ publish/                    CI 生成的版本信息（勿手改，构建时自�
 # 语法检查（508 个 TS/TSX，每次改动后必跑）
 node scripts/check_ts_syntax.js
 
-# 提交 + 推送（push 即触发云编译发版 v1.9.1-bN）
+# 提交 + 推送（push 即触发云编译发版 v1.9.2-bN）
 git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push origin master
 ```
 
@@ -78,6 +78,6 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 
 ## 发布
 
-- push master 即触发云编译发版（`v1.9.1-bN`）；`publish/**`、`npm-version-info/**` 不触发。
+- push master 即触发云编译发版（`v1.9.2-bN`）；`publish/**`、`npm-version-info/**` 不触发。
 - 完整流程、发布后验证清单与回滚方法见 `docs/RELEASE_SOP.md`。
 - 音源版本独立发布，由 CI 构建时拉取（见 `docs/MUSIC_SOURCE_GUIDE.md`）。

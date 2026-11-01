@@ -9,7 +9,8 @@
 
 - 上游：`https://github.com/lyswhut/lx-music-mobile.git`（remote 名 `upstream`）
 - 分叉点：`fb848072`（原版 v1.9.1）
-- 定制基线：分叉点之上有 **36 个**定制提交（`git rev-list --count fb848072..HEAD` 可复核），内容包括下载管理器重写、内置音源、共存包、权限适配、默认设置预设等，详见 README 定制功能一览
+- 上游进度：已合并至 **v1.9.2**（`0669d1b6`，2026-11-01 合入；实质变更见 [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) v1.9.2-b1 条目），此后新差异从 v1.9.2 起累积
+- 定制基线：分叉点之上当前有 **141** 个定制提交（`git rev-list --count fb848072..HEAD` 可复核，动态增长），内容包括下载管理器重写、内置音源、共存包、权限适配、默认设置预设、底座升级 v1.9.2 等，详见 README 定制功能一览
 
 ## 合并流程
 
@@ -37,7 +38,7 @@ git push origin master
 
 | 文件 | 说明 | 冲突处理 |
 |---|---|---|
-| `src/core/downloadManager.ts` | 本仓库全新编写（原版 v1.9.1 无下载管理器） | 以本仓库为准；原版新功能人工评估后手动移植 |
+| `src/core/downloadManager.ts` | 本仓库全新编写（原版无下载管理器） | 以本仓库为准；原版新功能人工评估后手动移植 |
 | `src/screens/Home/Views/Download/index.tsx` | 原版为半成品 `index.js`，本仓库重写 | 以本仓库为准 |
 | `src/store/download/{state,action,hook}.ts` | 本仓库新建 | 以本仓库为准 |
 | `src/components/OnlineList/QualitySelect.tsx` | 本仓库新建（完整音质选择） | 以本仓库为准 |
@@ -54,7 +55,7 @@ git push origin master
 
 - **UI/主题类**（screens 样式、components）：保持原版风格（用户明确要求 UI 与原版一致），只保留本仓库的功能性改动
 - **播放器核心**（`src/core/player/*`）：功能逻辑以原版为准，冲突时逐个人工判断；本仓库仅在 `playInfo.ts` 有下载列表播放适配
-- **音乐 SDK**（`src/utils/musicSdk/*`）：原版更新直接合入（未定制）
+- **音乐 SDK**（`src/utils/musicSdk/*`）：原版更新直接合入（未定制；v1.9.2 已合入 `kg/songList.js` 歌单修复 `e6be258c`）
 - **语言文件**：合入原版新增键，保留本仓库的 `nav_download` 等定制键
 
 ## 合并后必查清单
@@ -69,7 +70,7 @@ git push origin master
 
 ## 已适配的原版更新类型
 
-- **版本升级**：原版发新 tag 时，合并后 bump 版本号，云编译自动发布新 tag
+- **版本升级**：原版发新 tag 时，合并后 bump 版本号，云编译自动发布新 tag（v1.9.2 合并实例：kg 歌单修复 `e6be258c` + 音频卸载默认禁用 `025d7822`/`b3afb18c` + track-player 依赖 `43a3acd8`，见 [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md)）
 - **音源**：不依赖原版，每次云编译自动从 `luanmuc/lx-music-source` 拉取最新内置音源
 - **依赖升级**：package.json 依赖随原版更新合入，云编译验证
 
@@ -82,7 +83,7 @@ git push origin master
 **正确流程**（每次改默认值都要做）：
 
 1. 改 `src/config/defaultSetting.ts` 里的默认值
-2. 把 `defaultSetting.version` 往上加一位（**当前是 `2.2`**，下次改默认值 → `2.3`）
+2. 把 `defaultSetting.version` 往上加一位（**当前是 `2.3`**，下次改默认值 → `2.4`）
 3. 在 `src/config/setting.ts` 的 `initSetting` 里加版本迁移块（`src/config/migrateSetting.ts` 只做 v1→v2 大版本结构迁移，2.x 的迁移统一放 setting.ts）：
    ```ts
    if (compareVer(setting.version as string, '2.3') < 0) {
@@ -94,6 +95,7 @@ git push origin master
 **已发生的迁移**（历史记录）：
 - `2.1`：按截图预设默认设置（音质 flac24bit、歌词翻译/罗马音默认开启、进度条不可拖、歌词居中、桌面歌词定位等）
 - `2.2`：桌面歌词默认关闭；默认优先音质 flac24bit（用户指定）
+- `2.3`：音频卸载默认关闭（`isEnableAudioOffload true→false`，同步上游 v1.9.2；老用户升级自动关闭，可在设置中手动重开）
 
 **注意**：
 - 新增的设置项（之前不存在的）不需要迁移，`mergeSetting` 会自动用默认值填充

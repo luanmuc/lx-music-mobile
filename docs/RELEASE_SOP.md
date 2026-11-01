@@ -6,13 +6,13 @@
 
 | 项 | 值 | 说明 |
 |---|---|---|
-| `package.json` 的 `version` | **恒为 `1.9.1`** | 由 CI 注入构建号，**禁止手改** |
-| 发布版本名 | `1.9.1-bN` | `N` = GitHub Actions run number（`GITHUB_RUN_NUMBER`），自动递增 |
-| `versionCode` | `80 + N` | `android/app/build.gradle` 从环境变量读取 |
-| Release tag | `v1.9.1-bN` | 每次构建唯一，prerelease 标记 |
+| `package.json` 的 `version` | **与底座同步（当前 `1.9.2`）** | 底座（官方原版）升版时随 merge 同步 bump；日常构建由 CI 注入构建号，**禁止手改** |
+| 发布版本名 | `1.9.2-bN` | `N` = **底座版本内构建序号**，由 `publish/build-state.json` 状态文件驱动；底座升版后从 `b1` 重新计数（如 `1.9.1-b79` → `1.9.2-b1`） |
+| `versionCode` | `build-state.json` 持续递增 | 每次构建 +1（现为 160 起），`android/app/build.gradle` 从环境变量读取；保证老用户可覆盖安装 |
+| Release tag | `v1.9.2-bN` | 每次构建唯一，prerelease 标记 |
 | 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/lx-music-source` 最新版（`?ref=master`），与代码解耦；**仓库不内置音源副本**，由构建生成 `assets/builtin_source.js` |
 
-> 为什么禁止手改 version：`package.json` 的 version 不参与实际版本判定，改它会导致版本信息混乱（`buildNumber.ts` 与 `process.versions.app` 由 CI 注入）。要发版只需 push 代码。
+> 版本号体系（v1.9.2 起）：`bN` 只在底座版本内递增，底座升版即重置回 `b1`；`versionCode` 永远持续递增，不与 `bN` 绑定。状态文件 `publish/build-state.json` 记录 `baseVersion` / `build` / `versionCode`，CI 每次构建读取并回写（见下）。禁止手改 version 与状态文件——要发版只需 push 代码。
 
 ## 二、发布流程（CI 自动执行）
 
@@ -20,14 +20,15 @@
 push master（paths-ignore: publish/**、npm-version-info/**）
   └─ Job Android
       ├─ 拉最新内置音源（GitHub Contents API ?ref=master → 生成 assets/builtin_source.js，>50KB + @name 校验；仓库不内置副本）
-      ├─ 注入 APP_VERSION_NAME=1.9.1-b<run>、versionCode=80+run、buildNumber.ts
+      ├─ Compute build number：读 publish/build-state.json → baseVersion 与 package.json version 不同则重置 build=0 → build+1、versionCode+1 → 回写状态文件，输出 outputs.build / outputs.versionCode
+      ├─ 注入 APP_VERSION_NAME=1.9.2-b<build>、versionCode=<versionCode>、buildNumber.ts
       └─ ./gradlew assembleRelease → 5 个 ABI APK → upload-artifact
   └─ Job Release（needs: Android）
       ├─ 生成发布说明（scripts/gen_change_log.py：git log 自动生成本次变更 + APK MD5）
-      ├─ softprops/action-gh-release：创建 tag v1.9.1-b<run>，上传 APK
+      ├─ softprops/action-gh-release：创建 tag v1.9.2-b<build>，上传 APK
       ├─ 更新 publish/version.json（版本+描述+最近历史）
       ├─ 更新并发布 npm 版本信息包（luanmuc-lx-music-version-info）
-      └─ 提交 version.json + npm-version-info/package.json 回 master（不再触发构建）
+      └─ 提交 version.json + build-state.json + npm-version-info/package.json 回 master（不再触发构建）
 ```
 
 ## 三、发布前测试清单（改动核心代码时必做）
@@ -49,8 +50,8 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 1. ✅ `Android` Job 编译成功（5 个 APK）
 2. ✅ `Release` Job 全部步骤绿
-3. ✅ 新 Release 已生成：tag `v1.9.1-bN`，发布说明 = 本次真实变更，包含 5 个 APK + MD5
-4. ✅ `publish/version.json` 已更新并提交回 master（最新提交为 "chore: 更新版本信息 v1.9.1-bN"）
+3. ✅ 新 Release 已生成：tag `v1.9.2-bN`，发布说明 = 本次真实变更，包含 5 个 APK + MD5
+4. ✅ `publish/version.json` 已更新并提交回 master（最新提交为 "chore: 更新版本信息 v1.9.2-bN"），且 `publish/build-state.json` 已被回写（baseVersion/build/versionCode 递增）
 5. ✅ npm 包 `luanmuc-lx-music-version-info` 版本已发布（若 NPM_TOKEN 失效会有 `::error::` 提示，需更换 secret）
 6. ✅ 全部通过后才通知用户
 
@@ -69,7 +70,7 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 **场景 C：发布了错误版本（用户已安装）**
 
-1. `git revert` 出问题的提交，推送触发新构建（bN+1）
+1. `git revert` 出问题的提交，推送触发新构建（底座内 bN+1）
 2. 在新版本发布说明中注明"回滚了 X 行为"
 3. 无需删除旧 Release（保留审计记录）
 
@@ -83,5 +84,5 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 ## 七、开发侧注意
 
 - 改文档/配置（README、docs/、.github/、CUSTOM_CHANGELOG.md 等）也会触发构建发版——这是预期行为，正好让发布说明反映文档变更
-- 只更新版本信息（`publish/**`、`npm-version-info/**`）不会触发构建，不会产生新版本号
-- 合并上游后推送同样走本流程
+- 只更新版本信息（`publish/**`、`npm-version-info/**`，含 `publish/build-state.json`）不会触发构建，不会产生新版本号
+- 合并上游（含底座升版）后推送同样走本流程：`package.json` version 随底座 bump，CI 检测到 baseVersion 变化后自动从 `b1` 重新计数

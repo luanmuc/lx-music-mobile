@@ -64,6 +64,23 @@ App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`andr
 - 特性：音质校验（探测歌曲实际可用音质）、双音质分域探测、探测歌曲池轮换、失败兜底降级、URL 有效期处理、健康探测自愈（休眠/自动关闭/复活）、子源透出（v25.8+）、沙箱兼容（v25.11）
 - 音质优先级：`flac24bit → flac → wav → ape → 320k → 192k → 128k`（与 App 端 `core/music/utils.ts` 的 `FULL_QUALITYS_LIST` 对齐）
 
+## 四b、音源健康面板与健康分（App 侧语义）
+
+**数据流**：音源脚本（lx-music-source v16.3 起）注册 `health` action → 返回 `getHealthSnapshot()` 全源快照 → App 设置页「音源健康」子页（`src/screens/Home/Views/Setting/settings/Health.tsx`）消费展示，可刷新/单源开关/手动探测。
+
+**健康分语义（v1.9.2-b5 起，配套音源 v27.4）**：
+
+| 项 | 值 |
+|---|---|
+| 量纲 | **0~10 分制**（一位小数，如 8.5）；内部评分 0~1 不变，快照输出 ×10 换算 |
+| 颜色阈值 | **≥3 绿 / ≥−5 默认（黑） / <−5 红** |
+| 负分 | 保留（严重异常源可为负）——配合 `closed 且成功率 0% 且健康分<0` → 状态显示「异常」红（v-b45 语义） |
+| 无样本 | 显示 `-`（音源侧 successRate/avgTime 返回 null，v16.4 语义） |
+
+**面板分区排序（音源 v25.2 起）**：使用中 → 正常 → 待采样 → 休眠 → 已关（按 `lastUsedAt` 真实播放记录分组）。
+
+> 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [lx-music-source DEV_GUIDE §3.4b](https://github.com/luanmuc/lx-music-source/blob/master/DEV_GUIDE.md)。
+
 ## 五、如何测试音源
 
 1. **本地替换**：手动用最新脚本覆盖 `assets/builtin_source.js`，`npm run dev` 跑 debug 包

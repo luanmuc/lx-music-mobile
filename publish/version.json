@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b25",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 8682c3d0 ci: 重新触发编译（清空 Releases/Tags 后重建）\n- f0f1a4d7 b24: 深度审计修复 3 个 App 侧问题\n- 9353e45c docs: AUDIT_PLAN 补充 v29.2~v30.0 新增维度（B5~B7），全部审计通过\n- c1f7313f docs: 修正 CUSTOM_CHANGELOG 版本号——v30.0 提前预警实际是 b23（不是 b24），合并配置界面优化\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认\n- 261dda0c chore: 回写 build-state.json (b21)，修正版本号\n- b60a3284 fix: 修复 JSX 语法错误（图例里 <-5分 的 < 被当成标签）\n- bc1e5688 feat: 配置参数中文化 + 趋势图改 status page 方块时间线风格（绿/黄/红/灰）\n- 16ecc5dd feat: 配置参数中文化 + 趋势图改柱状图（基准线在中间，正分向上/负分向下，更直观）\n- c789c3c5 docs: 更新 CUSTOM_CHANGELOG (b20) + KNOWN_ISSUES (K17-K19 预加载脚本三层修复)\n- 421d5110 fix: 弹窗背景透明问题——给 modalContent 加明确白色背景 + width 100%\n- 29003ab7 fix: 预加载脚本 handleRequest 加 config/trend case 透传（修复 Cannot read property 'data' of undefined）\n- d9613071 fix: 预加载脚本 supportActions 白名单加 config/trend（修复音源新 action 被过滤）\n- b3b3c7da debug: 打印 init event.data 的 keys（确认 sources 在哪里）\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name\n- 5ccb7bde debug: 打印每个音源的 actions 数组内容\n- 07b0a2ea debug: CI 拉取音源后检查有没有 config/trend action\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行",
+  "version": "1.9.2-b26",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）",
   "history": [
+    {
+      "version": "1.9.2-b25",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 8682c3d0 ci: 重新触发编译（清空 Releases/Tags 后重建）\n- f0f1a4d7 b24: 深度审计修复 3 个 App 侧问题\n- 9353e45c docs: AUDIT_PLAN 补充 v29.2~v30.0 新增维度（B5~B7），全部审计通过\n- c1f7313f docs: 修正 CUSTOM_CHANGELOG 版本号——v30.0 提前预警实际是 b23（不是 b24），合并配置界面优化\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认\n- 261dda0c chore: 回写 build-state.json (b21)，修正版本号\n- b60a3284 fix: 修复 JSX 语法错误（图例里 <-5分 的 < 被当成标签）\n- bc1e5688 feat: 配置参数中文化 + 趋势图改 status page 方块时间线风格（绿/黄/红/灰）\n- 16ecc5dd feat: 配置参数中文化 + 趋势图改柱状图（基准线在中间，正分向上/负分向下，更直观）\n- c789c3c5 docs: 更新 CUSTOM_CHANGELOG (b20) + KNOWN_ISSUES (K17-K19 预加载脚本三层修复)\n- 421d5110 fix: 弹窗背景透明问题——给 modalContent 加明确白色背景 + width 100%\n- 29003ab7 fix: 预加载脚本 handleRequest 加 config/trend case 透传（修复 Cannot read property 'data' of undefined）\n- d9613071 fix: 预加载脚本 supportActions 白名单加 config/trend（修复音源新 action 被过滤）\n- b3b3c7da debug: 打印 init event.data 的 keys（确认 sources 在哪里）\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name\n- 5ccb7bde debug: 打印每个音源的 actions 数组内容\n- 07b0a2ea debug: CI 拉取音源后检查有没有 config/trend action\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行"
+    },
     {
       "version": "1.9.2-b23",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b18",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name"
-    },
-    {
-      "version": "1.9.2-b17",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
     }
   ]
 }

@@ -7,6 +7,7 @@ import { fetchData } from './request'
 import { getUserApiList, addUserApi, removeUserApi } from '@/utils/data'
 import { getData, saveData } from '@/plugins/storage'
 import { confirmDialog, openUrl, tipDialog } from '@/utils/tools'
+import { logger } from '@/utils/logger'
 import { storageDataPrefix } from '@/config/constant'
 
 
@@ -249,7 +250,7 @@ export default async(setting: LX.AppSetting) => {
                 break
               case 'config':
                 // v29.3：配置热更新（读模式不传 info 返回当前配置；写模式传 info 更新内存值）
-                console.log('[userApi] case config 执行了，source:', source)
+                logger.info('userApi', `[debug] case config 执行了，source: ${source}`)
                 apis[source].config = (updates?: Record<string, number>) => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {

@@ -8,6 +8,7 @@ import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import { saveData, getData } from '@/plugins/storage'
+import { logger } from '@/utils/logger'
 
 // 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数；v16.5：sleeping 休眠字段）
 interface HealthItem {
@@ -127,9 +128,9 @@ export default memo(() => {
   const showConfig = useCallback(async() => {
     setError('')
     const querier = getQuerier('config')
-    console.log('[debug] showConfig getQuerier(config) =', querier)
-    console.log('[debug] global.lx.apis keys =', Object.keys((globalThis as any).lx?.apis || {}))
-    console.log('[debug] apis[wy] keys =', Object.keys((globalThis as any).lx?.apis?.wy || {}))
+    logger.info('Health', `[debug] getQuerier(config) = ${querier ? 'function' : 'null'}`)
+    logger.info('Health', `[debug] apis keys = ${Object.keys((globalThis as any).lx?.apis || {}).join(',')}`)
+    logger.info('Health', `[debug] apis.wy keys = ${Object.keys((globalThis as any).lx?.apis?.wy || {}).join(',')}`)
     if (!querier) {
       setError(t('health_no_source'))
       return

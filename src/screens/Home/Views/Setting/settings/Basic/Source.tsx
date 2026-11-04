@@ -1,10 +1,10 @@
-import { memo, useCallback, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 
 import { View } from 'react-native'
 
 import SubTitle from '../../components/SubTitle'
 import CheckBox from '@/components/common/CheckBox'
-import { createStyle } from '@/utils/tools'
+import { createStyle, toast } from '@/utils/tools'
 import { setApiSource } from '@/core/apiSource'
 import { useI18n } from '@/lang'
 import apiSourceInfo from '@/utils/musicSdk/api-source-info'
@@ -14,6 +14,8 @@ import Button from '../../components/Button'
 import UserApiEditModal, { type UserApiEditModalType } from './UserApiEditModal'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
+import { httpFetch } from '@/utils/request'
+import { handleImportScript } from './UserApiEditModal/action'
 // import { importUserApi, removeUserApi } from '@/core/userApi'
 
 const apiSourceList = apiSourceInfo.map(api => ({
@@ -95,6 +97,31 @@ export default memo(() => {
     modalRef.current?.show()
   }
 
+  // 更新音源：从 GitHub Raw URL 拉取最新 lx-source.js
+  const [updating, setUpdating] = useState(false)
+  const handleUpdateSource = useCallback(async() => {
+    if (updating) return
+    setUpdating(true)
+    toast('正在拉取最新音源...')
+    try {
+      const url = 'https://raw.githubusercontent.com/luanmuc/backend-api/master/lx-source.js'
+      const script = await httpFetch(url).promise.then(resp => resp.body) as string
+      if (script.length > 9_000_000) {
+        toast('音源文件过大', 'long')
+        return
+      }
+      // 提取版本号（从 @version 注释）
+      const versionMatch = script.match(/@version\s+(\d+\.\d+)/)
+      const version = versionMatch ? versionMatch[1] : '未知'
+      await handleImportScript(script)
+      toast(`音源已更新到 v${version}，重启 App 生效`, 'long')
+    } catch (err: any) {
+      toast(`更新失败：${err.message}`, 'long')
+    } finally {
+      setUpdating(false)
+    }
+  }, [updating])
+
   return (
     <SubTitle title={t('setting_basic_source')}>
       <View style={styles.list}>
@@ -107,6 +134,10 @@ export default memo(() => {
       </View>
       <View style={styles.btn}>
         <Button onPress={handleShow}>{t('setting_basic_source_user_api_btn')}</Button>
+        <View style={{ width: 10 }} />
+        <Button onPress={handleUpdateSource} disabled={updating}>
+          {updating ? '更新中...' : '更新音源'}
+        </Button>
       </View>
       <UserApiEditModal ref={modalRef} />
     </SubTitle>

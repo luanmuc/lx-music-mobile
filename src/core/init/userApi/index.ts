@@ -80,6 +80,7 @@ export default async(setting: LX.AppSetting) => {
     setUserApiStatus(status, errorMessage)
     if (!info || info.id !== settingState.setting['common.apiSource']) return
     if (status) {
+      logger.info('userApi', `[debug] 音源初始化成功，info.id = ${info.id}, info.name = ${info.name}`)
       if (info.sources) {
         let apis: any = {}
         let qualitys: LX.QualityList = {}

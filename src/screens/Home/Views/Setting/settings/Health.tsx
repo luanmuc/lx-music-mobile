@@ -56,6 +56,9 @@ export default memo(() => {
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [configData, setConfigData] = useState<Record<string, any> | null>(null)
   const [configInputs, setConfigInputs] = useState<Record<string, string>>({})
+  // v29.4：趋势图相关 state
+  const [trendData, setTrendData] = useState<Array<{ timestamp: number, sources: Record<string, { score: number | null, successRate: number | null }> }>>([])
+  const [showTrendModal, setShowTrendModal] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadHealth = useCallback(async(silent = false) => {
@@ -161,6 +164,23 @@ export default memo(() => {
     }
   }, [t, configInputs, configData])
 
+  // v29.4：查看健康趋势（调用 trend action 读历史数据）
+  const showTrend = useCallback(async() => {
+    const querier = getQuerier('trend')
+    if (!querier) {
+      setError(t('health_no_source'))
+      return
+    }
+    try {
+      const { promise } = querier()
+      const res = await promise
+      setTrendData(res.history || [])
+      setShowTrendModal(true)
+    } catch (e: any) {
+      setError(String(e?.message || t('health_load_failed')))
+    }
+  }, [t])
+
   // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
   const toggleSource = useCallback(async(item: HealthItem, id: string) => {
     if (togglingId) return
@@ -235,6 +255,8 @@ export default memo(() => {
           <Button onPress={() => void runProbe()}>{t('health_probe')}</Button>
           <View style={styles.btnGap} />
           <Button onPress={() => void showConfig()}>配置</Button>
+          <View style={styles.btnGap} />
+          <Button onPress={() => void showTrend()}>趋势</Button>
         </View>
         {
           probeInfo ? (
@@ -379,6 +401,47 @@ export default memo(() => {
         </View>
       </View>
     </Modal>
+
+    {/* v29.4：健康趋势弹窗 */}
+    <Modal visible={showTrendModal} animationType="slide" transparent={true}>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: theme['c-bg-1'] }]}>
+          <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>健康趋势（最近 {trendData.length} 次探测）</Text>
+          <ScrollView style={styles.modalScroll}>
+            {trendData.length === 0 ? (
+              <Text size={13} color={theme['c-font-label']}>暂无历史数据，完成一次探测后自动记录</Text>
+            ) : (
+              trendData.map((entry, idx) => (
+                <View key={idx} style={styles.trendRow}>
+                  <Text size={11} color={theme['c-font-label']} style={styles.trendTime}>
+                    {new Date(entry.timestamp).toLocaleTimeString()}
+                  </Text>
+                  <View style={styles.trendBars}>
+                    {Object.entries(entry.sources).slice(0, 8).map(([id, data]) => (
+                      <View key={id} style={styles.trendBarItem}>
+                        <View
+                          style={[
+                            styles.trendBar,
+                            {
+                              height: Math.max(4, (data.score ?? 0) * 6),
+                              backgroundColor: (data.score ?? 0) >= 7 ? '#4caf50' : (data.score ?? 0) >= 4 ? '#ff9800' : '#f44336'
+                            }
+                          ]}
+                        />
+                        <Text size={9} color={theme['c-font-label']}>{id.slice(0, 4)}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              ))
+            )}
+          </ScrollView>
+          <View style={styles.modalBtnRow}>
+            <Button onPress={() => setShowTrendModal(false)}>关闭</Button>
+          </View>
+        </View>
+      </View>
+    </Modal>
     </ScrollView>
   )
 })
@@ -434,6 +497,33 @@ const styles = StyleSheet.create({
   modalBtnRow: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  // v29.4：趋势图样式
+  trendRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 10,
+    paddingBottom: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#eee',
+  },
+  trendTime: {
+    width: 70,
+    marginRight: 8,
+  },
+  trendBars: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 4,
+  },
+  trendBarItem: {
+    alignItems: 'center',
+  },
+  trendBar: {
+    width: 12,
+    borderRadius: 2,
+    marginBottom: 2,
   },
   summary: {
     flexDirection: 'row',

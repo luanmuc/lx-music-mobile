@@ -10,11 +10,6 @@ on:
       - 'publish/**'
       - 'npm-version-info/**'
       - 'README.md'
-      - 'AGENTS.md'
-      - 'CUSTOM_CHANGELOG.md'
-      - 'CHANGELOG.md'
-      - 'FAQ.md'
-      - 'MERGE_GUIDE.md'
       - 'docs/**'
   workflow_dispatch: {}
 

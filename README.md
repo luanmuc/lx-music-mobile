@@ -25,7 +25,7 @@
 - Android 5 及以上（包名 `com.luanmuc.lxmusic`，可与原版共存安装）
 
 > 桌面版项目地址：<https://github.com/lyswhut/lx-music-desktop><br>
-> 定制版更新日志：[CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) · 上游更新日志：[CHANGELOG.md](./CHANGELOG.md)
+> 定制版更新日志：[CUSTOM_CHANGELOG.md](./docs/CUSTOM_CHANGELOG.md) · 上游更新日志：[CHANGELOG.md](./docs/CHANGELOG.md)
 
 ## 下载安装
 
@@ -70,14 +70,14 @@
 ## 使用提示
 
 - 本软件默认设置以实用为准，建议使用前先浏览一遍设置项
-- 音乐播放列表机制说明见 [FAQ.md](./FAQ.md)
-- 遇到问题先看 [FAQ.md](./FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.2-b23`）
+- 音乐播放列表机制说明见 [FAQ.md](./docs/FAQ.md)
+- 遇到问题先看 [FAQ.md](./docs/FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.2-b23`）
 
 ## 贡献代码
 
 本项目欢迎贡献。当前采用**单分支（master）直推 + 云编译发版**模式：
 
-1. 新账号接手前先读 [MERGE_GUIDE.md](./MERGE_GUIDE.md)（开发协作规范）和 [docs/DEV_SETUP.md](./docs/DEV_SETUP.md)（环境搭建）
+1. 新账号接手前先读 [MERGE_GUIDE.md](./docs/MERGE_GUIDE.md)（开发协作规范）和 [docs/DEV_SETUP.md](./docs/DEV_SETUP.md)（环境搭建）
 2. 开发规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)
 3. 改动提交到 master 后推送，CI 自动编译发布新版本（`v1.9.2-bN`）
 4. 发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)
@@ -86,9 +86,9 @@
 
 | 文档 | 内容 |
 |---|---|
-| [AGENTS.md](./AGENTS.md) | AI/多账号协作入口：常用命令、实证验证链 L0-L4（Copilot/豆包自动读取） |
-| [MERGE_GUIDE.md](./MERGE_GUIDE.md) | 上游合并指南、高冲突区、设置迁移规则、代码地图、多账号协作 |
-| [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) | 定制版更新日志（b1~b79） |
+| [AGENTS.md](./docs/AGENTS.md) | AI/多账号协作入口：常用命令、实证验证链 L0-L4（Copilot/豆包自动读取） |
+| [MERGE_GUIDE.md](./docs/MERGE_GUIDE.md) | 上游合并指南、高冲突区、设置迁移规则、代码地图、多账号协作 |
+| [CUSTOM_CHANGELOG.md](./docs/CUSTOM_CHANGELOG.md) | 定制版更新日志（b1~b79） |
 | [docs/DEV_SETUP.md](./docs/DEV_SETUP.md) | 开发环境搭建（新账号上手） |
 | [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md) | 多账号分工、提交规范、评审流程 |
 | [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) | 版本号规则、发布流程、测试清单、验证与回滚 |
@@ -96,7 +96,7 @@
 | [docs/MUSIC_SOURCE_GUIDE.md](./docs/MUSIC_SOURCE_GUIDE.md) | 内置音源机制与音源仓库说明 |
 | [docs/KNOWN_ISSUES.md](./docs/KNOWN_ISSUES.md) | 已知缺陷/限制（编号化管理） |
 | [docs/UPSTREAM_LIFECYCLE.md](./docs/UPSTREAM_LIFECYCLE.md) | 上游依赖生命周期管理（增/活/衰/替） |
-| [FAQ.md](./FAQ.md) | 定制版常见问题 |
+| [FAQ.md](./docs/FAQ.md) | 定制版常见问题 |
 
 <!--
 ## 用户界面

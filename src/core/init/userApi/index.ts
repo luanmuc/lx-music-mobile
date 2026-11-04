@@ -247,6 +247,50 @@ export default async(setting: LX.AppSetting) => {
                   }
                 }
                 break
+              case 'config':
+                // v29.3：配置热更新（读模式不传 info 返回当前配置；写模式传 info 更新内存值）
+                apis[source].config = (updates?: Record<string, number>) => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'config',
+                        info: updates || {},
+                      },
+                    }).then(res => res.data).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
+              case 'trend':
+                // v29.4：健康趋势（返回历史健康快照数组，保留最近20条）
+                apis[source].trend = () => {
+                  const requestKey = `request__${Math.random().toString().substring(2)}`
+                  return {
+                    canceleFn() {
+                      // userApiRequestCancel(requestKey)
+                    },
+                    promise: sendUserApiRequest({
+                      requestKey,
+                      data: {
+                        source,
+                        action: 'trend',
+                        info: {},
+                      },
+                    }).then(res => res.data).catch(async err => {
+                      console.log(err.message)
+                      return Promise.reject(err)
+                    }),
+                  }
+                }
+                break
               default:
                 break
             }

@@ -97,14 +97,15 @@ export default memo(() => {
     modalRef.current?.show()
   }
 
-  // 更新音源：从 jsDelivr CDN 拉取最新 lx-source.js
+  // 更新音源：从 jsDelivr CDN 拉取 master 最新 lx-source.js（直接更新，不做版本号比对）
   const [updating, setUpdating] = useState(false)
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
     setUpdating(true)
-    toast('正在检查更新...')
+    toast('正在拉取最新音源...')
     try {
-      const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
+      // 加时间戳绕过 jsDelivr CDN 缓存，确保拉到的是 master 最新版
+      const url = `https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js?t=${Date.now()}`
       // 15 秒超时控制
       const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as string
       const timeoutPromise = new Promise((_, reject) =>
@@ -115,25 +116,10 @@ export default memo(() => {
         toast('音源文件过大', 'long')
         return
       }
-      // 提取远端版本号
-      const remoteVersionMatch = script.match(/@version\s+(\d+\.\d+)/)
-      const remoteVersion = remoteVersionMatch ? remoteVersionMatch[1] : '未知'
 
-      // 提取本地当前版本号（从当前选中的音源脚本里读）
-      let localVersion = '未知'
-      try {
-        const currentScript = await getUserApiScript(apiSourceSetting)
-        const localMatch = currentScript.match(/@version\s+(\d+\.\d+)/)
-        if (localMatch) localVersion = localMatch[1]
-      } catch { /* 读不到就当未知 */ }
-
-      // 版本比对：一样就不用更新了
-      if (remoteVersion === localVersion && remoteVersion !== '未知') {
-        toast(`已是最新版 v${remoteVersion}`, 'long')
-        return
-      }
-
-      toast(`发现新版本 v${remoteVersion}，正在更新...`, 'long')
+      // 提取版本号仅用于展示，不做比对
+      const versionMatch = script.match(/@version\s+(\S+)/)
+      const version = versionMatch ? versionMatch[1] : '未知'
 
       // 先导新的，成功了再删旧的（避免导失败全没了）
       const newApiInfo = await importUserApi(script)
@@ -149,14 +135,13 @@ export default memo(() => {
       // 自动切换到新导入的音源
       await setApiSource(newApiInfo.id)
 
-      const from = localVersion !== '未知' ? `v${localVersion} → ` : ''
-      toast(`已更新到 v${remoteVersion}（${from}v${remoteVersion}），重启 App 生效`, 'long')
+      toast(`已更新到最新版 v${version}，重启 App 生效`, 'long')
     } catch (err: any) {
       toast(`更新失败：${err.message}`, 'long')
     } finally {
       setUpdating(false)
     }
-  }, [updating, apiSourceSetting, userApiListRaw])
+  }, [updating, userApiListRaw])
 
   return (
     <SubTitle title={t('setting_basic_source')}>

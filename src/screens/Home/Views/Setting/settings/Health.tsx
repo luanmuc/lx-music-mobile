@@ -76,6 +76,8 @@ export default memo(() => {
       const { promise } = querier()
       const data = await promise
       setSnapshot(data as HealthSnapshot)
+      // 成功拿到数据说明音源支持 health action，之前的 error（如"未检测到音源"）是误报，清空
+      setError('')
     } catch (e: any) {
       console.log(e)
       if (!silent) setError(String(e?.message || t('health_load_failed')))

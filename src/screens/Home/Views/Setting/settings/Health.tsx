@@ -483,44 +483,20 @@ export default memo(() => {
                   return (
                   <View key={id} style={styles.trendSourceRow}>
                     <Text size={11} color={theme['c-font-label']} style={styles.trendSourceName} numberOfLines={1}>{sourceName}</Text>
-                    <View style={styles.trendChart}>
-                      {/* 基准线（0分） */}
-                      <View style={styles.trendBaseLine} />
+                    <View style={styles.trendBlocks}>
                       {trendData.map((entry, idx) => {
                         const data = entry.sources[id]
                         const score = data?.score ?? null
-                        // 分数范围 -10 ~ +10，映射到柱状图高度（最大 16px）
-                        const maxBarHeight = 16
-                        let barHeight = 2 // 无样本时的小灰点
-                        let barColor = '#e0e0e0'
-                        let isNegative = false
-                        if (score !== null) {
-                          barHeight = Math.min(Math.abs(score) / 10 * maxBarHeight, maxBarHeight)
-                          isNegative = score < 0
-                          if (score >= 3) barColor = '#4caf50'
-                          else if (score >= -5) barColor = '#ff9800'
-                          else barColor = '#f44336'
-                        }
+                        // status page 经典方块：绿=正常、黄=降级、红=异常、灰=无数据
+                        let color = '#e8e8e8' // 灰：无样本
+                        if (score !== null && score >= 3) color = '#4caf50' // 绿：正常
+                        else if (score !== null && score >= -5) color = '#ff9800' // 黄：降级
+                        else if (score !== null && score < -5) color = '#f44336' // 红：异常
                         return (
-                          <View key={idx} style={styles.trendBarWrap}>
-                            {/* 上半部分：负分柱子（从基准线向下长） */}
-                            <View style={styles.trendBarUpper}>
-                              {isNegative && (
-                                <View style={[styles.trendBar, { height: barHeight, backgroundColor: barColor }]} />
-                              )}
-                            </View>
-                            {/* 基准线 */}
-                            <View style={styles.trendBaseLine} />
-                            {/* 下半部分：正分柱子（从基准线向上长） */}
-                            <View style={styles.trendBarLower}>
-                              {!isNegative && score !== null && (
-                                <View style={[styles.trendBar, { height: barHeight, backgroundColor: barColor }]} />
-                              )}
-                              {score === null && (
-                                <View style={[styles.trendBar, { height: 2, backgroundColor: '#e0e0e0' }]} />
-                              )}
-                            </View>
-                          </View>
+                          <View
+                            key={idx}
+                            style={[styles.trendBlock, { backgroundColor: color }]}
+                          />
                         )
                       })}
                     </View>
@@ -619,37 +595,17 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
   },
-  // v29.4：柱状趋势图样式
-  trendChart: {
+  // v29.4：方块时间线趋势图样式（status page 经典风格）
+  trendBlocks: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    height: 40,
+    gap: 4,
+    height: 20,
   },
-  trendBarWrap: {
-    flex: 1,
-    height: '100%',
-    alignItems: 'center',
-  },
-  trendBarUpper: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-end', // 负分柱子底部对齐基准线
-  },
-  trendBaseLine: {
-    width: '80%',
-    height: 1,
-    backgroundColor: '#ddd',
-  },
-  trendBarLower: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'flex-start', // 正分柱子顶部对齐基准线
-  },
-  trendBar: {
-    width: 8,
+  trendBlock: {
+    width: 10,
+    height: 10,
     borderRadius: 2,
   },
   trendScore: {

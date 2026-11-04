@@ -1,15 +1,6 @@
-<p align="center"><a href="https://github.com/luanmuc/lx-music-mobile"><img width="200" src="https://github.com/luanmuc/lx-music-mobile/blob/master/doc/images/icon.png" alt="lx-music logo"></a></p>
+# LX Music 移动版（定制版）
 
-<h1 align="center">LX Music 移动版（洛雪音乐定制版）</h1>
-
-<p align="center">
-  <a href="https://github.com/luanmuc/lx-music-mobile/releases"><img src="https://img.shields.io/github/release/luanmuc/lx-music-mobile" alt="Release version"></a>
-  <a href="https://github.com/luanmuc/lx-music-mobile/actions/workflows/release.yml"><img src="https://github.com/luanmuc/lx-music-mobile/workflows/Build/badge.svg" alt="Build status"></a>
-  <a href="https://github.com/facebook/react-native"><img src="https://img.shields.io/github/package-json/dependency-version/luanmuc/lx-music-mobile/react-native/master" alt="React native version"></a>
-  <a href="https://github.com/luanmuc/lx-music-mobile/blob/master/LICENSE"><img src="https://img.shields.io/github/license/luanmuc/lx-music-mobile" alt="License"></a>
-</p>
-
-<p align="center">一个基于 React Native 开发的音乐软件（定制版）</p>
+一个基于 React Native 开发的音乐软件（定制版）。
 
 ## 说明
 

@@ -433,9 +433,12 @@ export default memo(() => {
                 const allSourceIds = Array.from(new Set(
                   trendData.flatMap(entry => Object.keys(entry.sources))
                 ))
-                return allSourceIds.map(id => (
+                return allSourceIds.map(id => {
+                  // 优先用历史快照里的中文名称，回退到 id（兼容旧数据）
+                  const sourceName = trendData[0]?.sources[id]?.name || id
+                  return (
                   <View key={id} style={styles.trendSourceRow}>
-                    <Text size={11} color={theme['c-font-label']} style={styles.trendSourceName}>{id}</Text>
+                    <Text size={11} color={theme['c-font-label']} style={styles.trendSourceName} numberOfLines={1}>{sourceName}</Text>
                     <View style={styles.trendDots}>
                       {trendData.map((entry, idx) => {
                         const data = entry.sources[id]

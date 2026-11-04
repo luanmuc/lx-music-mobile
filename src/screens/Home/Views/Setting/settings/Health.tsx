@@ -70,6 +70,24 @@ const CONFIG_UNIT_CONFIG: Record<string, { unit: string, msPerUnit?: number, pre
   playDeadReviveMs: { unit: '分钟', msPerUnit: 60000, presets: [5, 10, 30, 60], default: 30 },
 }
 
+// v30.1：参数上下限校验（和音源侧 PARAM_LIMITS 一致）
+const PARAM_LIMITS: Record<string, { min?: number, max?: number }> = {
+  cacheTtlMs: { max: 7 * 24 * 3600 * 1000 },
+  failCacheNotFoundMs: { max: 24 * 3600 * 1000 },
+  failCacheExpiredMs: { max: 3600 * 1000 },
+  breakerThreshold: { max: 20 },
+  breakerCooldownMs: { max: 30 * 60 * 1000 },
+  rateLimitBackoffMs: { max: 5 * 60 * 1000 },
+  maxConcurrency: { max: 5 },
+  rateWindowMs: { max: 10 * 1000 },
+  rateWindowMax: { max: 20 },
+  healthCheckIntervalMs: { min: 60 * 1000 },
+  raceOverallTimeoutMs: { max: 15 * 1000 },
+  raceMatchWaitMs: { max: 5 * 1000 },
+  allFailShortTtlMs: { max: 10 * 60 * 1000 },
+  playDeadReviveMs: { max: 2 * 3600 * 1000 },
+}
+
 // ms 值 → 直观单位值
 const msToDisplay = (key: string, msValue: number): number => {
   const cfg = CONFIG_UNIT_CONFIG[key]
@@ -152,6 +170,8 @@ export default memo(() => {
             })
             // 逐个源判断是否连续下降
             allSourceIds.forEach(sourceId => {
+              // v30.1：检查该源是否还在当前 snapshot 里（已删除/手动关闭的源不预警）
+              if (!(data as any)?.[sourceId]) return
               const scores = recent.map(entry => entry.sources[sourceId]?.score ?? null)
               // 要求 3 次都有分数（不是 null）
               if (scores.every(s => s !== null)) {
@@ -250,10 +270,14 @@ export default memo(() => {
       const num = Number(v)
       // v29.5：直观单位值转回 ms 再保存
       const msValue = displayToMs(k, num)
-      // 校验：有效数字 / 正数 / 合理上限（ms < 1年，防极端值）/ 白名单内
-      if (!isNaN(num) && num > 0 && msValue > 0 && msValue < 365 * 24 * 3600 * 1000 && k in (configData || {})) {
-        updates[k] = msValue
+      // v30.1：校验——有效数字 / 正数 / 白名单内 / 上下限
+      if (isNaN(num) || num <= 0 || msValue <= 0 || !(k in (configData || {}))) continue
+      const limits = PARAM_LIMITS[k]
+      if (limits) {
+        if (limits.min !== undefined && msValue < limits.min) continue
+        if (limits.max !== undefined && msValue > limits.max) continue
       }
+      updates[k] = msValue
     }
     try {
       if (Object.keys(updates).length === 0) {
@@ -397,7 +421,7 @@ export default memo(() => {
           // v30.0：提前预警——健康分连续下降
           decliningSources.length ? (
             <View style={[styles.summary, { backgroundColor: '#fff2e8' }]}>
-              <Text size={12} color="#fa541c">⚠ {decliningSources.join('、')} 健康分连续下降</Text>
+              <Text size={12} color="#fa541c">⚠ {decliningSources.map(id => (snapshot as any)?.[id]?.name || id).join('、')} 健康分连续下降</Text>
               <Text size={11} color={theme['c-font-label']}>最近 3 次探测持续变差，建议关注或手动切换源</Text>
             </View>
           ) : null

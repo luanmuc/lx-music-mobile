@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules } from 'react-native'
+import { logger } from '@/utils/logger'
 
 const { UserApiModule } = NativeModules
 
@@ -82,6 +83,7 @@ export const onScriptAction = (handler: (event: ActionsEvent) => void): () => vo
   const eventListener = eventEmitter.addListener('api-action', event => {
     if (event.data) event.data = JSON.parse(event.data as string)
     if (event.action == 'init') {
+      logger.info('userApi', `[debug] init event.data keys = ${Object.keys(event.data).join(',')}`)
       if (event.data.info) event.data.info = { ...loadScriptInfo, ...event.data.info }
       else event.data.info = { ...loadScriptInfo }
     } else if (event.action == 'showUpdateAlert') {

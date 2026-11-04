@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b7",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6931d158 docs: AUDIT_PLAN 版本快照 b6 + KNOWN_ISSUES 补 K13（逐字歌词未实现）\n- 27f2ac22 docs: AUDIT_PLAN 第二轮深入审计完成（27/29 维度）\n- f89f4485 docs: AUDIT_PLAN 第一轮快速审计（16/29 维度）\n- c902b63f docs: 新增 AUDIT_PLAN.md 全仓库审计计划（活文档）",
+  "version": "1.9.2-b8",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 7de2ea01 feat: v29.2 健康面板平台级降级提示条",
   "history": [
+    {
+      "version": "1.9.2-b7",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6931d158 docs: AUDIT_PLAN 版本快照 b6 + KNOWN_ISSUES 补 K13（逐字歌词未实现）\n- 27f2ac22 docs: AUDIT_PLAN 第二轮深入审计完成（27/29 维度）\n- f89f4485 docs: AUDIT_PLAN 第一轮快速审计（16/29 维度）\n- c902b63f docs: 新增 AUDIT_PLAN.md 全仓库审计计划（活文档）"
+    },
     {
       "version": "1.9.2-b6",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- c902b63f docs: 新增 AUDIT_PLAN.md 全仓库审计计划（活文档）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b2",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
-    },
-    {
-      "version": "1.9.2-b1",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 2459ccd7 feat: 底座升级至 v1.9.2（合并上游修复 + 版本号体系 bN 重置）\n- 0c782ad2 docs: CUSTOM_CHANGELOG 记录 v1.9.2-b1（底座升级 + 构建序号重置机制）"
     }
   ]
 }

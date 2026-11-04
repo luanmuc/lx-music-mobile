@@ -138,10 +138,17 @@ export default memo(() => {
     if (!hasSample(it)) return 2
     return isUsing(it) ? 0 : 1
   }
-  const items = snapshot ? Object.entries(snapshot).sort((a, b) => {
-    const g = groupRank(a[1]) - groupRank(b[1])
-    return g !== 0 ? g : b[1].healthScore - a[1].healthScore
-  }) : []
+  // v29.2：提取平台级降级聚合（_ 开头的特殊字段，不参与子源列表渲染）
+  const platformSummary = snapshot?._platformSummary as Record<string, { degraded: boolean; activeCount: number; deadCount: number }> | undefined
+  const fallbackPlatform = snapshot?._fallbackPlatform as string | undefined
+  const degradedPlatforms = platformSummary ? Object.entries(platformSummary).filter(([, v]) => v.degraded).map(([k]) => k) : []
+
+  const items = snapshot ? Object.entries(snapshot)
+    .filter(([id]) => !id.startsWith('_'))  // 过滤平台聚合等特殊字段
+    .sort((a, b) => {
+      const g = groupRank(a[1]) - groupRank(b[1])
+      return g !== 0 ? g : b[1].healthScore - a[1].healthScore
+    }) : []
 
   // 聚合摘要：正常/熔断/半开/待采样/休眠/已关
   let summary: Record<'ok' | 'bad' | 'open' | 'half' | 'idle' | 'sleep' | 'off', number> = { ok: 0, bad: 0, open: 0, half: 0, idle: 0, sleep: 0, off: 0 }
@@ -187,6 +194,15 @@ export default memo(() => {
           error ? (
             <View style={styles.desc}>
               <Text size={13} color={theme['c-font-label']}>{error}</Text>
+            </View>
+          ) : null
+        }
+        {
+          // v29.2：平台级降级提示条
+          degradedPlatforms.length ? (
+            <View style={[styles.summary, { backgroundColor: '#fffbe6' }]}>
+              <Text size={12} color="#d48806">⚠ {degradedPlatforms.join('、')} 平台级降级</Text>
+              {fallbackPlatform ? <Text size={11} color={theme['c-font-label']}>正在用 {fallbackPlatform} 平台兜底</Text> : null}
             </View>
           ) : null
         }

@@ -63,12 +63,14 @@ export default memo(() => {
 
   const loadHealth = useCallback(async(silent = false) => {
     if (!silent) setLoading(true)
-    setError('')
+    if (!silent) setError('')
     try {
       const querier = getQuerier('getHealth')
       if (!querier) {
-        setError(t('health_no_source'))
-        setSnapshot(null)
+        if (!silent) {
+          setError(t('health_no_source'))
+          setSnapshot(null)
+        }
         return
       }
       const { promise } = querier()
@@ -76,7 +78,7 @@ export default memo(() => {
       setSnapshot(data as HealthSnapshot)
     } catch (e: any) {
       console.log(e)
-      setError(String(e?.message || t('health_load_failed')))
+      if (!silent) setError(String(e?.message || t('health_load_failed')))
     } finally {
       if (!silent) setLoading(false)
     }

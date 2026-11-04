@@ -142,6 +142,7 @@ export default memo(() => {
 
   // v29.3：保存配置（写模式 + 本地持久化）
   const saveConfig = useCallback(async() => {
+    setError('')
     const querier = getQuerier('config')
     const updates: Record<string, number> = {}
     for (const [k, v] of Object.entries(configInputs)) {
@@ -216,9 +217,10 @@ export default memo(() => {
     return isUsing(it) ? 0 : 1
   }
   // v29.2：提取平台级降级聚合（_ 开头的特殊字段，不参与子源列表渲染）
+  const PLATFORM_NAMES: Record<string, string> = { wy: '网易', kw: '酷我', tx: 'QQ', mg: '咪咕', kg: '酷狗' }
   const platformSummary = snapshot?._platformSummary as Record<string, { degraded: boolean; activeCount: number; deadCount: number }> | undefined
   const fallbackPlatform = snapshot?._fallbackPlatform as string | undefined
-  const degradedPlatforms = platformSummary ? Object.entries(platformSummary).filter(([, v]) => v.degraded).map(([k]) => k) : []
+  const degradedPlatforms = platformSummary ? Object.entries(platformSummary).filter(([, v]) => v.degraded).map(([k]) => PLATFORM_NAMES[k] || k) : []
 
   const items = snapshot ? Object.entries(snapshot)
     .filter(([id]) => !id.startsWith('_'))  // 过滤平台聚合等特殊字段
@@ -283,7 +285,7 @@ export default memo(() => {
           degradedPlatforms.length ? (
             <View style={[styles.summary, { backgroundColor: '#fffbe6' }]}>
               <Text size={12} color="#d48806">⚠ {degradedPlatforms.join('、')} 平台级降级</Text>
-              {fallbackPlatform ? <Text size={11} color={theme['c-font-label']}>正在用 {fallbackPlatform} 平台兜底</Text> : null}
+              {fallbackPlatform ? <Text size={11} color={theme['c-font-label']}>正在用 {PLATFORM_NAMES[fallbackPlatform] || fallbackPlatform} 平台兜底</Text> : null}
             </View>
           ) : null
         }

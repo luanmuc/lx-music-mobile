@@ -97,12 +97,14 @@ export default memo(() => {
     modalRef.current?.show()
   }
 
-  // 更新音源：从 jsDelivr CDN 拉取 master 最新 lx-source.js（直接更新，不做版本号比对）
+  // 更新音源：从 jsDelivr CDN 拉取 master 最新 lx-source.js
+  // 比对逻辑：用"脚本指纹"（@version + 文件长度）判断有没有更新，
+  // 不依赖版本号大小比较——不管版本号升还是降，只要脚本变了就更新。
   const [updating, setUpdating] = useState(false)
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
     setUpdating(true)
-    toast('正在拉取最新音源...')
+    toast('正在检查更新...')
     try {
       // 加时间戳绕过 jsDelivr CDN 缓存，确保拉到的是 master 最新版
       const url = `https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js?t=${Date.now()}`
@@ -111,18 +113,36 @@ export default memo(() => {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('拉取超时（15秒），请检查网络')), 15000)
       )
-      const script = await Promise.race([fetchPromise, timeoutPromise]) as string
-      if (script.length > 9_000_000) {
+      const remoteScript = await Promise.race([fetchPromise, timeoutPromise]) as string
+      if (remoteScript.length > 9_000_000) {
         toast('音源文件过大', 'long')
         return
       }
 
-      // 提取版本号仅用于展示，不做比对
-      const versionMatch = script.match(/@version\s+(\S+)/)
-      const version = versionMatch ? versionMatch[1] : '未知'
+      // 提取远端指纹：@version + 文件长度
+      const remoteVerMatch = remoteScript.match(/@version\s+(\S+)/)
+      const remoteVersion = remoteVerMatch ? remoteVerMatch[1] : '未知'
+      const remoteFingerprint = `${remoteVersion}@${remoteScript.length}`
+
+      // 提取本地当前音源的指纹
+      let localFingerprint = ''
+      try {
+        const localScript = await getUserApiScript(apiSourceSetting)
+        const localVerMatch = localScript.match(/@version\s+(\S+)/)
+        const localVersion = localVerMatch ? localVerMatch[1] : '未知'
+        localFingerprint = `${localVersion}@${localScript.length}`
+      } catch { /* 读不到就当未知 */ }
+
+      // 指纹一样 = 脚本没变化，不用更新
+      if (remoteFingerprint === localFingerprint) {
+        toast(`已是最新版 v${remoteVersion}`, 'long')
+        return
+      }
+
+      toast(`发现新版本 v${remoteVersion}，正在更新...`, 'long')
 
       // 先导新的，成功了再删旧的（避免导失败全没了）
-      const newApiInfo = await importUserApi(script)
+      const newApiInfo = await importUserApi(remoteScript)
 
       // 删掉所有"豆包定制"开头的旧音源（不删刚导入的那个）
       const oldIds = userApiListRaw
@@ -135,13 +155,13 @@ export default memo(() => {
       // 自动切换到新导入的音源
       await setApiSource(newApiInfo.id)
 
-      toast(`已更新到最新版 v${version}，重启 App 生效`, 'long')
+      toast(`已更新到 v${remoteVersion}，重启 App 生效`, 'long')
     } catch (err: any) {
       toast(`更新失败：${err.message}`, 'long')
     } finally {
       setUpdating(false)
     }
-  }, [updating, userApiListRaw])
+  }, [updating, apiSourceSetting, userApiListRaw])
 
   return (
     <SubTitle title={t('setting_basic_source')}>

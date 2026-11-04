@@ -52,6 +52,21 @@ export default async() => {
   await initI18n(setting)
   bootLog('I18n inited.')
 
+  // v29.3：启动注入音源配置（从本地存储读配置，注入到 __lxSourceConfig，音源加载时自动应用）
+  try {
+    const { getData } = await import('@/plugins/storage')
+    const savedConfig = await getData<Record<string, number>>('lx_source_config')
+    if (savedConfig && Object.keys(savedConfig).length) {
+      ;(globalThis as any).__lxSourceConfig = {
+        ...(globalThis as any).__lxSourceConfig,
+        ...savedConfig,
+      }
+      logger.info('App', `音源配置已注入：${Object.keys(savedConfig).length} 项`)
+    }
+  } catch (e) {
+    logger.warn('App', '音源配置注入失败', e)
+  }
+
   await initUserApi(setting)
   bootLog('User Api inited.')
 

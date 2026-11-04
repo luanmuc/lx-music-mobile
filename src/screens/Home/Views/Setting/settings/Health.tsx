@@ -1,5 +1,5 @@
 import { memo, useState, useEffect, useCallback, useRef } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View, ScrollView, TextInput, Modal } from 'react-native'
 
 import Section from '../components/Section'
 import SubTitle from '../components/SubTitle'
@@ -7,6 +7,7 @@ import Button from '../components/Button'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
+import { saveData, getData } from '@/plugins/storage'
 
 // 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数；v16.5：sleeping 休眠字段）
 interface HealthItem {
@@ -51,6 +52,10 @@ export default memo(() => {
   const [error, setError] = useState('')
   const [togglingId, setTogglingId] = useState('')
   const [probeInfo, setProbeInfo] = useState('')
+  // v29.3：配置编辑相关 state
+  const [showConfigModal, setShowConfigModal] = useState(false)
+  const [configData, setConfigData] = useState<Record<string, any> | null>(null)
+  const [configInputs, setConfigInputs] = useState<Record<string, string>>({})
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadHealth = useCallback(async(silent = false) => {
@@ -120,12 +125,36 @@ export default memo(() => {
     try {
       const { promise } = querier()
       const res = await promise
-      const lines = Object.entries(res).map(([k, v]) => `${k}: ${v}`).join('\n')
-      setProbeInfo(`当前配置：\n${lines}`)
+      setConfigData(res)
+      setConfigInputs(Object.fromEntries(Object.entries(res).map(([k, v]) => [k, String(v)])))
+      setShowConfigModal(true)
     } catch (e: any) {
       setError(String(e?.message || t('health_load_failed')))
     }
   }, [t])
+
+  // v29.3：保存配置（写模式 + 本地持久化）
+  const saveConfig = useCallback(async() => {
+    const querier = getQuerier('config')
+    const updates: Record<string, number> = {}
+    for (const [k, v] of Object.entries(configInputs)) {
+      const num = Number(v)
+      if (!isNaN(num) && num > 0 && k in (configData || {})) {
+        updates[k] = num
+      }
+    }
+    try {
+      if (querier) {
+        const { promise } = querier(updates)
+        await promise
+      }
+      await saveData('lx_source_config', updates)
+      setShowConfigModal(false)
+      setProbeInfo(`配置已保存：${Object.keys(updates).length} 项已更新`)
+    } catch (e: any) {
+      setError(String(e?.message || '保存失败'))
+    }
+  }, [t, configInputs, configData])
 
   // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
   const toggleSource = useCallback(async(item: HealthItem, id: string) => {
@@ -316,6 +345,33 @@ export default memo(() => {
         }
       </SubTitle>
     </Section>
+
+    {/* v29.3：配置编辑弹窗 */}
+    <Modal visible={showConfigModal} animationType="slide" transparent={true}>
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContent, { backgroundColor: theme['c-bg-1'] }]}>
+          <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>音源配置（运行参数）</Text>
+          <ScrollView style={styles.modalScroll}>
+            {configData && Object.entries(configData).map(([key, value]) => (
+              <View key={key} style={styles.configRow}>
+                <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{key}</Text>
+                <TextInput
+                  style={[styles.configInput, { borderColor: theme['c-border-1'], color: theme['c-font-1'] }]}
+                  value={configInputs[key] ?? String(value)}
+                  onChangeText={(text) => setConfigInputs(prev => ({ ...prev, [key]: text }))}
+                  keyboardType="numeric"
+                />
+              </View>
+            ))}
+          </ScrollView>
+          <View style={styles.modalBtnRow}>
+            <Button onPress={() => setShowConfigModal(false)}>取消</Button>
+            <View style={styles.btnGap} />
+            <Button onPress={() => void saveConfig()}>保存</Button>
+          </View>
+        </View>
+      </View>
+    </Modal>
     </ScrollView>
   )
 })
@@ -331,6 +387,46 @@ const styles = StyleSheet.create({
   },
   btnGap: {
     width: 12,
+  },
+  // v29.3：配置弹窗样式
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    borderRadius: 10,
+    padding: 16,
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    marginBottom: 12,
+    fontWeight: 'bold',
+  },
+  modalScroll: {
+    marginBottom: 12,
+  },
+  configRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  configLabel: {
+    flex: 1,
+    marginRight: 8,
+  },
+  configInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 12,
+  },
+  modalBtnRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   summary: {
     flexDirection: 'row',

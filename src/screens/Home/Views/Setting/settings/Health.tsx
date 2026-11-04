@@ -144,6 +144,11 @@ export default memo(() => {
       }
     }
     try {
+      if (Object.keys(updates).length === 0) {
+        setShowConfigModal(false)
+        setProbeInfo('没有修改任何参数')
+        return
+      }
       if (querier) {
         const { promise } = querier(updates)
         await promise
@@ -352,7 +357,9 @@ export default memo(() => {
         <View style={[styles.modalContent, { backgroundColor: theme['c-bg-1'] }]}>
           <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>音源配置（运行参数）</Text>
           <ScrollView style={styles.modalScroll}>
-            {configData && Object.entries(configData).map(([key, value]) => (
+            {configData && Object.entries(configData)
+              .filter(([key]) => !['ikunApiKey', 'lingchuanApiKey', 'xinghaiDeviceId'].includes(key))
+              .map(([key, value]) => (
               <View key={key} style={styles.configRow}>
                 <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{key}</Text>
                 <TextInput

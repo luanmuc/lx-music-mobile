@@ -57,11 +57,25 @@ export default async() => {
     const { getData } = await import('@/plugins/storage')
     const savedConfig = await getData<Record<string, number>>('lx_source_config')
     if (savedConfig && Object.keys(savedConfig).length) {
-      ;(globalThis as any).__lxSourceConfig = {
-        ...(globalThis as any).__lxSourceConfig,
-        ...savedConfig,
+      // 白名单校验：只注入合法 key + number 类型 + 正数，防本地存储损坏导致音源异常
+      const ALLOWED_KEYS = ["cacheTtlMs", "failCacheNotFoundMs", "failCacheExpiredMs",
+        "breakerThreshold", "breakerCooldownMs", "rateLimitBackoffMs",
+        "maxConcurrency", "rateWindowMs", "rateWindowMax",
+        "healthCheckIntervalMs", "raceOverallTimeoutMs", "raceMatchWaitMs",
+        "allFailShortTtlMs", "playDeadReviveMs"]
+      const filtered: Record<string, number> = {}
+      for (const [k, v] of Object.entries(savedConfig)) {
+        if (ALLOWED_KEYS.includes(k) && typeof v === 'number' && v > 0) {
+          filtered[k] = v
+        }
       }
-      logger.info('App', `音源配置已注入：${Object.keys(savedConfig).length} 项`)
+      if (Object.keys(filtered).length) {
+        ;(globalThis as any).__lxSourceConfig = {
+          ...(globalThis as any).__lxSourceConfig,
+          ...filtered,
+        }
+        logger.info('App', `音源配置已注入：${Object.keys(filtered).length} 项`)
+      }
     }
   } catch (e) {
     logger.warn('App', '音源配置注入失败', e)

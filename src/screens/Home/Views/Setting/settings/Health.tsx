@@ -147,7 +147,8 @@ export default memo(() => {
     const updates: Record<string, number> = {}
     for (const [k, v] of Object.entries(configInputs)) {
       const num = Number(v)
-      if (!isNaN(num) && num > 0 && k in (configData || {})) {
+      // 校验：有效数字 / 整数 / 正数 / 合理上限（<100000，防极端值）/ 白名单内
+      if (!isNaN(num) && Number.isInteger(num) && num > 0 && num < 100000 && k in (configData || {})) {
         updates[k] = num
       }
     }
@@ -333,6 +334,12 @@ export default memo(() => {
                   } else if (item.state === 'closed' && item.successRate === 0 && item.healthScore < 0) {
                     // v-b45：断路器闭合但成功率 0% + 健康分<0 → "异常"（上游不可用的源不再显示"正常"）
                     stateText = t('health_state_abnormal'); stateColor = '#ff4d4f'
+                  } else if (item.playDead) {
+                    // v26.1：播放连续失败被摘除
+                    stateText = '已摘除'; stateColor = '#ff4d4f'
+                  } else if (item.rateLimited) {
+                    // v17.2：被限流（连续 429）
+                    stateText = '被限流'; stateColor = '#faad14'
                   } else {
                     stateText = t(`health_state_${item.state}`); stateColor = STATE_COLOR[item.state]
                   }

@@ -397,7 +397,7 @@ export default memo(() => {
     {/* v29.3：配置编辑弹窗 */}
     <Modal visible={showConfigModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: theme['c-bg-1'] }]}>
+        <View style={styles.modalContent}>
           <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>音源配置（运行参数）</Text>
           <ScrollView style={styles.modalScroll}>
             {configData && Object.entries(configData)
@@ -426,7 +426,7 @@ export default memo(() => {
     {/* v29.4：健康趋势弹窗 */}
     <Modal visible={showTrendModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContent, { backgroundColor: theme['c-bg-1'] }]}>
+        <View style={styles.modalContent}>
           <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>健康趋势（最近 {trendData.length} 次探测）</Text>
           <ScrollView style={styles.modalScroll}>
             {trendData.length === 0 ? (
@@ -492,13 +492,15 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 20,
   },
   modalContent: {
     borderRadius: 10,
     padding: 16,
     maxHeight: '80%',
+    width: '100%',
+    backgroundColor: '#fff',
   },
   modalTitle: {
     marginBottom: 12,

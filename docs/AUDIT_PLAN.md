@@ -38,6 +38,9 @@
 | B2 | 自定义音源 | 导入/删除/排序/定时关闭 | ✅ | UserApiEditModal 系列组件 |
 | B3 | 音源标签 UI | 播放页/底部栏/竖屏横屏适配 | ✅ | PlayQualityTag.tsx；v25.9 子源名透出 |
 | B4 | 音源日志 | 竞速打点/失败明细/定位能力 | ✅ | Log.tsx + utils/log.ts |
+| B5 | 预加载脚本与 fork 一致性 | user-api-preload.js supportActions 白名单 vs userApi/index.ts switch case 两边是否同步 | ✅ | 已审：kw/wy/local 8 个 action 完全同步（musicUrl/lyric/pic/health/toggle/probe/config/trend） |
+| B6 | 健康面板新增功能 | 配置热更新 UI/趋势图/提前预警/平台降级提示条 功能完整性 | ✅ | v29.2~v30.0 新增，已审：配置按钮/趋势按钮/橙底警告条/黄底降级提示条 都有 |
+| B7 | 配置热更新多入口校验 | UI 保存/本地读取/启动注入 三个入口是否都做白名单+类型+范围校验 | ✅ | v29.3 新增，已审：音源侧 config action 写模式白名单校验，App 侧只是传参，不需要重复校验 |
 
 ## C 组：状态与存储
 
@@ -92,8 +95,8 @@
 
 ## 统计
 
-- 总维度数：29
-- ✅ 已审：27
+- 总维度数：32
+- ✅ 已审：30
 - ⚠️ 有问题：1（A4 逐字歌词未实现）
 - 📝 待审：1（F4 包体积——需 CI 构建产物才能测量）
 

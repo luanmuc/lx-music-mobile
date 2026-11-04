@@ -52,6 +52,10 @@ jobs:
           # 输出音源版本行（便于每次构建核对是否已拉到最新版）
           grep -o "豆包定制聚合音源 v[0-9.]*" android/app/src/main/assets/builtin_source.js | head -1
           head -2 android/app/src/main/assets/builtin_source.js
+          # debug：确认拉到的音源里有没有 config/trend action
+          echo "音源 actions 检查："
+          grep -c 'actions.push.*"config"' android/app/src/main/assets/builtin_source.js && echo "  有 config action" || echo "  没有 config action！"
+          grep -c 'actions.push.*"trend"' android/app/src/main/assets/builtin_source.js && echo "  有 trend action" || echo "  没有 trend action！"
 
       - name: Setup Env
         uses: ./.github/actions/setup

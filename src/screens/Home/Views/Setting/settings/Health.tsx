@@ -127,6 +127,9 @@ export default memo(() => {
   const showConfig = useCallback(async() => {
     setError('')
     const querier = getQuerier('config')
+    console.log('[debug] showConfig getQuerier(config) =', querier)
+    console.log('[debug] global.lx.apis keys =', Object.keys((globalThis as any).lx?.apis || {}))
+    console.log('[debug] apis[wy] keys =', Object.keys((globalThis as any).lx?.apis?.wy || {}))
     if (!querier) {
       setError(t('health_no_source'))
       return

@@ -1,6 +1,5 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-
-import { View } from 'react-native'
+import { Alert, View } from 'react-native'
 
 import SubTitle from '../../components/SubTitle'
 import CheckBox from '@/components/common/CheckBox'
@@ -97,17 +96,16 @@ export default memo(() => {
     modalRef.current?.show()
   }
 
-  // 更新音源：从 jsDelivr CDN 拉取 master 最新 lx-source.js
-  // 比对逻辑：用"脚本指纹"（@version + 文件长度）判断有没有更新，
-  // 不依赖版本号大小比较——不管版本号升还是降，只要脚本变了就更新。
+  // 更新音源：从 GitHub raw 拉取 master 最新 lx-source.js（绕过 jsDelivr CDN 缓存）
+  // 流程：拉取 → 比对版本 → 弹窗显示版本信息 → 用户确认后才导入
   const [updating, setUpdating] = useState(false)
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
     setUpdating(true)
     toast('正在检查更新...')
     try {
-      // 加时间戳绕过 jsDelivr CDN 缓存，确保拉到的是 master 最新版
-      const url = `https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js?t=${Date.now()}`
+      // 用 jsDelivr CDN 拉（有 CDN 加速），版本更新时先 purge CDN 缓存
+      const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
       // 15 秒超时控制
       const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as string
       const timeoutPromise = new Promise((_, reject) =>
@@ -119,46 +117,64 @@ export default memo(() => {
         return
       }
 
-      // 提取远端指纹：@version + 文件长度
+      // 提取远端版本号
       const remoteVerMatch = remoteScript.match(/@version\s+(\S+)/)
       const remoteVersion = remoteVerMatch ? remoteVerMatch[1] : '未知'
-      const remoteFingerprint = `${remoteVersion}@${remoteScript.length}`
 
-      // 提取本地当前音源的指纹
-      let localFingerprint = ''
+      // 提取本地当前音源版本号
+      let localVersion = '未知'
       try {
         const localScript = await getUserApiScript(apiSourceSetting)
         const localVerMatch = localScript.match(/@version\s+(\S+)/)
-        const localVersion = localVerMatch ? localVerMatch[1] : '未知'
-        localFingerprint = `${localVersion}@${localScript.length}`
+        if (localVerMatch) localVersion = localVerMatch[1]
       } catch { /* 读不到就当未知 */ }
 
-      // 指纹一样 = 脚本没变化，不用更新
-      if (remoteFingerprint === localFingerprint) {
+      // 版本一样 = 已是最新
+      if (remoteVersion === localVersion) {
         toast(`已是最新版 v${remoteVersion}`, 'long')
         return
       }
 
-      toast(`发现新版本 v${remoteVersion}，正在更新...`, 'long')
+      // 弹窗显示版本信息，用户确认后才更新
+      Alert.alert(
+        '发现新音源版本',
+        `当前版本：v${localVersion}\n最新版本：v${remoteVersion}\n\n确认更新到最新版？`,
+        [
+          {
+            text: '取消',
+            style: 'cancel',
+            onPress: () => setUpdating(false),
+          },
+          {
+            text: '确认更新',
+            onPress: async() => {
+              try {
+                // 先导新的，成功了再删旧的（避免导失败全没了）
+                const newApiInfo = await importUserApi(remoteScript)
 
-      // 先导新的，成功了再删旧的（避免导失败全没了）
-      const newApiInfo = await importUserApi(remoteScript)
+                // 删掉所有"豆包定制"开头的旧音源（不删刚导入的那个）
+                const oldIds = userApiListRaw
+                  .filter(api => api.name.includes('豆包定制') && api.id !== newApiInfo.id)
+                  .map(api => api.id)
+                if (oldIds.length) {
+                  await removeUserApi(oldIds)
+                }
 
-      // 删掉所有"豆包定制"开头的旧音源（不删刚导入的那个）
-      const oldIds = userApiListRaw
-        .filter(api => api.name.includes('豆包定制') && api.id !== newApiInfo.id)
-        .map(api => api.id)
-      if (oldIds.length) {
-        await removeUserApi(oldIds)
-      }
+                // 自动切换到新导入的音源
+                await setApiSource(newApiInfo.id)
 
-      // 自动切换到新导入的音源
-      await setApiSource(newApiInfo.id)
-
-      toast(`已更新到 v${remoteVersion}，重启 App 生效`, 'long')
+                toast(`已更新到 v${remoteVersion}，重启 App 生效`, 'long')
+              } catch (err: any) {
+                toast(`更新失败：${err.message}`, 'long')
+              } finally {
+                setUpdating(false)
+              }
+            },
+          },
+        ],
+      )
     } catch (err: any) {
-      toast(`更新失败：${err.message}`, 'long')
-    } finally {
+      toast(`检查更新失败：${err.message}`, 'long')
       setUpdating(false)
     }
   }, [updating, apiSourceSetting, userApiListRaw])

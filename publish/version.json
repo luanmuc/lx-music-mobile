@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b22",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认",
+  "version": "1.9.2-b23",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认",
   "history": [
+    {
+      "version": "1.9.2-b22",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认"
+    },
     {
       "version": "1.9.2-b20",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 29003ab7 fix: 预加载脚本 handleRequest 加 config/trend case 透传（修复 Cannot read property 'data' of undefined）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b16",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行"
-    },
-    {
-      "version": "1.9.2-b15",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 43861315 fix: 修复趋势图语法错误（=> { 结尾应为 }) 而非 ))\n- 562faf10 fix: 趋势图显示中文名（优先用历史快照里的 name，回退到 id）\n- 742dda06 fix: 补 case 'config' 和 case 'trend'（v29.3/v29.4 功能根本没实现——userApi 注册漏了两个 action）\n- 74c31e63 docs: KNOWN_ISSUES 追加 K14-K16（健康面板 error 残留/静默轮询打扰/平台 ID 未翻译）"
     }
   ]
 }

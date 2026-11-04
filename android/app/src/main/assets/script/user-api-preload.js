@@ -159,13 +159,13 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
     local: [],
   }
   const supportActions = {
-    kw: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe'],
-    kg: ['musicUrl', 'health', 'toggle', 'probe'],
-    tx: ['musicUrl', 'health', 'toggle', 'probe'],
-    wy: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe'],
-    mg: ['musicUrl', 'health', 'toggle', 'probe'],
-    xm: ['musicUrl', 'health', 'toggle', 'probe'],
-    local: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe'],
+    kw: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe', 'config', 'trend'],
+    kg: ['musicUrl', 'health', 'toggle', 'probe', 'config', 'trend'],
+    tx: ['musicUrl', 'health', 'toggle', 'probe', 'config', 'trend'],
+    wy: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe', 'config', 'trend'],
+    mg: ['musicUrl', 'health', 'toggle', 'probe', 'config', 'trend'],
+    xm: ['musicUrl', 'health', 'toggle', 'probe', 'config', 'trend'],
+    local: ['musicUrl', 'lyric', 'pic', 'health', 'toggle', 'probe', 'config', 'trend'],
   }
 
   const verifyLyricInfo = (info) => {

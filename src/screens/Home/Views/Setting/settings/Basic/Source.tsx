@@ -15,8 +15,8 @@ import UserApiEditModal, { type UserApiEditModalType } from './UserApiEditModal'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import { httpFetch } from '@/utils/request'
-import { importUserApi } from '@/core/userApi'
-// import { importUserApi, removeUserApi } from '@/core/userApi'
+import { importUserApi, removeUserApi } from '@/core/userApi'
+import { getUserApiScript } from '@/utils/data'
 
 const apiSourceList = apiSourceInfo.map(api => ({
   id: api.id,
@@ -102,10 +102,10 @@ export default memo(() => {
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
     setUpdating(true)
-    toast('正在拉取最新音源...')
+    toast('正在检查更新...')
     try {
       const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
-      // v1.9.2-b32：加 15 秒超时控制（网络慢时用户不用一直等）
+      // 15 秒超时控制
       const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as string
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('拉取超时（15秒），请检查网络')), 15000)
@@ -115,18 +115,48 @@ export default memo(() => {
         toast('音源文件过大', 'long')
         return
       }
-      // 提取版本号（从 @version 注释）
-      const versionMatch = script.match(/@version\s+(\d+\.\d+)/)
-      const version = versionMatch ? versionMatch[1] : '未知'
-      // 直接导入，自己处理 toast（避免双重提示）
-      await importUserApi(script)
-      toast(`音源已更新到 v${version}，重启 App 生效`, 'long')
+      // 提取远端版本号
+      const remoteVersionMatch = script.match(/@version\s+(\d+\.\d+)/)
+      const remoteVersion = remoteVersionMatch ? remoteVersionMatch[1] : '未知'
+
+      // 提取本地当前版本号（从当前选中的音源脚本里读）
+      let localVersion = '未知'
+      try {
+        const currentScript = await getUserApiScript(apiSourceSetting)
+        const localMatch = currentScript.match(/@version\s+(\d+\.\d+)/)
+        if (localMatch) localVersion = localMatch[1]
+      } catch { /* 读不到就当未知 */ }
+
+      // 版本比对：一样就不用更新了
+      if (remoteVersion === localVersion && remoteVersion !== '未知') {
+        toast(`已是最新版 v${remoteVersion}`, 'long')
+        return
+      }
+
+      toast(`发现新版本 v${remoteVersion}，正在更新...`, 'long')
+
+      // 先导新的，成功了再删旧的（避免导失败全没了）
+      const newApiInfo = await importUserApi(script)
+
+      // 删掉所有"豆包定制"开头的旧音源（不删刚导入的那个）
+      const oldIds = userApiListRaw
+        .filter(api => api.name.includes('豆包定制') && api.id !== newApiInfo.id)
+        .map(api => api.id)
+      if (oldIds.length) {
+        await removeUserApi(oldIds)
+      }
+
+      // 自动切换到新导入的音源
+      await setApiSource(newApiInfo.id)
+
+      const from = localVersion !== '未知' ? `v${localVersion} → ` : ''
+      toast(`已更新到 v${remoteVersion}（${from}v${remoteVersion}），重启 App 生效`, 'long')
     } catch (err: any) {
       toast(`更新失败：${err.message}`, 'long')
     } finally {
       setUpdating(false)
     }
-  }, [updating])
+  }, [updating, apiSourceSetting, userApiListRaw])
 
   return (
     <SubTitle title={t('setting_basic_source')}>

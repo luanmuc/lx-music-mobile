@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b26",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）",
+  "version": "1.9.2-b27",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b6b2e1c9 docs: 文档移至 docs/ 子目录，清理仓库首页 + CI paths-ignore 同步更新\n- 8682c3d0 ci: 重新触发编译（清空 Releases/Tags 后重建）\n- f0f1a4d7 b24: 深度审计修复 3 个 App 侧问题\n- 9353e45c docs: AUDIT_PLAN 补充 v29.2~v30.0 新增维度（B5~B7），全部审计通过\n- c1f7313f docs: 修正 CUSTOM_CHANGELOG 版本号——v30.0 提前预警实际是 b23（不是 b24），合并配置界面优化\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认\n- 261dda0c chore: 回写 build-state.json (b21)，修正版本号\n- b60a3284 fix: 修复 JSX 语法错误（图例里 <-5分 的 < 被当成标签）\n- bc1e5688 feat: 配置参数中文化 + 趋势图改 status page 方块时间线风格（绿/黄/红/灰）\n- 16ecc5dd feat: 配置参数中文化 + 趋势图改柱状图（基准线在中间，正分向上/负分向下，更直观）\n- c789c3c5 docs: 更新 CUSTOM_CHANGELOG (b20) + KNOWN_ISSUES (K17-K19 预加载脚本三层修复)\n- 421d5110 fix: 弹窗背景透明问题——给 modalContent 加明确白色背景 + width 100%\n- 29003ab7 fix: 预加载脚本 handleRequest 加 config/trend case 透传（修复 Cannot read property 'data' of undefined）\n- d9613071 fix: 预加载脚本 supportActions 白名单加 config/trend（修复音源新 action 被过滤）\n- b3b3c7da debug: 打印 init event.data 的 keys（确认 sources 在哪里）\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name\n- 5ccb7bde debug: 打印每个音源的 actions 数组内容\n- 07b0a2ea debug: CI 拉取音源后检查有没有 config/trend action",
   "history": [
+    {
+      "version": "1.9.2-b26",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
+    },
     {
       "version": "1.9.2-b25",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 8682c3d0 ci: 重新触发编译（清空 Releases/Tags 后重建）\n- f0f1a4d7 b24: 深度审计修复 3 个 App 侧问题\n- 9353e45c docs: AUDIT_PLAN 补充 v29.2~v30.0 新增维度（B5~B7），全部审计通过\n- c1f7313f docs: 修正 CUSTOM_CHANGELOG 版本号——v30.0 提前预警实际是 b23（不是 b24），合并配置界面优化\n- b87e9730 feat: v30.0 提前预警——健康分连续下降自动提示（顶部橙底警告条，不用用户自己看趋势图）\n- 8fbcc7af docs: KNOWN_ISSUES K13 更新——逐字歌词已判否（网易公开接口无 yrc 字段）\n- 6f8fd71a docs: CUSTOM_CHANGELOG 加 b21/b23 记录（配置中文化+方块趋势图+单位优化+预设按钮）\n- a9f4ff31 feat: 配置参数单位优化——ms自动转小时/分钟/秒 + 预设按钮 + 恢复默认\n- 261dda0c chore: 回写 build-state.json (b21)，修正版本号\n- b60a3284 fix: 修复 JSX 语法错误（图例里 <-5分 的 < 被当成标签）\n- bc1e5688 feat: 配置参数中文化 + 趋势图改 status page 方块时间线风格（绿/黄/红/灰）\n- 16ecc5dd feat: 配置参数中文化 + 趋势图改柱状图（基准线在中间，正分向上/负分向下，更直观）\n- c789c3c5 docs: 更新 CUSTOM_CHANGELOG (b20) + KNOWN_ISSUES (K17-K19 预加载脚本三层修复)\n- 421d5110 fix: 弹窗背景透明问题——给 modalContent 加明确白色背景 + width 100%\n- 29003ab7 fix: 预加载脚本 handleRequest 加 config/trend case 透传（修复 Cannot read property 'data' of undefined）\n- d9613071 fix: 预加载脚本 supportActions 白名单加 config/trend（修复音源新 action 被过滤）\n- b3b3c7da debug: 打印 init event.data 的 keys（确认 sources 在哪里）\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name\n- 5ccb7bde debug: 打印每个音源的 actions 数组内容\n- 07b0a2ea debug: CI 拉取音源后检查有没有 config/trend action\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b19",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- d9613071 fix: 预加载脚本 supportActions 白名单加 config/trend（修复音源新 action 被过滤）\n- b3b3c7da debug: 打印 init event.data 的 keys（确认 sources 在哪里）\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name\n- 5ccb7bde debug: 打印每个音源的 actions 数组内容\n- 07b0a2ea debug: CI 拉取音源后检查有没有 config/trend action\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行\n- 43861315 fix: 修复趋势图语法错误（=> { 结尾应为 }) 而非 ))\n- 562faf10 fix: 趋势图显示中文名（优先用历史快照里的 name，回退到 id）\n- 742dda06 fix: 补 case 'config' 和 case 'trend'（v29.3/v29.4 功能根本没实现——userApi 注册漏了两个 action）\n- 74c31e63 docs: KNOWN_ISSUES 追加 K14-K16（健康面板 error 残留/静默轮询打扰/平台 ID 未翻译）\n- de9cf094 fix: 趋势图健康分阈值与主面板一致（>=3绿/>=-5橙/<-5红）\n- 96b166d7 fix: 静默轮询成功后清空error（首次加载音源未就绪误报\"未检测到音源\"，拿到数据后自动清除）\n- 349aa6cc fix: 面板显示已摘除/被限流状态 + 配置输入整数校验+上限 + 启动注入白名单过滤\n- c2ad054c fix: 平台降级提示条显示中文名称（wy/kw/tx/mg/kg → 网易/酷我/QQ/咪咕/酷狗）\n- 6e029956 fix: 静默轮询失败不打扰用户（silent模式下不setError不setSnapshot）\n- d4835d99 fix: 健康面板 error 状态残留（所有按钮函数开头清 error）\n- d118e1ee refine: 趋势图优化（每源一行圆点序列+null显示灰色+全源显示）\n- cecb2ae2 feat: v29.4 健康趋势图（趋势按钮+简易柱状图Modal）\n- 5af79708 refine: 配置弹窗优化（过滤敏感字段+空修改不调用接口）"
-    },
-    {
-      "version": "1.9.2-b18",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e94ba807 debug: 打印音源初始化成功时的 info.id 和 info.name"
     }
   ]
 }

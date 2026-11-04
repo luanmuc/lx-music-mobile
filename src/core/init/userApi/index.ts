@@ -249,6 +249,7 @@ export default async(setting: LX.AppSetting) => {
                 break
               case 'config':
                 // v29.3：配置热更新（读模式不传 info 返回当前配置；写模式传 info 更新内存值）
+                console.log('[userApi] case config 执行了，source:', source)
                 apis[source].config = (updates?: Record<string, number>) => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {

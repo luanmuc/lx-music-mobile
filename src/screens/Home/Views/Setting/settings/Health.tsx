@@ -458,7 +458,7 @@ export default memo(() => {
             </View>
             <View style={styles.trendLegendItem}>
               <View style={[styles.trendLegendDot, { backgroundColor: '#f44336' }]} />
-              <Text size={10} color={theme['c-font-label']}>异常(<-5分)</Text>
+              <Text size={10} color={theme['c-font-label']}>异常(低于-5分)</Text>
             </View>
             <View style={styles.trendLegendItem}>
               <View style={[styles.trendLegendDot, { backgroundColor: '#9e9e9e' }]} />

@@ -13,7 +13,7 @@
 README.md                   用户视角：定制功能一览/默认设置差异/文档索引
 MERGE_GUIDE.md              开发协作：高冲突区/设置迁移规则/代码地图（合并上游前必读）
 FAQ.md                      定制版常见问题
-CUSTOM_CHANGELOG.md         b1~b79 定制历史（每次迭代在顶部补记）
+CUSTOM_CHANGELOG.md         定制历史（bN 随底座版本重置，v1.9.2 起从 b1 计数）
 docs/RELEASE_SOP.md         发布流程/版本号规则/测试清单（push 即发版）
 docs/DEV_CONVENTIONS.md     多账号开发规范详情（分工/提交/评审裁决）
 docs/DEV_SETUP.md           开发环境搭建
@@ -28,7 +28,7 @@ publish/                    CI 生成的版本信息（勿手改，构建时自�
 ## 常用命令
 
 ```bash
-# 语法检查（508 个 TS/TSX，每次改动后必跑）
+# 语法检查（511 个 TS/TSX，每次改动后必跑）
 node scripts/check_ts_syntax.js
 
 # 文档一致性检查（推送前必跑：扫描文档中过时版本号/依赖引用，见「文档同步规范」）
@@ -37,6 +37,13 @@ node scripts/check_docs_consistency.js
 # 提交 + 推送（push 即触发云编译发版 v1.9.2-bN；push 前必须先 fetch 检查远端，见协作规则第 8 条）
 git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push origin master
 ```
+
+## 版本推进协议（任一账号说「发布」即按此执行）
+
+1. 确认代码改动已完成 + 语法检查 0 错误 + 文档一致性检查通过；
+2. push master 即触发云编译发版（`v1.9.2-bN`，bN 自动递增）；
+3. 编译完成后 Release 自动创建 APK 附件；
+4. 一次发布 = 一次 push = 一个 bN；用户说"重新编译"则直接 push 或 workflow_dispatch。
 
 ## 协作规则（多账号直推 master）
 
@@ -52,7 +59,8 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
    - rebase 后重跑语法检查（`node scripts/check_ts_syntax.js`）+ 文档一致性检查（`node scripts/check_docs_consistency.js`），确认自己与对方的改动都存活；
    - 有冲突必须读对方实现再解决，**禁止整块覆盖**他人已实测的功能；
    - 推送被拒绝（non-fast-forward）时，立即 rebase 再推，**禁止 force push（`-f`）**；
-   - 若其他账号已完成同一主题（如版本升级、健康分同步），直接复用其结论、合并到自己的文档行，不重复劳动。
+   - 若其他账号已完成同一主题（如版本升级、健康分同步），直接复用其结论、合并到自己的文档行，不重复劳动；
+   - **额度中断恢复时**：先 fetch 看远端状态，确认上次中断在哪一步（代码已改未推 / 文档未同步 / 自检未跑），从断点继续，不从头重做。
 
 ## 实证开发流程（强制）
 
@@ -62,7 +70,7 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 
 | 层级 | 验证内容 | 方法 | 能发现 |
 |---|---|---|---|
-| L0 静态 | 语法/结构 | `node scripts/check_ts_syntax.js`（508 文件 0 错误）+ `git diff` 自查 | 语法错误、调试残留 |
+| L0 静态 | 语法/结构 | `node scripts/check_ts_syntax.js`（511 文件 0 错误）+ `git diff` 自查 | 语法错误、调试残留 |
 | L1 逻辑 | 行为/状态流 | 代码走查、必要时补单测 | 逻辑缺陷、状态机错误 |
 | L2 接口 | 依赖/音源 | curl/实测（音源接口、上游 API、npm 包） | 接口失效、协议不匹配 |
 | L3 真机 | 端到端 | 装包实测（下载/播放/权限/更新） | 宿主差异、集成问题 |
@@ -99,6 +107,7 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 | CI / 发布流程改动 | `docs/RELEASE_SOP.md`、AGENTS.md（常用命令 / 发布） |
 | 功能新增 / 缺陷修复 | `CUSTOM_CHANGELOG.md` 顶部 + 对应功能文档（DOWNLOAD_DESIGN / MUSIC_SOURCE_GUIDE 等）+ `docs/KNOWN_ISSUES.md` 状态 |
 | 上游合并 | 按 `MERGE_GUIDE.md` 合并后必查清单 + 上表版本行 |
+| AGENTS.md / 协作规则变更 | `AGENTS.md` 自身（协作规则/命令段/流程改动）+ 紧随提交的 docs 说明 |
 
 ### 2. 推送前必跑
 

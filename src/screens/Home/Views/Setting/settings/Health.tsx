@@ -34,6 +34,24 @@ const STATE_COLOR: Record<HealthItem['state'], string> = {
   open: '#ff4d4f',
 }
 
+// v29.3：配置参数中文映射
+const CONFIG_LABELS: Record<string, string> = {
+  cacheTtlMs: '成功缓存有效期(ms)',
+  failCacheNotFoundMs: '404失败缓存(ms)',
+  failCacheExpiredMs: '过期失败缓存(ms)',
+  breakerThreshold: '熔断阈值(连续失败次数)',
+  breakerCooldownMs: '熔断冷却时间(ms)',
+  rateLimitBackoffMs: '限速退避时间(ms)',
+  maxConcurrency: '最大并发请求数',
+  rateWindowMs: '限速窗口(ms)',
+  rateWindowMax: '限速窗口最大请求数',
+  healthCheckIntervalMs: '健康探测间隔(ms)',
+  raceOverallTimeoutMs: '竞速总超时(ms)',
+  raceMatchWaitMs: '竞速匹配等待(ms)',
+  allFailShortTtlMs: '全失败短缓存(ms)',
+  playDeadReviveMs: '已摘除源复活试探(ms)',
+}
+
 // 获取当前音源的健康查询器（任一声明对应 action 的源均可，聚合结果与源无关）
 const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe' | 'config'): ((...args: any[]) => { promise: Promise<any> }) | null => {
   const apis = (global as any).lx?.apis as Record<string, any> | undefined
@@ -404,7 +422,7 @@ export default memo(() => {
               .filter(([key]) => !['ikunApiKey', 'lingchuanApiKey', 'xinghaiDeviceId'].includes(key))
               .map(([key, value]) => (
               <View key={key} style={styles.configRow}>
-                <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{key}</Text>
+                <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{CONFIG_LABELS[key] || key}</Text>
                 <TextInput
                   style={[styles.configInput, { borderColor: theme['c-border-1'], color: theme['c-font-1'] }]}
                   value={configInputs[key] ?? String(value)}
@@ -428,6 +446,25 @@ export default memo(() => {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>健康趋势（最近 {trendData.length} 次探测）</Text>
+          {/* 图例说明 */}
+          <View style={styles.trendLegend}>
+            <View style={styles.trendLegendItem}>
+              <View style={[styles.trendLegendDot, { backgroundColor: '#4caf50' }]} />
+              <Text size={10} color={theme['c-font-label']}>健康(≥3分)</Text>
+            </View>
+            <View style={styles.trendLegendItem}>
+              <View style={[styles.trendLegendDot, { backgroundColor: '#ff9800' }]} />
+              <Text size={10} color={theme['c-font-label']}>一般(-5~3)</Text>
+            </View>
+            <View style={styles.trendLegendItem}>
+              <View style={[styles.trendLegendDot, { backgroundColor: '#f44336' }]} />
+              <Text size={10} color={theme['c-font-label']}>异常(<-5分)</Text>
+            </View>
+            <View style={styles.trendLegendItem}>
+              <View style={[styles.trendLegendDot, { backgroundColor: '#9e9e9e' }]} />
+              <Text size={10} color={theme['c-font-label']}>无样本</Text>
+            </View>
+          </View>
           <ScrollView style={styles.modalScroll}>
             {trendData.length === 0 ? (
               <Text size={13} color={theme['c-font-label']}>暂无历史数据，完成一次探测后自动记录</Text>
@@ -440,26 +477,54 @@ export default memo(() => {
                 return allSourceIds.map(id => {
                   // 优先用历史快照里的中文名称，回退到 id（兼容旧数据）
                   const sourceName = trendData[0]?.sources[id]?.name || id
+                  // 最新一次探测的分数
+                  const latestScore = trendData[trendData.length - 1]?.sources[id]?.score ?? null
+                  const latestColor = latestScore === null ? '#9e9e9e' : latestScore >= 3 ? '#4caf50' : latestScore >= -5 ? '#ff9800' : '#f44336'
                   return (
                   <View key={id} style={styles.trendSourceRow}>
                     <Text size={11} color={theme['c-font-label']} style={styles.trendSourceName} numberOfLines={1}>{sourceName}</Text>
-                    <View style={styles.trendDots}>
+                    <View style={styles.trendChart}>
+                      {/* 基准线（0分） */}
+                      <View style={styles.trendBaseLine} />
                       {trendData.map((entry, idx) => {
                         const data = entry.sources[id]
                         const score = data?.score ?? null
-                        let color = '#9e9e9e' // 灰色：无样本
-                        // 阈值与主面板一致：>=3 绿 / >=-5 橙 / <-5 红（10分制）
-                        if (score !== null && score >= 3) color = '#4caf50' // 绿
-                        else if (score !== null && score >= -5) color = '#ff9800' // 橙
-                        else if (score !== null && score < -5) color = '#f44336' // 红
+                        // 分数范围 -10 ~ +10，映射到柱状图高度（最大 16px）
+                        const maxBarHeight = 16
+                        let barHeight = 2 // 无样本时的小灰点
+                        let barColor = '#e0e0e0'
+                        let isNegative = false
+                        if (score !== null) {
+                          barHeight = Math.min(Math.abs(score) / 10 * maxBarHeight, maxBarHeight)
+                          isNegative = score < 0
+                          if (score >= 3) barColor = '#4caf50'
+                          else if (score >= -5) barColor = '#ff9800'
+                          else barColor = '#f44336'
+                        }
                         return (
-                          <View
-                            key={idx}
-                            style={[styles.trendDot, { backgroundColor: color }]}
-                          />
+                          <View key={idx} style={styles.trendBarWrap}>
+                            {/* 上半部分：负分柱子（从基准线向下长） */}
+                            <View style={styles.trendBarUpper}>
+                              {isNegative && (
+                                <View style={[styles.trendBar, { height: barHeight, backgroundColor: barColor }]} />
+                              )}
+                            </View>
+                            {/* 基准线 */}
+                            <View style={styles.trendBaseLine} />
+                            {/* 下半部分：正分柱子（从基准线向上长） */}
+                            <View style={styles.trendBarLower}>
+                              {!isNegative && score !== null && (
+                                <View style={[styles.trendBar, { height: barHeight, backgroundColor: barColor }]} />
+                              )}
+                              {score === null && (
+                                <View style={[styles.trendBar, { height: 2, backgroundColor: '#e0e0e0' }]} />
+                              )}
+                            </View>
+                          </View>
                         )
                       })}
                     </View>
+                    <Text size={11} color={latestColor} style={styles.trendScore}>{latestScore === null ? '-' : latestScore.toFixed(1)}</Text>
                   </View>
                   )
                 })
@@ -534,8 +599,8 @@ const styles = StyleSheet.create({
   trendSourceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    paddingBottom: 6,
+    marginBottom: 12,
+    paddingBottom: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#eee',
   },
@@ -547,12 +612,51 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   trendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+  },
+  // v29.4：柱状趋势图样式
+  trendChart: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 40,
+  },
+  trendBarWrap: {
+    flex: 1,
+    height: '100%',
+    alignItems: 'center',
+  },
+  trendBarUpper: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-end', // 负分柱子底部对齐基准线
+  },
+  trendBaseLine: {
+    width: '80%',
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  trendBarLower: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // 正分柱子顶部对齐基准线
+  },
+  trendBar: {
+    width: 8,
+    borderRadius: 2,
+  },
+  trendScore: {
+    width: 36,
+    textAlign: 'right',
+    marginLeft: 8,
+    fontWeight: 'bold',
   },
   summary: {
     flexDirection: 'row',

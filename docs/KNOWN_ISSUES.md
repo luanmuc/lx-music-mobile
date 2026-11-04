@@ -21,6 +21,9 @@
 | K14 | **健康面板 error 残留**：首次加载时音源未就绪误报"未检测到支持健康查询的音源"，后续静默轮询成功后 error 不自动清除 | 有数据但仍显示错误提示，误导用户 | `Health.tsx` loadHealth | ✅ 修复（2026-11-04：所有成功路径都 setError('') 清空） |
 | K15 | **静默轮询失败打扰用户**：每 30 秒后台刷新失败就弹错误提示 | 用户正在看页面，突然弹出错误，体验差 | `Health.tsx` loadHealth | ✅ 修复（2026-11-04：silent 模式下不 setError、不 setSnapshot(null)） |
 | K16 | **平台降级提示条显示英文 ID**：wy/kw/tx/mg/kg 没翻译成中文，用户看不懂 | 提示条显示"⚠ wy 平台级降级"，不直观 | `Health.tsx` 平台降级条 | ✅ 修复（2026-11-04：加 PLATFORM_NAMES 映射，显示"网易/酷我/QQ/咪咕/酷狗"） |
+| K17 | **预加载脚本 supportActions 白名单过滤新 action**：音源侧新增 config/trend action 后，预加载脚本的白名单只有 6 个 action，把新 action 过滤掉了 | 音源传了 8 个 action，App 端只收到 6 个，配置/趋势按钮不生效 | `android/app/src/main/assets/script/user-api-preload.js` supportActions | ✅ 修复（2026-11-04 b19：白名单加 config/trend） |
+| K18 | **预加载脚本 handleRequest 缺 config/trend case**：白名单放行后，handleRequest 的 switch 也没处理这两个 action，result 是 undefined | 点配置/趋势按钮报错 "Cannot read property 'data' of undefined" | `android/app/src/main/assets/script/user-api-preload.js` handleRequest switch | ✅ 修复（2026-11-04 b20：加 config/trend case，统一返回 `{ source, action, data: response }`） |
+| K19 | **配置/趋势弹窗背景透明**：modalContent 用 `theme['c-bg-1']` 动态背景色，实际渲染透明，能看到后面的健康面板内容 | 弹窗内容叠在健康面板上面，没有白色背景和遮罩 | `Health.tsx` modalContent 样式 | ✅ 修复（2026-11-04 b20：改为明确 `backgroundColor: '#fff'` + `width: '100%'`） |
 
 ## 维护规则
 

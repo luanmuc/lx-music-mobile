@@ -8,6 +8,27 @@
 
 ---
 
+## [v1.9.2-b20] - 2026-11-04
+
+### 健康面板新增「配置」「趋势」按钮（v29.3 + v29.4）
+- **配置热更新**（v29.3）：健康面板加「配置」按钮，弹出 Modal 编辑 14 个运行参数（缓存 TTL、熔断阈值、并发数、探测间隔等），保存后音源内存热更新即时生效，无需重载音源
+- **健康趋势图**（v29.4）：健康面板加「趋势」按钮，弹出 Modal 显示每个源最近 20 次探测的健康分圆点序列（绿/橙/红三色阈值与主面板统一）
+- **平台级降级提示**（v29.2）：健康面板顶部加黄底⚠️提示条，当某平台（网易/酷我/QQ/咪咕/酷狗）所有子源都失效时显示「⚠ 网易平台级降级」
+
+### 关键 bug 修复（预加载脚本两层）
+- **预加载脚本 supportActions 白名单过滤新 action**：音源侧新增 config/trend action 后，App 端预加载脚本的白名单只有 6 个 action（musicUrl/lyric/pic/health/toggle/probe），把 config/trend 过滤掉了——导致音源传了 8 个 action，App 端只收到 6 个，配置/趋势按钮点了提示"未检测到支持健康查询的音源"（b19 修复：白名单加 config/trend）
+- **预加载脚本 handleRequest 缺 config/trend case**：即使白名单放行了，handleRequest 的 switch 也没处理 config/trend——返回 result 是 undefined，App 侧 `.then(res => res.data)` 报错 "Cannot read property 'data' of undefined"（b20 修复：handleRequest 加 config/trend case，统一返回 `{ source, action, data: response }`）
+- **弹窗背景透明**：配置/趋势 Modal 的 modalContent 用 `theme['c-bg-1']` 动态背景色，实际渲染透明——改为明确白色背景 + width 100%（b20 修复）
+
+### 其他修复
+- **健康面板 error 残留**：首次加载音源未就绪误报"未检测到支持健康查询的音源"，后续静默轮询成功后 error 不自动清除（b18 修复：所有成功路径都 setError('')）
+- **静默轮询失败打扰用户**：每 30 秒后台刷新失败就弹错误提示（b18 修复：silent 模式下不 setError、不 setSnapshot(null)）
+- **平台降级提示条显示英文 ID**：wy/kw/tx/mg/kg 没翻译成中文（b18 修复：加 PLATFORM_NAMES 映射，显示"网易/酷我/QQ/咪咕/酷狗"）
+
+配套音源：v29.4（config action + trend action + 平台级降级 + juheWy 分组）
+
+---
+
 ## [v1.9.2-b5] - 2026-11-01
 
 ### 音源健康分改 10 分制（更直观）

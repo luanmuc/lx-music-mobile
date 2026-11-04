@@ -17,6 +17,7 @@
 | K10 | **播放卡死**：`Property 'logger' doesn't exist`（logger 导入链断裂） | 所有在线歌点播后播放栏 00:00 卡死 | `core/player/player.ts` | ✅ b71 修复（`import { logger } from '@/utils/logger'`） |
 | K11 | **日志权限误判**：系统「所有文件访问」判定与真实写能力不一致 → 反复提示去开启 | 有权限仍提示；无日志可看 | `utils/log.ts` | ✅ b71 双通道根治（真实写测试为准 + 私有目录兜底 + 移除强制提示） |
 | K12 | **音频卸载默认关闭**（同步上游 v1.9.2 `025d7822`/`b3afb18c`）：默认值 `true→false`，设置版本 2.2→2.3，老用户升级自动关闭 | 部分设备卸载模式异常（杂音/播放失败）的历史问题缓解；个别省电敏感用户需手动重开 | `config/defaultSetting.ts` + `config/setting.ts`（v2.3 迁移） | ✅ 默认设计（跟随上游方案 A，用户可在设置中手动开启） |
+| K13 | **逐字歌词未实现**：App 端无 yrc/ylrc 逐字歌词解析能力，只能显示逐行滚动歌词 | 高音质偏好用户期待逐字歌词体验缺失 | `core/lyric.ts`（仅逐行） | ⬜ 待实现（v29.1 计划，见 ITERATION_ROADMAP） |
 
 ## 维护规则
 

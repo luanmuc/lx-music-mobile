@@ -36,20 +36,52 @@ const STATE_COLOR: Record<HealthItem['state'], string> = {
 
 // v29.3：配置参数中文映射
 const CONFIG_LABELS: Record<string, string> = {
-  cacheTtlMs: '成功缓存有效期(ms)',
-  failCacheNotFoundMs: '404失败缓存(ms)',
-  failCacheExpiredMs: '过期失败缓存(ms)',
-  breakerThreshold: '熔断阈值(连续失败次数)',
-  breakerCooldownMs: '熔断冷却时间(ms)',
-  rateLimitBackoffMs: '限速退避时间(ms)',
+  cacheTtlMs: '成功缓存有效期',
+  failCacheNotFoundMs: '404失败缓存',
+  failCacheExpiredMs: '过期失败缓存',
+  breakerThreshold: '熔断阈值',
+  breakerCooldownMs: '熔断冷却时间',
+  rateLimitBackoffMs: '限速退避时间',
   maxConcurrency: '最大并发请求数',
-  rateWindowMs: '限速窗口(ms)',
+  rateWindowMs: '限速窗口',
   rateWindowMax: '限速窗口最大请求数',
-  healthCheckIntervalMs: '健康探测间隔(ms)',
-  raceOverallTimeoutMs: '竞速总超时(ms)',
-  raceMatchWaitMs: '竞速匹配等待(ms)',
-  allFailShortTtlMs: '全失败短缓存(ms)',
-  playDeadReviveMs: '已摘除源复活试探(ms)',
+  healthCheckIntervalMs: '健康探测间隔',
+  raceOverallTimeoutMs: '竞速总超时',
+  raceMatchWaitMs: '竞速匹配等待',
+  allFailShortTtlMs: '全失败短缓存',
+  playDeadReviveMs: '已摘除源复活试探',
+}
+
+// 参数单位与预设配置（ms类自动转换为更直观的单位）
+const CONFIG_UNIT_CONFIG: Record<string, { unit: string, msPerUnit?: number, presets: number[], default: number }> = {
+  cacheTtlMs: { unit: '小时', msPerUnit: 3600000, presets: [1, 6, 12, 24, 168], default: 6 },
+  failCacheNotFoundMs: { unit: '分钟', msPerUnit: 60000, presets: [1, 5, 60, 360], default: 60 },
+  failCacheExpiredMs: { unit: '秒', msPerUnit: 1000, presets: [30, 60, 300], default: 60 },
+  breakerThreshold: { unit: '次', presets: [2, 3, 5, 10], default: 3 },
+  breakerCooldownMs: { unit: '分钟', msPerUnit: 60000, presets: [0.5, 1, 3, 10], default: 3 },
+  rateLimitBackoffMs: { unit: '秒', msPerUnit: 1000, presets: [5, 10, 30, 60], default: 30 },
+  maxConcurrency: { unit: '个', presets: [1, 2, 3, 5], default: 2 },
+  rateWindowMs: { unit: '秒', msPerUnit: 1000, presets: [1, 3, 5], default: 3 },
+  rateWindowMax: { unit: '次', presets: [3, 5, 10, 20], default: 5 },
+  healthCheckIntervalMs: { unit: '分钟', msPerUnit: 60000, presets: [1, 5, 10, 30], default: 10 },
+  raceOverallTimeoutMs: { unit: '秒', msPerUnit: 1000, presets: [3, 5, 6, 10], default: 6 },
+  raceMatchWaitMs: { unit: '秒', msPerUnit: 1000, presets: [1, 2, 3, 5], default: 3 },
+  allFailShortTtlMs: { unit: '分钟', msPerUnit: 60000, presets: [1, 5, 15], default: 5 },
+  playDeadReviveMs: { unit: '分钟', msPerUnit: 60000, presets: [5, 10, 30, 60], default: 30 },
+}
+
+// ms 值 → 直观单位值
+const msToDisplay = (key: string, msValue: number): number => {
+  const cfg = CONFIG_UNIT_CONFIG[key]
+  if (!cfg?.msPerUnit) return msValue
+  return Math.round(msValue / cfg.msPerUnit * 100) / 100
+}
+
+// 直观单位值 → ms 值
+const displayToMs = (key: string, displayValue: number): number => {
+  const cfg = CONFIG_UNIT_CONFIG[key]
+  if (!cfg?.msPerUnit) return displayValue
+  return Math.round(displayValue * cfg.msPerUnit)
 }
 
 // 获取当前音源的健康查询器（任一声明对应 action 的源均可，聚合结果与源无关）
@@ -157,7 +189,10 @@ export default memo(() => {
       const { promise } = querier()
       const res = await promise
       setConfigData(res)
-      setConfigInputs(Object.fromEntries(Object.entries(res).map(([k, v]) => [k, String(v)])))
+      // v29.5：ms值自动转成直观单位值显示（比如 21600000ms → 6小时）
+      setConfigInputs(Object.fromEntries(
+        Object.entries(res).map(([k, v]) => [k, String(msToDisplay(k, Number(v)))])
+      ))
       setShowConfigModal(true)
     } catch (e: any) {
       setError(String(e?.message || t('health_load_failed')))
@@ -171,9 +206,11 @@ export default memo(() => {
     const updates: Record<string, number> = {}
     for (const [k, v] of Object.entries(configInputs)) {
       const num = Number(v)
-      // 校验：有效数字 / 整数 / 正数 / 合理上限（<100000，防极端值）/ 白名单内
-      if (!isNaN(num) && Number.isInteger(num) && num > 0 && num < 100000 && k in (configData || {})) {
-        updates[k] = num
+      // v29.5：直观单位值转回 ms 再保存
+      const msValue = displayToMs(k, num)
+      // 校验：有效数字 / 正数 / 合理上限（ms < 1年，防极端值）/ 白名单内
+      if (!isNaN(num) && num > 0 && msValue > 0 && msValue < 365 * 24 * 3600 * 1000 && k in (configData || {})) {
+        updates[k] = msValue
       }
     }
     try {
@@ -420,19 +457,64 @@ export default memo(() => {
           <ScrollView style={styles.modalScroll}>
             {configData && Object.entries(configData)
               .filter(([key]) => !['ikunApiKey', 'lingchuanApiKey', 'xinghaiDeviceId'].includes(key))
-              .map(([key, value]) => (
+              .map(([key, value]) => {
+                const unitCfg = CONFIG_UNIT_CONFIG[key]
+                const unit = unitCfg?.unit || ''
+                const presets = unitCfg?.presets || []
+                const currentVal = configInputs[key] ?? ''
+                return (
               <View key={key} style={styles.configRow}>
                 <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{CONFIG_LABELS[key] || key}</Text>
-                <TextInput
-                  style={[styles.configInput, { borderColor: theme['c-border-1'], color: theme['c-font-1'] }]}
-                  value={configInputs[key] ?? String(value)}
-                  onChangeText={(text) => setConfigInputs(prev => ({ ...prev, [key]: text }))}
-                  keyboardType="numeric"
-                />
+                <View style={styles.configInputRow}>
+                  <TextInput
+                    style={[styles.configInput, { borderColor: theme['c-border-1'], color: theme['c-font-1'] }]}
+                    value={currentVal}
+                    onChangeText={(text) => setConfigInputs(prev => ({ ...prev, [key]: text }))}
+                    keyboardType="numeric"
+                  />
+                  {unit ? <Text size={11} color={theme['c-font-label']} style={styles.configUnit}>{unit}</Text> : null}
+                </View>
+                {/* 预设按钮 */}
+                {presets.length > 0 && (
+                  <View style={styles.presetRow}>
+                    {presets.map(p => {
+                      const isActive = currentVal === String(p)
+                      return (
+                        <Button
+                          key={p}
+                          size="small"
+                          type={isActive ? 'primary' : 'plain'}
+                          style={styles.presetBtn}
+                          onPress={() => setConfigInputs(prev => ({ ...prev, [key]: String(p) }))}
+                        >
+                          {p}{unit}
+                        </Button>
+                      )
+                    })}
+                  </View>
+                )}
               </View>
-            ))}
+                )
+            })}
           </ScrollView>
           <View style={styles.modalBtnRow}>
+            <Button
+              size="small"
+              type="plain"
+              onPress={() => {
+                // 恢复默认值
+                const defaults: Record<string, string> = {}
+                for (const [key, cfg] of Object.entries(CONFIG_UNIT_CONFIG)) {
+                  if (key in (configData || {})) {
+                    defaults[key] = String(cfg.default)
+                  }
+                }
+                setConfigInputs(prev => ({ ...prev, ...defaults }))
+              }}
+            >
+              恢复默认
+            </Button>
+            <View style={styles.btnGap} />
             <Button onPress={() => setShowConfigModal(false)}>取消</Button>
             <View style={styles.btnGap} />
             <Button onPress={() => void saveConfig()}>保存</Button>
@@ -566,6 +648,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     fontSize: 12,
+  },
+  // v29.5：配置输入行（输入框 + 单位）
+  configInputRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  configUnit: {
+    marginLeft: 6,
+    width: 36,
+  },
+  // v29.5：预设按钮行
+  presetRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 6,
+    marginLeft: 'auto',
+    flex: 2,
+  },
+  presetBtn: {
+    marginLeft: 0,
   },
   modalBtnRow: {
     flexDirection: 'row',

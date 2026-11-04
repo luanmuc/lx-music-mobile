@@ -441,9 +441,10 @@ export default memo(() => {
                         const data = entry.sources[id]
                         const score = data?.score ?? null
                         let color = '#9e9e9e' // 灰色：无样本
-                        if (score !== null && score >= 7) color = '#4caf50' // 绿
-                        else if (score !== null && score >= 4) color = '#ff9800' // 橙
-                        else if (score !== null && score < 4) color = '#f44336' // 红
+                        // 阈值与主面板一致：>=3 绿 / >=-5 橙 / <-5 红（10分制）
+                        if (score !== null && score >= 3) color = '#4caf50' // 绿
+                        else if (score !== null && score >= -5) color = '#ff9800' // 橙
+                        else if (score !== null && score < -5) color = '#f44336' // 红
                         return (
                           <View
                             key={idx}

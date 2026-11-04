@@ -110,6 +110,8 @@ export default memo(() => {
   // v29.4：趋势图相关 state
   const [trendData, setTrendData] = useState<Array<{ timestamp: number, sources: Record<string, { score: number | null, successRate: number | null }> }>>([])
   const [showTrendModal, setShowTrendModal] = useState(false)
+  // v30.0：提前预警——健康分连续下降的源列表
+  const [decliningSources, setDecliningSources] = useState<string[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadHealth = useCallback(async(silent = false) => {
@@ -129,6 +131,46 @@ export default memo(() => {
       setSnapshot(data as HealthSnapshot)
       // 成功拿到数据说明音源支持 health action，之前的 error（如"未检测到音源"）是误报，清空
       setError('')
+
+      // v30.0：自动获取趋势数据，判断健康分连续下降（提前预警）
+      try {
+        const trendQuerier = getQuerier('trend')
+        if (trendQuerier) {
+          const trendPromise = trendQuerier().promise
+          const trendResult = await trendPromise
+          const history = (trendResult as any)?.history || []
+          setTrendData(history)
+
+          // 判断逻辑：最近 3 次探测，健康分连续下降 ≥5 分
+          if (history.length >= 3) {
+            const recent = history.slice(-3)
+            const declining: string[] = []
+            // 收集所有出现过的源 id
+            const allSourceIds = new Set<string>()
+            recent.forEach(entry => {
+              Object.keys(entry.sources).forEach(id => allSourceIds.add(id))
+            })
+            // 逐个源判断是否连续下降
+            allSourceIds.forEach(sourceId => {
+              const scores = recent.map(entry => entry.sources[sourceId]?.score ?? null)
+              // 要求 3 次都有分数（不是 null）
+              if (scores.every(s => s !== null)) {
+                const [s1, s2, s3] = scores as number[]
+                // 连续两次下降（s1 > s2 > s3），且累计下降 ≥5 分
+                if (s1 > s2 && s2 > s3 && (s1 - s3) >= 5) {
+                  declining.push(sourceId)
+                }
+              }
+            })
+            setDecliningSources(declining)
+          } else {
+            setDecliningSources([])
+          }
+        }
+      } catch (e) {
+        // trend 获取失败不影响主流程，静默忽略
+        console.log('trend auto load failed:', e)
+      }
     } catch (e: any) {
       console.log(e)
       if (!silent) setError(String(e?.message || t('health_load_failed')))
@@ -348,6 +390,15 @@ export default memo(() => {
             <View style={[styles.summary, { backgroundColor: '#fffbe6' }]}>
               <Text size={12} color="#d48806">⚠ {degradedPlatforms.join('、')} 平台级降级</Text>
               {fallbackPlatform ? <Text size={11} color={theme['c-font-label']}>正在用 {PLATFORM_NAMES[fallbackPlatform] || fallbackPlatform} 平台兜底</Text> : null}
+            </View>
+          ) : null
+        }
+        {
+          // v30.0：提前预警——健康分连续下降
+          decliningSources.length ? (
+            <View style={[styles.summary, { backgroundColor: '#fff2e8' }]}>
+              <Text size={12} color="#fa541c">⚠ {decliningSources.join('、')} 健康分连续下降</Text>
+              <Text size={11} color={theme['c-font-label']}>最近 3 次探测持续变差，建议关注或手动切换源</Text>
             </View>
           ) : null
         }

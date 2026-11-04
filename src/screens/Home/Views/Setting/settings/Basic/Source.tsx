@@ -105,7 +105,12 @@ export default memo(() => {
     toast('正在拉取最新音源...')
     try {
       const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
-      const script = await httpFetch(url).promise.then(resp => resp.body) as string
+      // v1.9.2-b32：加 15 秒超时控制（网络慢时用户不用一直等）
+      const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as string
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('拉取超时（15秒），请检查网络')), 15000)
+      )
+      const script = await Promise.race([fetchPromise, timeoutPromise]) as string
       if (script.length > 9_000_000) {
         toast('音源文件过大', 'long')
         return

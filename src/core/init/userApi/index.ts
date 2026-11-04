@@ -86,6 +86,7 @@ export default async(setting: LX.AppSetting) => {
         for (const [source, { actions, type, qualitys: sourceQualitys }] of Object.entries(info.sources)) {
           if (type != 'music') continue
           apis[source as LX.Source] = {}
+          logger.info('userApi', `[debug] ${source} actions = ${actions.join(',')}`)
           for (const action of actions) {
             switch (action) {
               case 'musicUrl':

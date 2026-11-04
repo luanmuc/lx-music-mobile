@@ -93,6 +93,7 @@ export default memo(() => {
 
   // 手动探测：触发一轮健康探测（并发 ~6s）
   const runProbe = useCallback(async() => {
+    setError('')
     const querier = getQuerier('probe')
     if (!querier) {
       setError(t('health_no_source'))
@@ -120,6 +121,7 @@ export default memo(() => {
 
   // v29.3：查看音源配置（调用 config action 读模式）
   const showConfig = useCallback(async() => {
+    setError('')
     const querier = getQuerier('config')
     if (!querier) {
       setError(t('health_no_source'))
@@ -166,6 +168,7 @@ export default memo(() => {
 
   // v29.4：查看健康趋势（调用 trend action 读历史数据）
   const showTrend = useCallback(async() => {
+    setError('')
     const querier = getQuerier('trend')
     if (!querier) {
       setError(t('health_no_source'))
@@ -184,6 +187,7 @@ export default memo(() => {
   // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
   const toggleSource = useCallback(async(item: HealthItem, id: string) => {
     if (togglingId) return
+    setError('')
     const querier = getQuerier('toggle')
     if (!querier) {
       setError(t('health_no_source'))

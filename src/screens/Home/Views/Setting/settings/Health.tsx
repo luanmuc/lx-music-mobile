@@ -411,29 +411,33 @@ export default memo(() => {
             {trendData.length === 0 ? (
               <Text size={13} color={theme['c-font-label']}>暂无历史数据，完成一次探测后自动记录</Text>
             ) : (
-              trendData.map((entry, idx) => (
-                <View key={idx} style={styles.trendRow}>
-                  <Text size={11} color={theme['c-font-label']} style={styles.trendTime}>
-                    {new Date(entry.timestamp).toLocaleTimeString()}
-                  </Text>
-                  <View style={styles.trendBars}>
-                    {Object.entries(entry.sources).slice(0, 8).map(([id, data]) => (
-                      <View key={id} style={styles.trendBarItem}>
-                        <View
-                          style={[
-                            styles.trendBar,
-                            {
-                              height: Math.max(4, (data.score ?? 0) * 6),
-                              backgroundColor: (data.score ?? 0) >= 7 ? '#4caf50' : (data.score ?? 0) >= 4 ? '#ff9800' : '#f44336'
-                            }
-                          ]}
-                        />
-                        <Text size={9} color={theme['c-font-label']}>{id.slice(0, 4)}</Text>
-                      </View>
-                    ))}
+              (() => {
+                // 收集所有源 ID（跨所有历史快照）
+                const allSourceIds = Array.from(new Set(
+                  trendData.flatMap(entry => Object.keys(entry.sources))
+                ))
+                return allSourceIds.map(id => (
+                  <View key={id} style={styles.trendSourceRow}>
+                    <Text size={11} color={theme['c-font-label']} style={styles.trendSourceName}>{id}</Text>
+                    <View style={styles.trendDots}>
+                      {trendData.map((entry, idx) => {
+                        const data = entry.sources[id]
+                        const score = data?.score ?? null
+                        let color = '#9e9e9e' // 灰色：无样本
+                        if (score !== null && score >= 7) color = '#4caf50' // 绿
+                        else if (score !== null && score >= 4) color = '#ff9800' // 橙
+                        else if (score !== null && score < 4) color = '#f44336' // 红
+                        return (
+                          <View
+                            key={idx}
+                            style={[styles.trendDot, { backgroundColor: color }]}
+                          />
+                        )
+                      })}
+                    </View>
                   </View>
-                </View>
-              ))
+                ))
+              })()
             )}
           </ScrollView>
           <View style={styles.modalBtnRow}>
@@ -498,32 +502,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  // v29.4：趋势图样式
-  trendRow: {
+  // v29.4：趋势图样式（每源一行圆点序列）
+  trendSourceRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginBottom: 10,
+    alignItems: 'center',
+    marginBottom: 8,
     paddingBottom: 6,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#eee',
   },
-  trendTime: {
-    width: 70,
+  trendSourceName: {
+    width: 90,
     marginRight: 8,
   },
-  trendBars: {
+  trendDots: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 4,
-  },
-  trendBarItem: {
     alignItems: 'center',
+    gap: 6,
   },
-  trendBar: {
-    width: 12,
-    borderRadius: 2,
-    marginBottom: 2,
+  trendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   summary: {
     flexDirection: 'row',

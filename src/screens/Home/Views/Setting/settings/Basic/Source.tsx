@@ -104,7 +104,7 @@ export default memo(() => {
     setUpdating(true)
     toast('正在拉取最新音源...')
     try {
-      const url = 'https://raw.githubusercontent.com/luanmuc/backend-api/master/lx-source.js'
+      const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
       const script = await httpFetch(url).promise.then(resp => resp.body) as string
       if (script.length > 9_000_000) {
         toast('音源文件过大', 'long')

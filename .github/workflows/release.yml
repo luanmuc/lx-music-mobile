@@ -45,7 +45,7 @@ jobs:
           head -5 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
           ls -lh android/app/src/main/assets/builtin_source.js
           # 输出音源版本行（便于每次构建核对是否已拉到最新版）
-          grep -o "豆包定制聚合音源 v[0-9.]*" android/app/src/main/assets/builtin_source.js | head -1
+          grep -o "@version [0-9.]*" android/app/src/main/assets/builtin_source.js | head -1
           head -2 android/app/src/main/assets/builtin_source.js
           # debug：确认拉到的音源里有没有 config/trend action
           echo "音源 actions 检查："

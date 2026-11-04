@@ -288,6 +288,24 @@ globalThis.lx_setup = (key, id, name, description, version, author, homepage, ra
               data: response,
             }
             break
+          case 'config':
+            // v29.3：配置热更新透传（读模式返回当前配置对象；写模式返回 {updated, current}）
+            if (typeof response != 'object' || response === null) throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
+            }
+            break
+          case 'trend':
+            // v29.4：健康趋势透传（{history, maxPoints}，App 趋势图 Modal 消费）
+            if (typeof response != 'object' || response === null) throw new Error('failed')
+            result = {
+              source: data.source,
+              action: data.action,
+              data: response,
+            }
+            break
         }
         nativeCall(NATIVE_EVENTS_NAMES.response, { requestKey, status: true, result })
       }).catch(err => {

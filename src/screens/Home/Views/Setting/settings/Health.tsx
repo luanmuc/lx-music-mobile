@@ -33,7 +33,7 @@ const STATE_COLOR: Record<HealthItem['state'], string> = {
 }
 
 // 获取当前音源的健康查询器（任一声明对应 action 的源均可，聚合结果与源无关）
-const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe'): ((...args: any[]) => { promise: Promise<any> }) | null => {
+const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe' | 'config'): ((...args: any[]) => { promise: Promise<any> }) | null => {
   const apis = (global as any).lx?.apis as Record<string, any> | undefined
   if (!apis) return null
   const sourceId = Object.keys(apis).find(id => typeof apis[id]?.[fn] === 'function')
@@ -110,6 +110,23 @@ export default memo(() => {
     void loadHealth(true)
   }, [t, loadHealth])
 
+  // v29.3：查看音源配置（调用 config action 读模式）
+  const showConfig = useCallback(async() => {
+    const querier = getQuerier('config')
+    if (!querier) {
+      setError(t('health_no_source'))
+      return
+    }
+    try {
+      const { promise } = querier()
+      const res = await promise
+      const lines = Object.entries(res).map(([k, v]) => `${k}: ${v}`).join('\n')
+      setProbeInfo(`当前配置：\n${lines}`)
+    } catch (e: any) {
+      setError(String(e?.message || t('health_load_failed')))
+    }
+  }, [t])
+
   // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
   const toggleSource = useCallback(async(item: HealthItem, id: string) => {
     if (togglingId) return
@@ -182,6 +199,8 @@ export default memo(() => {
           <Button onPress={() => void loadHealth()} disabled={loading}>{loading ? t('health_loading') : t('health_refresh')}</Button>
           <View style={styles.btnGap} />
           <Button onPress={() => void runProbe()}>{t('health_probe')}</Button>
+          <View style={styles.btnGap} />
+          <Button onPress={() => void showConfig()}>配置</Button>
         </View>
         {
           probeInfo ? (

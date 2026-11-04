@@ -1,10 +1,10 @@
-# LX Music 移动版（定制版）
+# mobile-app
 
-一个基于 React Native 开发的音乐软件（定制版）。
+一个基于 React Native 开发的应用（定制版）。
 
 ## 说明
 
-本仓库是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile)（洛雪音乐移动版）的**定制版**，fork 自上游 v1.9.1（`fb848072`），已合并至上游 **v1.9.2**（`0669d1b6`），由多个豆包账号共同开发维护。
+本仓库是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile) 的**定制版**，fork 自上游 v1.9.1（`fb848072`），已合并至上游 **v1.9.2**（`0669d1b6`），由多个豆包账号共同开发维护。
 
 所用技术栈：
 

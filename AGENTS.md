@@ -34,7 +34,7 @@ node scripts/check_ts_syntax.js
 # 文档一致性检查（推送前必跑：扫描文档中过时版本号/依赖引用，见「文档同步规范」）
 node scripts/check_docs_consistency.js
 
-# 提交 + 推送（push 即触发云编译发版 v1.9.2-bN）
+# 提交 + 推送（push 即触发云编译发版 v1.9.2-bN；push 前必须先 fetch 检查远端，见协作规则第 8 条）
 git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push origin master
 ```
 
@@ -47,6 +47,12 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 5. **改默认值必须走设置迁移机制**（见 `MERGE_GUIDE.md`），禁止静默改值，README「默认设置差异」表同步更新。
 6. **合并上游**：按 `MERGE_GUIDE.md` 流程；高冲突区文件以本仓库为准人工评估；播放器核心以原版为准最小适配。
 7. **禁止**：把令牌/密钥写入提交或文档；提交 node_modules/构建产物；未验证就宣称"应该能用"。
+8. **推送前强制检查远端（多账号防覆盖）**：本仓库由多个豆包账号共用同一令牌开发，额度有限时可能中断或只推送了一部分。**每次 `git push` 前必须先 `git fetch origin` 并对比 `origin/master` 与本地 HEAD**：
+   - 若远端领先（有其他账号的新提交），**必须先 `git pull --rebase origin master`**，以最新代码为基线；
+   - rebase 后重跑语法检查（`node scripts/check_ts_syntax.js`）+ 文档一致性检查（`node scripts/check_docs_consistency.js`），确认自己与对方的改动都存活；
+   - 有冲突必须读对方实现再解决，**禁止整块覆盖**他人已实测的功能；
+   - 推送被拒绝（non-fast-forward）时，立即 rebase 再推，**禁止 force push（`-f`）**；
+   - 若其他账号已完成同一主题（如版本升级、健康分同步），直接复用其结论、合并到自己的文档行，不重复劳动。
 
 ## 实证开发流程（强制）
 

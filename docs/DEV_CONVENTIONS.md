@@ -48,6 +48,7 @@ chore(release): 更新版本信息 v1.9.2-b23
 3. 是否改了默认值——若改，必须走「设置迁移规则」（见 MERGE_GUIDE）
 4. `CUSTOM_CHANGELOG.md` 顶部已补记本次变更（发布说明引用真实变更）
 5. `git diff` 自查：没有调试残留、没有令牌/密钥、没有无关文件
+6. **推送前 `git fetch origin` 检查远端**（多账号防覆盖）：若远端领先有其他账号新提交，先 `git pull --rebase origin master` 并重跑语法+文档一致性检查，确认无冲突再推；推送被拒立即 rebase，**禁止 force push**
 
 ## 五、评审与冲突裁决
 

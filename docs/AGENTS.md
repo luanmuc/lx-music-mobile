@@ -5,7 +5,7 @@
 
 ## 项目一句话
 
-洛雪音乐（lx-music-mobile）**定制版** App：fork 自上游 lyswhut 原版 v1.9.1（fork 点 `fb848072`），已合并至上游 v1.9.2（`0669d1b6`）的共存包（`com.luanmuc.lxmusic`），内置豆包定制聚合音源（云编译时从 `luanmuc/lx-music-source` 自动拉取）。
+洛雪音乐（mobile-app）**定制版** App：fork 自上游 lyswhut 原版 v1.9.1（fork 点 `fb848072`），已合并至上游 v1.9.2（`0669d1b6`）的共存包（`com.luanmuc.lxmusic`），内置豆包定制聚合音源（云编译时从 `luanmuc/backend-api` 自动拉取）。
 
 ## 目录结构
 

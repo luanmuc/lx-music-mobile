@@ -10,7 +10,7 @@
 | 发布版本名 | `1.9.2-bN` | `N` = **底座版本内构建序号**，由 `publish/build-state.json` 状态文件驱动；底座升版后从 `b1` 重新计数（如 `1.9.1-b79` → `1.9.2-b1`） |
 | `versionCode` | `build-state.json` 持续递增 | 每次构建 +1（现为 160 起），`android/app/build.gradle` 从环境变量读取；保证老用户可覆盖安装 |
 | Release tag | `v1.9.2-bN` | 每次构建唯一，prerelease 标记 |
-| 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/lx-music-source` 最新版（`?ref=master`），与代码解耦；**仓库不内置音源副本**，由构建生成 `assets/builtin_source.js` |
+| 内置音源 | 每次构建自动拉取 | 来自 `luanmuc/backend-api` 最新版（`?ref=master`），与代码解耦；**仓库不内置音源副本**，由构建生成 `assets/builtin_source.js` |
 
 > 版本号体系（v1.9.2 起）：`bN` 只在底座版本内递增，底座升版即重置回 `b1`；`versionCode` 永远持续递增，不与 `bN` 绑定。状态文件 `publish/build-state.json` 记录 `baseVersion` / `build` / `versionCode`，CI 每次构建读取并回写（见下）。禁止手改 version 与状态文件——要发版只需 push 代码。
 
@@ -46,7 +46,7 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 ## 四、发布后验证清单（每次推送后必查）
 
-在 [Actions](https://github.com/luanmuc/lx-music-mobile/actions) 页面确认：
+在 [Actions](https://github.com/luanmuc/mobile-app/actions) 页面确认：
 
 1. ✅ `Android` Job 编译成功（5 个 APK）
 2. ✅ `Release` Job 全部步骤绿
@@ -61,7 +61,7 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 - 若原因在最近的代码改动：`git revert <提交>` 后推送，触发下一次构建
 - 若原因在 CI 配置：修复 `.github/workflows/release.yml` 或 `scripts/` 后推送
-- 若原因在音源拉取：检查 `luanmuc/lx-music-source` 仓库最新脚本是否损坏（>50KB + @name 校验失败），修复后重跑
+- 若原因在音源拉取：检查 `luanmuc/backend-api` 仓库最新脚本是否损坏（>50KB + @name 校验失败），修复后重跑
 
 **场景 B：Release 已发但 version.json 未回写（Release Job 部分失败）**
 

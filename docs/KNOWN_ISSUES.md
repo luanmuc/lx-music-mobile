@@ -1,7 +1,7 @@
 # 已知缺陷与限制（KNOWN ISSUES）
 
 > 编号化管理已知问题，改代码前先查此表；新增/修复时更新状态。
-> 格式借鉴 `lx-music-source` 的 D 系列缺陷表：**编号 + 影响 + 位置 + 状态**。
+> 格式借鉴 `backend-api` 的 D 系列缺陷表：**编号 + 影响 + 位置 + 状态**。
 
 | # | 缺陷/限制 | 影响 | 位置 | 状态 |
 |---|---|---|---|---|
@@ -10,7 +10,7 @@
 | K3 | **flac24bit 默认优先**，但多数音源不支持该音质，依赖降级链 | 高音质偏好用户实际拿到 flac/320k | `config/defaultSetting.ts` + 音质链 | ✅ 降级机制兜底（flac24bit→flac→wav→ape→320k→192k→128k） |
 | K4 | **与上游 lyswhut 分叉**（fork 点 `fb848072`；已合并至 v1.9.2），v1.9.2 之后的新功能/修复未跟踪 | 原版后续改进缺失 | 全仓库 | 🟡 已合并 v1.9.2（v1.9.2-b1），后续差异由 [UPSTREAM_LIFECYCLE.md](./UPSTREAM_LIFECYCLE.md) 管理 |
 | K5 | **track-player fork 定制依赖**：通知栏按钮等改动基于 `luanmuc/react-native-track-player` 的 commit `001e2dd`（b80 自 `0f0acb4` 升级，重放上游 `d76fe8f`——注释 gapless 要求，增强音频卸载兼容性） | 上游升级需重新应用定制补丁，升级阻塞 | `package.json` + 原生层 | 🟡 观察中（b80 已执行第二次升级；下次升级仍需重放补丁，见 UPSTREAM_LIFECYCLE） |
-| K6 | **内置音源由构建生成**：本仓库不内置 `assets/builtin_source.js` 静态副本（b74 起移除），每次构建 CI 从音源仓库 master 拉取最新生成；本地改同名文件会被覆盖 | 本地调试需手动放置最新脚本 | `assets/builtin_source.js`（构建生成） | ✅ 设计如此（音源唯一权威 = `luanmuc/lx-music-source`，见 [MUSIC_SOURCE_GUIDE.md](./MUSIC_SOURCE_GUIDE.md)） |
+| K6 | **内置音源由构建生成**：本仓库不内置 `assets/builtin_source.js` 静态副本（b74 起移除），每次构建 CI 从音源仓库 master 拉取最新生成；本地改同名文件会被覆盖 | 本地调试需手动放置最新脚本 | `assets/builtin_source.js`（构建生成） | ✅ 设计如此（音源唯一权威 = `luanmuc/backend-api`，见 [MUSIC_SOURCE_GUIDE.md](./MUSIC_SOURCE_GUIDE.md)） |
 | K7 | **音源依赖第三方接口**：部分平台接口不稳/IP 封禁（酷我 CDN 系、溯音咪咕） | 个别平台播放失败 | 音源仓库 `lx-source.js` | 🟡 跟踪中（音源仓库缺陷表 D 系列 + 健康探测自愈；mg 真源恢复已判否（音源 v26 系列实证），走跨平台兜底） |
 | K8 | **公共目录写入依赖"所有文件访问"授权**：各 ROM 判定口径不一（部分设备授权后仍判定失败） | 日志/下载公共目录不可写 | `utils/log.ts` + 下载权限矩阵 | ✅ b71 双通道根治：公共目录可用→写公共；不可用→自动降级应用私有目录（日志永不丢弃）；下载仍需公共目录时保留引导弹窗（见 [DOWNLOAD_DESIGN.md](./DOWNLOAD_DESIGN.md) 第六节） |
 | K9 | **播放页音源标签不显示子源名**（历史多轮修复未达根因层） | 播放页只显示平台名（「酷我音乐」），不显示「· 溯音酷我」 | `user-api-preload.js`（b72）+ `core/music/index.ts`（b73） | ✅ b72/b73 修复（VM 桥 preload 丢 subSource + index.ts 丢 onSource，两处透传补齐）；回归用例已入音源 v26.3（冒烟覆盖） |

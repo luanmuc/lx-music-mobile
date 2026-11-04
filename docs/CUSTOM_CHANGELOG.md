@@ -1,6 +1,6 @@
 # 定制版更新日志（CUSTOM CHANGELOG）
 
-本文件记录本仓库（`luanmuc/lx-music-mobile` 洛雪音乐定制版）**自 v1.9.1-b1 重建以来**的变更历史，供用户与开发者查阅。
+本文件记录本仓库（`luanmuc/mobile-app` 洛雪音乐定制版）**自 v1.9.1-b1 重建以来**的变更历史，供用户与开发者查阅。
 
 - 上游（lyswhut/lx-music-mobile）的更新日志见 [CHANGELOG.md](./CHANGELOG.md)
 - 每次云编译的**实时发布说明**由 CI 从 git 提交自动生成（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)），本文件是人工维护的归档
@@ -67,7 +67,7 @@
 ### 音源健康分改 10 分制（更直观）
 - 音源快照 `healthScore` 由 0~1 改为 **0~10**（一位小数，如 8.5）——内部评分/排序/熔断逻辑不变，仅输出 ×10 换算；负分保留（异常源标红）
 - App 健康面板显示同步：一位小数 + 阈值调整（≥3 绿 / ≥−5 默认 / <−5 红）
-- 配套音源 v27.4（`luanmuc/lx-music-source`）
+- 配套音源 v27.4（`luanmuc/backend-api`）
 
 ---
 
@@ -107,7 +107,7 @@
 
 ### 内置音源：移除静态副本，构建时统一拉取最新（内置 v26.3）
 - **移除 `assets/builtin_source.js` 静态副本**（此前仓库内置 v11.11 种子文件，已过时且易误导）：本仓库不再内置音源副本
-- **每次云编译自动拉取最新**：`release.yml` 构建第一步通过 GitHub Contents API（`?ref=master`）从 `luanmuc/lx-music-source` 拉取最新 `lx-source.js` **生成** `assets/builtin_source.js`（curl 前 `mkdir -p` 兜底；拉取失败即构建中断，不会出无音源的包）
+- **每次云编译自动拉取最新**：`release.yml` 构建第一步通过 GitHub Contents API（`?ref=master`）从 `luanmuc/backend-api` 拉取最新 `lx-source.js` **生成** `assets/builtin_source.js`（curl 前 `mkdir -p` 兜底；拉取失败即构建中断，不会出无音源的包）
 - 效果：APK 内置音源 = 音源仓库 master 最新版（本包 = **v26.3** 生态扫描制度化版，含自动摘死源 v26.1、日志增强 v26.0）；音源修复当天即可随新构建生效，无需手动同步
 - 仓库扫描不再出现过时的内置音源副本文件
 
@@ -308,7 +308,7 @@
 - 扫描本地下载目录并导入已下载歌曲（自动建「本地音乐」歌单）
 
 **音源**
-- 内置豆包定制聚合音源（CI 每次构建自动从 `luanmuc/lx-music-source` 拉取最新版）
+- 内置豆包定制聚合音源（CI 每次构建自动从 `luanmuc/backend-api` 拉取最新版）
 - 自定义音源入口
 
 **播放体验**

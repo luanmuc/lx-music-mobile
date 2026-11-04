@@ -6,11 +6,11 @@
 
 | 仓库 | 归属 | 分工 |
 |---|---|---|
-| `luanmuc/lx-music-mobile`（本仓库） | 主账号 | App 逻辑、UI、CI、文档、发布 |
-| `luanmuc/lx-music-source` | 音源账号 | 聚合音源脚本（`builtin_source.js`），CI 构建时自动拉取 |
+| `luanmuc/mobile-app`（本仓库） | 主账号 | App 逻辑、UI、CI、文档、发布 |
+| `luanmuc/backend-api` | 音源账号 | 聚合音源脚本（`builtin_source.js`），CI 构建时自动拉取 |
 | `luanmuc/react-native-track-player` | 播放器账号 | track-player fork（通知栏按钮等定制），版本升级需同步 fork |
 
-> 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 由每次构建从 `luanmuc/lx-music-source` 拉取最新生成，本仓库不内置副本）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
+> 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 由每次构建从 `luanmuc/backend-api` 拉取最新生成，本仓库不内置副本）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
 
 ## 二、分支策略
 
@@ -83,7 +83,7 @@ node scripts/check_docs_consistency.js
 |---|---|---|---|
 | 本仓库推送 | ✅ | ✅（经评审） | ✅（经评审） |
 | Actions 触发/查看 | ✅ | ✅ | ✅ |
-| lx-music-source 推送 | 只读 | ✅ | 只读 |
+| backend-api 推送 | 只读 | ✅ | 只读 |
 | track-player fork | 只读 | 只读 | ✅ |
 | npm 发布（NPM_TOKEN） | ✅（secret 管理） | — | — |
 | GitHub secrets 管理 | ✅ | — | — |

@@ -96,7 +96,7 @@ export default forwardRef<UserApiEditModalType, {}>((props, ref) => {
   }
 
   const openFAQPage = () => {
-    void openUrl('https://github.com/luanmuc/lx-music-mobile')
+    void openUrl('https://github.com/luanmuc/mobile-app')
   }
 
   return (

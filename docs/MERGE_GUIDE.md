@@ -1,6 +1,6 @@
 # 上游合并指南（Upstream Merge Guide）
 
-本仓库 `luanmuc/lx-music-mobile` 是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile) 的定制 fork。
+本仓库 `luanmuc/mobile-app` 是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile) 的定制 fork。
 本文档说明如何把原版（上游）后续更新合并进来，以及冲突处理策略。
 
 > 面向用户的定制功能清单与默认设置差异见 [README.md](./README.md)；多账号分工与提交规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)；版本号与发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)。
@@ -71,7 +71,7 @@ git push origin master
 ## 已适配的原版更新类型
 
 - **版本升级**：原版发新 tag 时，合并后 bump 版本号，云编译自动发布新 tag（v1.9.2 合并实例：kg 歌单修复 `e6be258c` + 音频卸载默认禁用 `025d7822`/`b3afb18c` + track-player 依赖 `43a3acd8`，见 [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md)）
-- **音源**：不依赖原版，每次云编译自动从 `luanmuc/lx-music-source` 拉取最新内置音源
+- **音源**：不依赖原版，每次云编译自动从 `luanmuc/backend-api` 拉取最新内置音源
 - **依赖升级**：package.json 依赖随原版更新合入，云编译验证
 
 ---

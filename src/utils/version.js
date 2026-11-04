@@ -118,7 +118,7 @@ const cleanupOldApk = async(dir, keepFileName) => {
   try {
     const files = await readDir(dir)
     for (const f of files) {
-      if (f.isFile && /^lx-music-mobile-.*\.apk$/i.test(f.name) && f.name != keepFileName) {
+      if (f.isFile && /^mobile-app-.*\.apk$/i.test(f.name) && f.name != keepFileName) {
         await unlink(f.path).catch(() => {})
       }
     }
@@ -130,7 +130,7 @@ const cleanupOldApk = async(dir, keepFileName) => {
 export const downloadNewVersion = async(version, onDownload = noop) => {
   const abi = await getTargetAbi()
   const urlList = getApkUrlList(version, abi)
-  const apkFileName = `lx-music-mobile-v${version}.apk`
+  const apkFileName = `mobile-app-v${version}.apk`
   // 优先保存到系统公共下载目录（用户可见）；失败自动回退应用缓存目录
   const savePaths = [
     `${downloadDirectoryPath}/${apkFileName}`,

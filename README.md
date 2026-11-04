@@ -20,7 +20,7 @@
 
 ## 下载安装
 
-- 前往 [GitHub Releases](https://github.com/luanmuc/lx-music-mobile/releases) 下载最新 `v1.9.2-bN` 安装包
+- 前往 [GitHub Releases](https://github.com/luanmuc/mobile-app/releases) 下载最新 `v1.9.2-bN` 安装包
 - 按 ABI 选择：`arm64-v8a`（主流新机）/ `armeabi-v7a`（老机）/ `x86_64`（模拟器）/ `universal`（全兼容大包）
 - App 内「设置 → 软件更新」可在线检查更新并自动下载安装
 
@@ -62,7 +62,7 @@
 
 - 本软件默认设置以实用为准，建议使用前先浏览一遍设置项
 - 音乐播放列表机制说明见 [FAQ.md](./docs/FAQ.md)
-- 遇到问题先看 [FAQ.md](./docs/FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈（注明版本号，如 `1.9.2-b23`）
+- 遇到问题先看 [FAQ.md](./docs/FAQ.md)，仍无法解决请在 [Issues](https://github.com/luanmuc/mobile-app/issues) 反馈（注明版本号，如 `1.9.2-b23`）
 
 ## 贡献代码
 
@@ -92,11 +92,11 @@
 <!--
 ## 用户界面
 
-<p><img width="100%" src="https://github.com/luanmuc/lx-music-mobile/blob/master/doc/images/app.png" alt="lx-music mobile UI"></p> -->
+<p><img width="100%" src="https://github.com/luanmuc/mobile-app/blob/master/doc/images/app.png" alt="lx-music mobile UI"></p> -->
 
 ## 项目协议
 
-本项目基于 [Apache License 2.0](https://github.com/luanmuc/lx-music-mobile/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
+本项目基于 [Apache License 2.0](https://github.com/luanmuc/mobile-app/blob/master/LICENSE) 许可证发行，以下协议是对于 Apache License 2.0 的补充，如有冲突，以以下协议为准。
 
 ---
 
@@ -146,4 +146,4 @@
 
 ---
 
-若对此有疑问请在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 反馈。
+若对此有疑问请在 [Issues](https://github.com/luanmuc/mobile-app/issues) 反馈。

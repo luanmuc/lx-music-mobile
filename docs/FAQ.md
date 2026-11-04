@@ -1,6 +1,6 @@
 # 定制版常见问题（FAQ）
 
-本文档面向 `luanmuc/lx-music-mobile`（洛雪音乐定制版）用户与开发者。
+本文档面向 `luanmuc/mobile-app`（洛雪音乐定制版）用户与开发者。
 上游（原版）的完整文档见 <https://lyswhut.github.io/lx-music-doc/mobile/faq>，本文档只覆盖定制版相关的问题。
 
 > 反馈问题时请**注明定制版版本号**（格式如 `1.9.2-b23`），可在「设置 → 关于」中查看。
@@ -83,7 +83,7 @@
 
 - 检查网络后重试
 - 更新包下载走 GitHub 直连 + 镜像（gh-proxy / ghfast），公共下载目录若残留旧包会先自动清理
-- 手动下载：到 [GitHub Releases](https://github.com/luanmuc/lx-music-mobile/releases) 下载对应 ABI 的 APK
+- 手动下载：到 [GitHub Releases](https://github.com/luanmuc/mobile-app/releases) 下载对应 ABI 的 APK
 
 ### 3. 升级后设置变回默认了？
 
@@ -95,7 +95,7 @@
 
 ### 1. 怎么反馈问题或建议？
 
-在 [Issues](https://github.com/luanmuc/lx-music-mobile/issues) 提交，务必注明：
+在 [Issues](https://github.com/luanmuc/mobile-app/issues) 提交，务必注明：
 - 定制版版本号（如 `1.9.2-b23`）
 - Android 系统版本与机型
 - 问题复现步骤

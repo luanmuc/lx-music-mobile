@@ -16,7 +16,7 @@
 
 ```bash
 git clone <本仓库>
-cd lx-music-mobile
+cd mobile-app
 npm ci                    # 严格按 package-lock.json 安装（CI 同款）
 ```
 

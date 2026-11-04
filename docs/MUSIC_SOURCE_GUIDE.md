@@ -15,16 +15,16 @@ musicSdk（内置官方源）  ──┐
 
 - **官方源**：`src/utils/musicSdk/{kw,kg,mg,tx,wy,bd,xm}/`，直接请求平台公开接口，随上游更新
 - **自定义源**：JS 脚本在 QuickJS 线程执行（`android/.../userApi/`），与 RN 通过 `onScriptAction/sendAction` 双向通信
-- **聚合源**：内置 `assets/builtin_source.js`（**由每次构建从 `luanmuc/lx-music-source` 拉取最新生成，本仓库不内置副本**）= 「豆包定制[聚合音源]」，由**独立仓库** `luanmuc/lx-music-source` 维护
+- **聚合源**：内置 `assets/builtin_source.js`（**由每次构建从 `luanmuc/backend-api` 拉取最新生成，本仓库不内置副本**）= 「豆包定制[聚合音源]」，由**独立仓库** `luanmuc/backend-api` 维护
 
 ## 二、内置音源的发布链路（重要）
 
-1. **CI 拉取**：`.github/workflows/release.yml` 每次构建时，通过 GitHub Contents API（`?ref=master`）从 `luanmuc/lx-music-source` 拉取最新脚本 → **生成** `assets/builtin_source.js`（本仓库**不内置音源副本**，该文件由每次构建自动创建；仓库内若删除/不存在也由构建重建）
+1. **CI 拉取**：`.github/workflows/release.yml` 每次构建时，通过 GitHub Contents API（`?ref=master`）从 `luanmuc/backend-api` 拉取最新脚本 → **生成** `assets/builtin_source.js`（本仓库**不内置音源副本**，该文件由每次构建自动创建；仓库内若删除/不存在也由构建重建）
 2. **校验**：文件 >50KB 且包含 `@name` 声明才通过，防止拉取到损坏文件；拉取失败（curl 非 0）即构建中断，不会出无音源的包
 3. **启动导入**：App 启动时 `core/init/userApi/index.ts` 读取内置脚本，与已导入版本比对（正则提取 `聚合音源 vX.Y`），版本更新则自动导入/替换，并清理旧版（含历史 bug 残留的多份「豆包定制」源）
 4. **运行时**：音源脚本在 QuickJS 中运行，向 App 注册 `musicUrl/lyric/pic` 等 actions，App 侧统一调用
 
-> ⚠️ **本仓库不再内置 `assets/builtin_source.js` 静态副本**（v1.9.1-b74 起移除）：它由每次构建自动生成并覆盖。改音源请到 [luanmuc/lx-music-source](https://github.com/luanmuc/lx-music-source)；本地调试可用最新脚本手动放置同名文件。
+> ⚠️ **本仓库不再内置 `assets/builtin_source.js` 静态副本**（v1.9.1-b74 起移除）：它由每次构建自动生成并覆盖。改音源请到 [luanmuc/backend-api](https://github.com/luanmuc/backend-api)；本地调试可用最新脚本手动放置同名文件。
 
 ## 三、自定义源脚本契约（QuickJS）
 
@@ -66,7 +66,7 @@ App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`andr
 
 ## 四b、音源健康面板与健康分（App 侧语义）
 
-**数据流**：音源脚本（lx-music-source v16.3 起）注册 `health` action → 返回 `getHealthSnapshot()` 全源快照 → App 设置页「音源健康」子页（`src/screens/Home/Views/Setting/settings/Health.tsx`）消费展示，可刷新/单源开关/手动探测。
+**数据流**：音源脚本（backend-api v16.3 起）注册 `health` action → 返回 `getHealthSnapshot()` 全源快照 → App 设置页「音源健康」子页（`src/screens/Home/Views/Setting/settings/Health.tsx`）消费展示，可刷新/单源开关/手动探测。
 
 **健康分语义（v1.9.2-b5 起，配套音源 v27.4）**：
 
@@ -79,14 +79,14 @@ App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`andr
 
 **面板分区排序（音源 v25.2 起）**：使用中 → 正常 → 待采样 → 休眠 → 已关（按 `lastUsedAt` 真实播放记录分组）。
 
-> 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [lx-music-source DEV_GUIDE §3.4b](https://github.com/luanmuc/lx-music-source/blob/master/DEV_GUIDE.md)。
+> 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [backend-api DEV_GUIDE §3.4b](https://github.com/luanmuc/backend-api/blob/master/DEV_GUIDE.md)。
 
 ## 五、如何测试音源
 
 1. **本地替换**：手动用最新脚本覆盖 `assets/builtin_source.js`，`npm run dev` 跑 debug 包
 2. **看日志**：设置 → 开启调试日志；或 `adb logcat | grep -i userApi`
 3. **验证项**：搜索正常？播放返回的 URL 能播？音质降级链正确？歌词/封面正常？
-4. **发布**：推到 `luanmuc/lx-music-source`，下次云编译自动带入
+4. **发布**：推到 `luanmuc/backend-api`，下次云编译自动带入
 
 ## 六、音源相关 FAQ
 

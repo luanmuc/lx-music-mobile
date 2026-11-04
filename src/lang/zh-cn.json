@@ -555,7 +555,7 @@
   "health_desc": "音源实时健康快照：各子源成功率 / 均时 / 熔断状态 / 健康分",
   "health_refresh": "刷新",
   "health_loading": "加载中…",
-  "health_no_source": "未检测到支持健康查询的音源（需音源声明 health action，v16.3+）",
+  "health_no_source": "未检测到支持健康查询的音源（需音源声明 health action，v4.0+）",
   "health_load_failed": "健康数据加载失败",
   "health_col_source": "音源",
   "health_col_quality": "音质",

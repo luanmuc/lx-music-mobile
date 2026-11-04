@@ -52,7 +52,7 @@ export default async() => {
   await initI18n(setting)
   bootLog('I18n inited.')
 
-  // v29.3：启动注入音源配置（从本地存储读配置，注入到 __lxSourceConfig，音源加载时自动应用）
+  // v8.0：启动注入音源配置（从本地存储读配置，注入到 __lxSourceConfig，音源加载时自动应用）
   try {
     const { getData } = await import('@/plugins/storage')
     const savedConfig = await getData<Record<string, number>>('lx_source_config')

@@ -555,7 +555,7 @@
   "health_desc": "Live health snapshot: success rate / avg time / breaker state / health score per sub-source",
   "health_refresh": "Refresh",
   "health_loading": "Loading…",
-  "health_no_source": "No source supports health query (requires health action, v16.3+)",
+  "health_no_source": "No source supports health query (requires health action, v4.0+)",
   "health_load_failed": "Failed to load health data",
   "health_col_source": "Source",
   "health_col_quality": "Quality",

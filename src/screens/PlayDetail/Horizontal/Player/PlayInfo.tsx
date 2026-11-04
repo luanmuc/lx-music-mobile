@@ -31,7 +31,7 @@ export default () => {
   const buffered = useBufferProgress()
   const playQuality = usePlayQuality()
   const qualityLabel = getPlayQualityLabel(playQuality)
-  // v25.9：实际交付链接的子源（平台名 + 子源名；子源未知时仅平台名）
+  // v6.0：实际交付链接的子源（平台名 + 子源名；子源未知时仅平台名）
   const playSource = usePlaySource()
   const playMusicInfo = usePlayMusicInfo()
   const src = (playMusicInfo?.musicInfo as any)?.source

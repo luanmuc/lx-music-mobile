@@ -10,7 +10,7 @@ import { useTheme } from '@/store/theme/hook'
 import { saveData, getData } from '@/plugins/storage'
 import { logger } from '@/utils/logger'
 
-// 音源健康快照（音源 getHealthSnapshot 聚合查询；v16.4：无样本 successRate/avgTime 为 null + 样本计数；v16.5：sleeping 休眠字段）
+// 音源健康快照（音源 getHealthSnapshot 聚合查询；v4.0：无样本 successRate/avgTime 为 null + 样本计数；v4.0：sleeping 休眠字段）
 interface HealthItem {
   name: string
   maxQuality: string
@@ -22,7 +22,7 @@ interface HealthItem {
   probeCount: number
   sleeping: boolean
   healthScore: number
-  // v25.2：真实播放请求最后使用时间戳（音源快照提供；0=从未用过）——五级分区"使用中"判定
+  // v6.0：真实播放请求最后使用时间戳（音源快照提供；0=从未用过）——五级分区"使用中"判定
   lastUsedAt?: number
 }
 type HealthSnapshot = Record<string, HealthItem>
@@ -34,7 +34,7 @@ const STATE_COLOR: Record<HealthItem['state'], string> = {
   open: '#ff4d4f',
 }
 
-// v29.3：配置参数中文映射
+// v8.0：配置参数中文映射
 const CONFIG_LABELS: Record<string, string> = {
   cacheTtlMs: '成功缓存有效期',
   failCacheNotFoundMs: '404失败缓存',
@@ -121,11 +121,11 @@ export default memo(() => {
   const [error, setError] = useState('')
   const [togglingId, setTogglingId] = useState('')
   const [probeInfo, setProbeInfo] = useState('')
-  // v29.3：配置编辑相关 state
+  // v8.0：配置编辑相关 state
   const [showConfigModal, setShowConfigModal] = useState(false)
   const [configData, setConfigData] = useState<Record<string, any> | null>(null)
   const [configInputs, setConfigInputs] = useState<Record<string, string>>({})
-  // v29.4：趋势图相关 state
+  // v8.0：趋势图相关 state
   const [trendData, setTrendData] = useState<Array<{ timestamp: number, sources: Record<string, { score: number | null, successRate: number | null }> }>>([])
   const [showTrendModal, setShowTrendModal] = useState(false)
   // v30.0：提前预警——健康分连续下降的源列表
@@ -199,7 +199,7 @@ export default memo(() => {
     }
   }, [t])
 
-  // v16.5：面板停留自动刷新（30s 静默轮询），卸载清理
+  // v4.0：面板停留自动刷新（30s 静默轮询），卸载清理
   useEffect(() => {
     void loadHealth()
     timerRef.current = setInterval(() => { void loadHealth(true) }, 30000)
@@ -236,7 +236,7 @@ export default memo(() => {
     void loadHealth(true)
   }, [t, loadHealth])
 
-  // v29.3：查看音源配置（调用 config action 读模式）
+  // v8.0：查看音源配置（调用 config action 读模式）
   const showConfig = useCallback(async() => {
     setError('')
     const querier = getQuerier('config')
@@ -251,7 +251,7 @@ export default memo(() => {
       const { promise } = querier()
       const res = await promise
       setConfigData(res)
-      // v29.5：ms值自动转成直观单位值显示（比如 21600000ms → 6小时）
+      // v8.0：ms值自动转成直观单位值显示（比如 21600000ms → 6小时）
       setConfigInputs(Object.fromEntries(
         Object.entries(res).map(([k, v]) => [k, String(msToDisplay(k, Number(v)))])
       ))
@@ -261,14 +261,14 @@ export default memo(() => {
     }
   }, [t])
 
-  // v29.3：保存配置（写模式 + 本地持久化）
+  // v8.0：保存配置（写模式 + 本地持久化）
   const saveConfig = useCallback(async() => {
     setError('')
     const querier = getQuerier('config')
     const updates: Record<string, number> = {}
     for (const [k, v] of Object.entries(configInputs)) {
       const num = Number(v)
-      // v29.5：直观单位值转回 ms 再保存
+      // v8.0：直观单位值转回 ms 再保存
       const msValue = displayToMs(k, num)
       // v30.1：校验——有效数字 / 正数 / 白名单内 / 上下限
       if (isNaN(num) || num <= 0 || msValue <= 0 || !(k in (configData || {}))) continue
@@ -297,7 +297,7 @@ export default memo(() => {
     }
   }, [t, configInputs, configData])
 
-  // v29.4：查看健康趋势（调用 trend action 读历史数据）
+  // v8.0：查看健康趋势（调用 trend action 读历史数据）
   const showTrend = useCallback(async() => {
     setError('')
     const querier = getQuerier('trend')
@@ -315,7 +315,7 @@ export default memo(() => {
     }
   }, [t])
 
-  // v16.5：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
+  // v4.0：行内开关——点击状态胶囊切换该源启用/停用（停用带 manualOff 锁定，探测不自动复活）
   const toggleSource = useCallback(async(item: HealthItem, id: string) => {
     if (togglingId) return
     setError('')
@@ -344,7 +344,7 @@ export default memo(() => {
     if (!hasSample(it)) return 2
     return isUsing(it) ? 0 : 1
   }
-  // v29.2：提取平台级降级聚合（_ 开头的特殊字段，不参与子源列表渲染）
+  // v8.0：提取平台级降级聚合（_ 开头的特殊字段，不参与子源列表渲染）
   const PLATFORM_NAMES: Record<string, string> = { wy: '网易', kw: '酷我', tx: 'QQ', mg: '咪咕', kg: '酷狗' }
   const platformSummary = snapshot?._platformSummary as Record<string, { degraded: boolean; activeCount: number; deadCount: number }> | undefined
   const fallbackPlatform = snapshot?._fallbackPlatform as string | undefined
@@ -409,7 +409,7 @@ export default memo(() => {
           ) : null
         }
         {
-          // v29.2：平台级降级提示条
+          // v8.0：平台级降级提示条
           degradedPlatforms.length ? (
             <View style={[styles.summary, { backgroundColor: '#fffbe6' }]}>
               <Text size={12} color="#d48806">⚠ {degradedPlatforms.join('、')} 平台级降级</Text>
@@ -454,8 +454,8 @@ export default memo(() => {
                 <Text size={12} style={styles.colSmall}>{t('health_col_score')}</Text>
               </View>
               {
-                // v16.4：全部行直接渲染，表格随音源数量自动撑高（整页滚动，不再 maxHeight 截断）
-                // v16.5：状态胶囊可点按开关源
+                // v4.0：全部行直接渲染，表格随音源数量自动撑高（整页滚动，不再 maxHeight 截断）
+                // v4.0：状态胶囊可点按开关源
                 items.map(([id, item]) => {
                   const sampled = hasSample(item)
                   const rateText = item.successRate == null ? '-' : `${(item.successRate * 100).toFixed(0)}%`
@@ -471,15 +471,15 @@ export default memo(() => {
                     // v-b45：断路器闭合但成功率 0% + 健康分<0 → "异常"（上游不可用的源不再显示"正常"）
                     stateText = t('health_state_abnormal'); stateColor = '#ff4d4f'
                   } else if (item.playDead) {
-                    // v26.1：播放连续失败被摘除
+                    // v7.0：播放连续失败被摘除
                     stateText = '已摘除'; stateColor = '#ff4d4f'
                   } else if (item.rateLimited) {
-                    // v17.2：被限流（连续 429）
+                    // v4.0：被限流（连续 429）
                     stateText = '被限流'; stateColor = '#faad14'
                   } else {
                     stateText = t(`health_state_${item.state}`); stateColor = STATE_COLOR[item.state]
                   }
-                  // 健康分 10 分制（音源 v27.4 起快照 ×10）：一位小数；阈值 ≥3 绿 / ≥−5 默认 / <−5 红
+                  // 健康分 10 分制（音源 v7.0 起快照 ×10）：一位小数；阈值 ≥3 绿 / ≥−5 默认 / <−5 红
                   const scoreText = !sampled ? '-' : item.healthScore.toFixed(1)
                   const scoreColor = !sampled ? theme['c-font-label']
                     : item.healthScore >= 3 ? '#52c41a' : item.healthScore >= -5 ? theme['c-font'] : '#ff4d4f'
@@ -524,7 +524,7 @@ export default memo(() => {
       </SubTitle>
     </Section>
 
-    {/* v29.3：配置编辑弹窗 */}
+    {/* v8.0：配置编辑弹窗 */}
     <Modal visible={showConfigModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -598,7 +598,7 @@ export default memo(() => {
       </View>
     </Modal>
 
-    {/* v29.4：健康趋势弹窗 */}
+    {/* v8.0：健康趋势弹窗 */}
     <Modal visible={showTrendModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
   btnGap: {
     width: 12,
   },
-  // v29.3：配置弹窗样式
+  // v8.0：配置弹窗样式
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     fontSize: 12,
   },
-  // v29.5：配置输入行（输入框 + 单位）
+  // v8.0：配置输入行（输入框 + 单位）
   configInputRow: {
     flex: 1,
     flexDirection: 'row',
@@ -734,7 +734,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     width: 36,
   },
-  // v29.5：预设按钮行
+  // v8.0：预设按钮行
   presetRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -750,7 +750,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
   },
-  // v29.4：趋势图样式（每源一行圆点序列）
+  // v8.0：趋势图样式（每源一行圆点序列）
   trendSourceRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
   },
-  // v29.4：方块时间线趋势图样式（status page 经典风格）
+  // v8.0：方块时间线趋势图样式（status page 经典风格）
   trendBlocks: {
     flex: 1,
     flexDirection: 'row',

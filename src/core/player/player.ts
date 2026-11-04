@@ -118,7 +118,7 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     musicInfo,
     isRefresh,
     onQuality,
-    // v25.9+：记录实际交付链接的子源（id + 中文名），播放页音源标签展示
+    // v6.0+：记录实际交付链接的子源（id + 中文名），播放页音源标签展示
     // 注意：缓存命中时 onSource 是异步回调（播放已开始 isPlay=true），不能套用 diffCurrentMusicInfo 的
     // isPlay 拦截，否则缓存命中的歌永远显示不了子源。防串歌只校验 gettingUrlId——
     // setMusicUrl 在发起请求前同步设置 gettingUrlId = 当前歌 id，唯一标识"本次请求归属"：
@@ -180,7 +180,7 @@ export const setMusicUrl = (musicInfo: LX.Music.MusicInfo | LX.Download.ListItem
     if (!url) return
     setResource(musicInfo, url, playerState.progress.nowPlayTime)
   }).catch((err: any) => {
-    // v16.3：音源失败原因友好化（原为 err.message 大段英文技术细节；诊断链走 log.diagnose）
+    // v4.0：音源失败原因友好化（原为 err.message 大段英文技术细节；诊断链走 log.diagnose）
     setStatusText(formatPlayError(err))
     global.app_event.error()
     addDelayNextTimeout()

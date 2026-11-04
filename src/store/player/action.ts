@@ -27,7 +27,7 @@ export default {
     global.state_event.playQualityChanged(playQuality)
   },
 
-  // v25.9：记录实际交付链接的子源（id + 中文名），配合播放页音源标签「平台 · 子源名」
+  // v6.0：记录实际交付链接的子源（id + 中文名），配合播放页音源标签「平台 · 子源名」
   setPlaySource(source: { id: string; name: string } | null) {
     state.playSource = source
       global.state_event.playSourceChanged(source)

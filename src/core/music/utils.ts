@@ -322,7 +322,7 @@ export const getOnlineOtherSourceMusicUrl = async({ musicInfos, quality, onToggl
 
   const cachedUrl = await getStoreMusicUrl(musicInfo, itemQuality)
   if (cachedUrl && !isRefresh) {
-    // 与主请求路径一致：缓存命中读子源键（v25.9 起双写），老缓存无子源时降级空
+    // 与主请求路径一致：缓存命中读子源键（v6.0 起双写），老缓存无子源时降级空
     const cachedSource = await getStoreMusicSource(musicInfo, itemQuality)
     return { url: cachedUrl, musicInfo, quality: itemQuality, isFromCache: true, subSource: cachedSource?.id ?? '', subSourceName: cachedSource?.name ?? '' }
   }
@@ -626,8 +626,8 @@ export const getPlayQualityLabel = (quality: string): string => {
 }
 
 // ============================================================
-// 音源失败原因友好化（v16.3：播放失败提示中文摘要）
-// 音源聚合失败 message 格式（v14.0+）：`CODE: 所有源均失败 [[q] 源: 原因 | ...]`
+// 音源失败原因友好化（v4.0：播放失败提示中文摘要）
+// 音源聚合失败 message 格式（v3.0+）：`CODE: 所有源均失败 [[q] 源: 原因 | ...]`
 // 或 `CODE: 单源原因`；内置源错误为 requestMsg 中文文案（原样截断返回）
 // ============================================================
 const FAIL_CODE_ZH: Record<string, string> = {

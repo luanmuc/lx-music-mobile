@@ -109,8 +109,8 @@ export default async(setting: LX.AppSetting) => {
                       },
                       // eslint-disable-next-line @typescript-eslint/promise-function-async
                     }).then(res => {
-                      // 音源返回实际交付音质（res.data.type，v11.13+）；旧音源无该字段时回退请求音质
-                      // v25.9：透传实际子源（subSource id + subSourceName 中文名），旧音源无字段时为空字符串
+                      // 音源返回实际交付音质（res.data.type，v1.0+）；旧音源无该字段时回退请求音质
+                      // v6.0：透传实际子源（subSource id + subSourceName 中文名），旧音源无字段时为空字符串
                       return {
                         type: (res.data as { type?: LX.Quality })?.type ?? type,
                         url: (res.data as { url: string }).url,
@@ -181,7 +181,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'health':
-                // v16.3：健康快照（音源 getHealthSnapshot 聚合查询，与具体源无关；任一源可调）
+                // v4.0：健康快照（音源 getHealthSnapshot 聚合查询，与具体源无关；任一源可调）
                 apis[source].getHealth = () => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {
@@ -207,7 +207,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'toggle':
-                // v16.5：源级开关（手动启用/停用某子源；停用带 manualOff 锁定，探测不自动复活）
+                // v4.0：源级开关（手动启用/停用某子源；停用带 manualOff 锁定，探测不自动复活）
                 apis[source].toggle = (id: string, enabled: boolean) => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {
@@ -229,7 +229,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'probe':
-                // v16.5：手动触发一轮健康探测（并发 ~6s；探测中返回 running:true 不排队）
+                // v4.0：手动触发一轮健康探测（并发 ~6s；探测中返回 running:true 不排队）
                 apis[source].probe = () => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {
@@ -251,7 +251,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'config':
-                // v29.3：配置热更新（读模式不传 info 返回当前配置；写模式传 info 更新内存值）
+                // v8.0：配置热更新（读模式不传 info 返回当前配置；写模式传 info 更新内存值）
                 logger.info('userApi', `[debug] case config 执行了，source: ${source}`)
                 apis[source].config = (updates?: Record<string, number>) => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
@@ -274,7 +274,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'trend':
-                // v29.4：健康趋势（返回历史健康快照数组，保留最近20条）
+                // v8.0：健康趋势（返回历史健康快照数组，保留最近20条）
                 apis[source].trend = () => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {
@@ -412,7 +412,7 @@ export default async(setting: LX.AppSetting) => {
     // named.length > 1：无法区分内置/手动 → 不冒险（canManageBuiltin 保持 false）
   }
 
-  // 读取内置脚本并解析聚合源版本号（logInfo 里的 v11.13 形式；匹配失败则仅首次导入）
+  // 读取内置脚本并解析聚合源版本号（logInfo 里的 v1.0 形式；匹配失败则仅首次导入）
   let builtinVer = ''
   try {
     const probeScript = await RNFS.readFileAssets('builtin_source.js', 'utf8')

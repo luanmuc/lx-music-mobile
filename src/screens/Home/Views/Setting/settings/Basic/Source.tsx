@@ -15,7 +15,7 @@ import UserApiEditModal, { type UserApiEditModalType } from './UserApiEditModal'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import { httpFetch } from '@/utils/request'
-import { handleImportScript } from './UserApiEditModal/action'
+import { importUserApi } from '@/core/userApi'
 // import { importUserApi, removeUserApi } from '@/core/userApi'
 
 const apiSourceList = apiSourceInfo.map(api => ({
@@ -97,7 +97,7 @@ export default memo(() => {
     modalRef.current?.show()
   }
 
-  // 更新音源：从 GitHub Raw URL 拉取最新 lx-source.js
+  // 更新音源：从 jsDelivr CDN 拉取最新 lx-source.js
   const [updating, setUpdating] = useState(false)
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
@@ -113,7 +113,8 @@ export default memo(() => {
       // 提取版本号（从 @version 注释）
       const versionMatch = script.match(/@version\s+(\d+\.\d+)/)
       const version = versionMatch ? versionMatch[1] : '未知'
-      await handleImportScript(script)
+      // 直接导入，自己处理 toast（避免双重提示）
+      await importUserApi(script)
       toast(`音源已更新到 v${version}，重启 App 生效`, 'long')
     } catch (err: any) {
       toast(`更新失败：${err.message}`, 'long')

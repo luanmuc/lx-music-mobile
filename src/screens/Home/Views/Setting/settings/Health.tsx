@@ -457,7 +457,8 @@ export default memo(() => {
                       })}
                     </View>
                   </View>
-                ))
+                  )
+                })
               })()
             )}
           </ScrollView>

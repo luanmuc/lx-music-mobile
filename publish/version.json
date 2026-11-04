@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b15",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 43861315 fix: 修复趋势图语法错误（=> { 结尾应为 }) 而非 ))\n- 562faf10 fix: 趋势图显示中文名（优先用历史快照里的 name，回退到 id）\n- 742dda06 fix: 补 case 'config' 和 case 'trend'（v29.3/v29.4 功能根本没实现——userApi 注册漏了两个 action）\n- 74c31e63 docs: KNOWN_ISSUES 追加 K14-K16（健康面板 error 残留/静默轮询打扰/平台 ID 未翻译）",
+  "version": "1.9.2-b16",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 38e1b865 debug: console.log 改 logger.info（日志管理里可查看）\n- 711d815c debug: showConfig 加日志（getQuerier 返回值 + apis 结构）\n- 84ccef71 debug: case config/trend 加 console.log 确认是否执行",
   "history": [
+    {
+      "version": "1.9.2-b15",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 43861315 fix: 修复趋势图语法错误（=> { 结尾应为 }) 而非 ))\n- 562faf10 fix: 趋势图显示中文名（优先用历史快照里的 name，回退到 id）\n- 742dda06 fix: 补 case 'config' 和 case 'trend'（v29.3/v29.4 功能根本没实现——userApi 注册漏了两个 action）\n- 74c31e63 docs: KNOWN_ISSUES 追加 K14-K16（健康面板 error 残留/静默轮询打扰/平台 ID 未翻译）"
+    },
     {
       "version": "1.9.2-b14",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 742dda06 fix: 补 case 'config' 和 case 'trend'（v29.3/v29.4 功能根本没实现——userApi 注册漏了两个 action）\n- 74c31e63 docs: KNOWN_ISSUES 追加 K14-K16（健康面板 error 残留/静默轮询打扰/平台 ID 未翻译）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b10",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- cecb2ae2 feat: v29.4 健康趋势图（趋势按钮+简易柱状图Modal）\n- 5af79708 refine: 配置弹窗优化（过滤敏感字段+空修改不调用接口）"
-    },
-    {
-      "version": "1.9.2-b9",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e2ab20e8 feat: v29.3 健康面板加配置按钮（只读查看音源配置）"
     }
   ]
 }

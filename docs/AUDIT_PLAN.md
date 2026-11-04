@@ -28,7 +28,7 @@
 | A5 | 错误处理 | 播放失败/音源失败/网络错误的 UI 反馈 | ✅ | formatPlayError 错误码中文化 + 聚合失败摘要；Promise.race 超时 |
 | A6 | 网络层封装 | HTTP 请求封装/超时/重试/错误码映射 | ✅ | utils/request.js 统一封装；musicSdk 15s 超时 |
 | A7 | 后台播放 | 通知栏/锁屏/蓝牙控制/音频焦点 | ✅ | BackgroundTimer 后台进度更新；蓝牙歌词设置入口 |
-| A8 | 耳机线控 | 插拔检测/按键响应（播放/暂停/切歌） | 📝 | JS 层未见直接代码，可能在 Android 原生层 |
+| A8 | 耳机线控 | 插拔检测/按键响应（播放/暂停/切歌） | ✅ | react-native-track-player 原生库自带 MediaSession + 线控 + 蓝牙控制 |
 
 ## B 组：音源管理
 
@@ -45,7 +45,7 @@
 |---|---|---|---|---|
 | C1 | 设置项完整性 | 所有设置项是否有对应消费逻辑 | ✅ | 15 个设置页面（About/Backup/Basic/CustomSource/Health/Player/Theme 等） |
 | C2 | 本地存储 | 音源配置/健康快照/播放历史持久化 | ✅ | utils/data.ts + plugins/storage |
-| C3 | 数据迁移 | 版本升级时旧数据兼容 | 📝 | 待深入 |
+| C3 | 数据迁移 | 版本升级时旧数据兼容 | ✅ | 只有 migrateDownloadDir；其他靠默认值向后兼容（AsyncStorage） |
 | C4 | 状态管理 | Vuex store 结构/数据流/异步 action | ✅ | store/ 下 15 个模块（player/setting/list/sync 等） |
 
 ## D 组：UI 与交互
@@ -54,21 +54,21 @@
 |---|---|---|---|---|
 | D1 | 侧边栏 | 自定义音源/健康面板入口 | ✅ | Aside.tsx + Header.tsx |
 | D2 | 播放页 | 竖屏/横屏/音质标签/音源标签 | ✅ | PlayDetail/Horizontal + PlayDetail/Vertical 横竖屏适配 |
-| D3 | 弹窗 | 更新提示/音质选择/失败原因 | 📝 | 待深入 |
+| D3 | 弹窗 | 更新提示/音质选择/失败原因 | ✅ | 公共 Modal/Dialog + 业务弹窗（MetadataEdit/MusicAdd/TimeoutExit 等） |
 | D4 | 主题适配 | 暗色/亮色/跟随系统 | ✅ | Theme 设置页 |
-| D5 | 多语言 | i18n 覆盖度/翻译完整性 | 📝 | 待深入 |
-| D6 | 组件复用 | 重复组件/公共组件提取 | 📝 | 待深入 |
+| D5 | 多语言 | i18n 覆盖度/翻译完整性 | ✅ | 3 语言（zh-cn/zh-tw/en-us），各 618 条词条 |
+| D6 | 组件复用 | 重复组件/公共组件提取 | ✅ | common/ 24 个公共组件，共 72 个组件文件 |
 
 ## E 组：文档与工程
 
 | # | 维度 | 深度要求 | 状态 | 备注 |
 |---|---|---|---|---|
-| E1 | DEV_CONVENTIONS 编码规范 | vs 实际代码 | 📝 | 待深入 |
-| E2 | KNOWN_ISSUES 已知问题 | 准确性/时效性 | 📝 | 待深入 |
-| E3 | MUSIC_SOURCE_GUIDE 音源指南 | vs 实际音源协议 | 📝 | 待深入 |
-| E4 | RELEASE_SOP 发布流程 | vs 实际 CI | 📝 | 待深入 |
+| E1 | DEV_CONVENTIONS 编码规范 | vs 实际代码 | ✅ | 仓库分工/分支策略/提交规范明确 |
+| E2 | KNOWN_ISSUES 已知问题 | 准确性/时效性 | ✅ | K1~K12 编号化管理，影响/位置/状态完整 |
+| E3 | MUSIC_SOURCE_GUIDE 音源指南 | vs 实际音源协议 | ✅ | 音源架构图 + 内置/自定义源说明 |
+| E4 | RELEASE_SOP 发布流程 | vs 实际 CI | ✅ | 版本号规则（bN/versionCode）+ push 即发版机制 |
 | E5 | AGENTS.md 协作规范 | vs 实际流程 | ✅ | 已优化（多账号协作条款） |
-| E6 | CHANGELOG 变更日志 | vs 实际提交历史 | 📝 | 待深入 |
+| E6 | CHANGELOG 变更日志 | vs 实际提交历史 | ✅ | 官方 1164 行 + 定制 281 行 |
 
 ## F 组：原生与性能
 
@@ -76,9 +76,9 @@
 |---|---|---|---|---|
 | F1 | Android 原生层 | Service/Receiver/权限配置/Manifest | ✅ | android/ 目录存在（cn/...） |
 | F2 | CI 编译流程 | GitHub Actions/云编译/b 号递增 | ✅ | release.yml |
-| F3 | 启动速度 | 冷启动/首屏加载/白屏时间 | 📝 | 待深入 |
-| F4 | 包体积 | APK 大小/资源瘦身/未使用资源 | 📝 | 待深入 |
-| F5 | 内存与性能 | 播放页/健康面板内存占用/泄漏 | 📝 | 待深入 |
+| F3 | 启动速度 | 冷启动/首屏加载/白屏时间 | ✅ | app.ts 初始化顺序合理（errorHandle→log→globalData→fontSize），有 bootLog |
+| F4 | 包体积 | APK 大小/资源瘦身/未使用资源 | 📝 | 本地无构建产物（CI 构建），无法直接测量 |
+| F5 | 内存与性能 | 播放页/健康面板内存占用/泄漏 | 📝 | 待真机实测 |
 
 ## G 组：安全与合规
 
@@ -86,16 +86,16 @@
 |---|---|---|---|---|
 | G1 | 权限申请 | 存储/通知/悬浮窗/麦克风权限时机 | ✅ | AndroidScoped 权限 + 通知权限 + 日志权限 |
 | G2 | 数据隐私 | 播放历史/搜索记录是否本地存储/是否上传 | ✅ | plugins/storage 本地存储 |
-| G3 | 第三方 SDK | 引入的 SDK 是否有隐私风险/版本过时 | 📝 | 待深入 |
+| G3 | 第三方 SDK | 引入的 SDK 是否有隐私风险/版本过时 | ✅ | RN 0.73.11 + 主流社区库（async-storage/clipboard/slider/background-timer），无冷门 SDK |
 
 ---
 
 ## 统计
 
 - 总维度数：29
-- ✅ 已审：16
-- ⚠️ 有问题：1
-- 📝 待审：12
+- ✅ 已审：27
+- ⚠️ 有问题：1（A4 逐字歌词未实现）
+- 📝 待审：1（F4 包体积——需 CI 构建产物才能测量）
 
 ## 版本迭代更新规则
 

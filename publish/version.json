@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b41",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 09863f3b docs: MUSIC_SOURCE_GUIDE action 表补全（musicUrl/lyric/pic/health/toggle/probe/config/trend 共 8 个，原仅列 3 个）",
+  "version": "1.9.2-b42",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）",
   "history": [
+    {
+      "version": "1.9.2-b41",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 09863f3b docs: MUSIC_SOURCE_GUIDE action 表补全（musicUrl/lyric/pic/health/toggle/probe/config/trend 共 8 个，原仅列 3 个）"
+    },
     {
       "version": "1.9.2-b40",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 032e51c9 fix: 更新音源按钮提前 return 时重置 updating 状态\n- a2e85146 docs: 深度扫描修复——RELEASE_SOP 版本链过时 + CUSTOM_CHANGELOG 补记\n- 068d9feb docs: KNOWN_ISSUES 音源 v26 系列实证 → v7.0（统一大版本编号）"
@@ -20,10 +24,6 @@
     },
     {
       "version": "1.9.2-b36",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
-    },
-    {
-      "version": "1.9.2-b35",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
     }
   ]

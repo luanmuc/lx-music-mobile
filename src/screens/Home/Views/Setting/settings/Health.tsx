@@ -70,7 +70,7 @@ const CONFIG_UNIT_CONFIG: Record<string, { unit: string, msPerUnit?: number, pre
   playDeadReviveMs: { unit: '分钟', msPerUnit: 60000, presets: [5, 10, 30, 60], default: 30 },
 }
 
-// v30.1：参数上下限校验（和音源侧 PARAM_LIMITS 一致）
+// 参数上下限校验（和音源侧 PARAM_LIMITS 一致）
 const PARAM_LIMITS: Record<string, { min?: number, max?: number }> = {
   cacheTtlMs: { max: 7 * 24 * 3600 * 1000 },
   failCacheNotFoundMs: { max: 24 * 3600 * 1000 },
@@ -128,7 +128,7 @@ export default memo(() => {
   // v8.0：趋势图相关 state
   const [trendData, setTrendData] = useState<Array<{ timestamp: number, sources: Record<string, { score: number | null, successRate: number | null }> }>>([])
   const [showTrendModal, setShowTrendModal] = useState(false)
-  // v30.0：提前预警——健康分连续下降的源列表
+  // 提前预警——健康分连续下降的源列表
   const [decliningSources, setDecliningSources] = useState<string[]>([])
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -150,7 +150,7 @@ export default memo(() => {
       // 成功拿到数据说明音源支持 health action，之前的 error（如"未检测到音源"）是误报，清空
       setError('')
 
-      // v30.0：自动获取趋势数据，判断健康分连续下降（提前预警）
+      // 自动获取趋势数据，判断健康分连续下降（提前预警）
       try {
         const trendQuerier = getQuerier('trend')
         if (trendQuerier) {
@@ -170,7 +170,7 @@ export default memo(() => {
             })
             // 逐个源判断是否连续下降
             allSourceIds.forEach(sourceId => {
-              // v30.1：检查该源是否还在当前 snapshot 里（已删除/手动关闭的源不预警）
+              // 检查该源是否还在当前 snapshot 里（已删除/手动关闭的源不预警）
               if (!(data as any)?.[sourceId]) return
               const scores = recent.map(entry => entry.sources[sourceId]?.score ?? null)
               // 要求 3 次都有分数（不是 null）
@@ -270,7 +270,7 @@ export default memo(() => {
       const num = Number(v)
       // v8.0：直观单位值转回 ms 再保存
       const msValue = displayToMs(k, num)
-      // v30.1：校验——有效数字 / 正数 / 白名单内 / 上下限
+      // 校验——有效数字 / 正数 / 白名单内 / 上下限
       if (isNaN(num) || num <= 0 || msValue <= 0 || !(k in (configData || {}))) continue
       const limits = PARAM_LIMITS[k]
       if (limits) {
@@ -418,7 +418,7 @@ export default memo(() => {
           ) : null
         }
         {
-          // v30.0：提前预警——健康分连续下降
+          // 提前预警——健康分连续下降
           decliningSources.length ? (
             <View style={[styles.summary, { backgroundColor: '#fff2e8' }]}>
               <Text size={12} color="#fa541c">⚠ {decliningSources.map(id => (snapshot as any)?.[id]?.name || id).join('、')} 健康分连续下降</Text>
@@ -632,7 +632,7 @@ export default memo(() => {
                   trendData.flatMap(entry => Object.keys(entry.sources))
                 ))
                 return allSourceIds.map(id => {
-                  // 源名优先用实时快照的中文名（v30.1 起音源历史快照不含 name，仅 score/successRate）；
+                  // 源名优先用实时快照的中文名（音源侧历史快照不含 name，仅 score/successRate）；
                   // 再回退历史快照 name（兼容旧数据），最后回退 id
                   const sourceName = snapshot?.[id]?.name || trendData[0]?.sources[id]?.name || id
                   // 最新一次探测的分数

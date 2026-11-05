@@ -1,7 +1,7 @@
 # App 仓库审计计划（活文档）
 
 > 基线版本：v1.9.2-b6（commit 27f2ac22，对应音源 v8.0）
-> 最近更新：2026-11-04
+> 最近更新：2026-11-05
 > 维护规则：每次版本迭代时同步更新维度状态；新增功能加新维度，修复问题关问题维度。
 
 ---
@@ -24,7 +24,7 @@
 | A1 | 播放器核心 | 播放/暂停/切歌/进度条/倍速 | ✅ | core/player 9 个子模块分离，store/player 分离 state/action/hook |
 | A2 | 音源调用链路 | fork 调用/musicUrl 获取/缓存/subSource 透传 | ✅ | online.ts getMusicUrl 主函数；subSource/subSourceName 透出已落地 |
 | A3 | 音质协商 | flac→320k→128k 降级链/App 端处理 | ✅ | getPlayQuality 从高到低自动降级；错误码中文化 FAIL_CODE_ZH |
-| A4 | 歌词/封面 | 歌词解析/封面加载/逐字歌词预留 | ⚠️ | 基础功能完整；逐字歌词未实现（v8.0 待开发） |
+| A4 | 歌词/封面 | 歌词解析/封面加载/逐字歌词预留 | ⚠️ | 基础功能完整；逐字歌词未实现（v8.0 判否：网易公开接口无 yrc 字段，转触发式待办） |
 | A5 | 错误处理 | 播放失败/音源失败/网络错误的 UI 反馈 | ✅ | formatPlayError 错误码中文化 + 聚合失败摘要；Promise.race 超时 |
 | A6 | 网络层封装 | HTTP 请求封装/超时/重试/错误码映射 | ✅ | utils/request.js 统一封装；musicSdk 15s 超时 |
 | A7 | 后台播放 | 通知栏/锁屏/蓝牙控制/音频焦点 | ✅ | BackgroundTimer 后台进度更新；蓝牙歌词设置入口 |

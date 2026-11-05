@@ -34,7 +34,7 @@ musicSdk（内置官方源）  ──┐
 |---|---|
 | `name` | 音源名称（含「豆包定制」会被内置导入逻辑识别/清理） |
 | `version` | 版本号（`vX.Y` 格式，用于启动时版本比对） |
-| `actions` | 提供的接口：`musicUrl`（取播放链接）、`lyric`（歌词）、`pic`（封面） |
+| `actions` | 提供的接口：`musicUrl`（取播放链接）、`lyric`（歌词）、`pic`（封面）、`health`（健康快照，v4.0 起）、`toggle`/`probe`（单源开关/手动探测，v4.0 起）、`config`（配置热更新）、`trend`（健康趋势，v8.0 起） |
 | `qualitys` | 该源支持的音质列表（映射到 App 的 `FULL_QUALITYS_LIST`） |
 | `onScriptAction` | 处理 App 请求，返回 Promise 结果 |
 

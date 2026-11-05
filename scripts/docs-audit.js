@@ -45,7 +45,7 @@ function fixAll(p, re, replacer, note) {
 
 // ── 规则 1：TS/TSX 文件数 ↔ 文档（RELEASE_SOP / DEV_SETUP）──────────────
 function ruleTsCount() {
-  const n = execSync(`find src -name '*.ts' -o -name '*.tsx' | wc -l`, { encoding: 'utf8' }).trim();
+  const n = execSync(`find src -name '*.ts' -o -name '*.tsx' | wc -l`, { encoding: 'utf8', cwd: ROOT }).trim();
   for (const p of ['docs/RELEASE_SOP.md', 'docs/DEV_SETUP.md']) {
     if (!fs.existsSync(path.join(ROOT, p))) continue;
     if (p === 'docs/RELEASE_SOP.md') {
@@ -121,4 +121,4 @@ ruleTrackPlayer();
 console.log(`\n[L4 文档巡检·mobile] ${DRY ? 'DRY-RUN（不修改）' : '自动修复'} — ${new Date().toISOString().slice(0, 10)}\n`);
 for (const r of report) console.log(r);
 console.log(`\n汇总：${DRY ? '待处理' : '已修复'} ${fixed} 项 · 报告 ${report.length - fixed} 项\n`);
-process.exit(fixed > 0 ? (DRY ? 0 : 1) : 0);
+process.exit(0);  // 恒成功：修复/报告已落盘，workflow 以 git diff 判断是否有提交

@@ -1,0 +1,38 @@
+# 音源能力 → App 配套同步点总表
+
+> 音源仓库每次迭代（新增 action / 改字段 / 改音质），App 端多个位置要跟着同步。
+> 本表用于每次音源发布新版本后**照单检查**，避免"音源改了、App 没跟上"。
+
+---
+
+## 一、同步点总表
+
+| 音源能力项 | App 需同步的位置 | 检查动作 |
+|---|---|---|
+| **音源 action（8 个）**<br>musicUrl / lyric / pic / health / toggle / probe / config / trend | ① `src/core/init/userApi/index.ts` 的 switch case<br>② `docs/MUSIC_SOURCE_GUIDE.md` 的 action 表 | 数一下音源侧 actions 数量，再数 userApi switch case 数量，再数 MUSIC_SOURCE_GUIDE 表里的数量——三者要一致 |
+| **健康分字段**<br>异常 0 / 一般 1 / 无样本 2 / 健康 3（10 分制） | ① `src/screens/Home/Views/Setting/settings/Health.tsx` 健康面板阈值（≥3 绿 / -5~3 黄 / <-5 红）<br>② 趋势弹窗排序权重（异常<一般<无样本<健康） | 看 Health.tsx 里的阈值数字，和音源侧的健康分定义对不对得上 |
+| **trend 注释**<br>历史记录条数 | `src/screens/Home/Views/Setting/settings/Health.tsx` 的 trend action 调用注释 | 音源侧 trend 返回多少条历史，App 侧注释里写的条数要对得上 |
+| **lang 词条**<br>新增 toast / nav / 设置项文案 | `src/lang/zh-cn.json` / `zh-tw.json` / `en-us.json` 三语言 | 三语言键数要一致（当前基线 618 键）；新增词条三语言都要加 |
+| **subSource 透出**<br>播放页显示音源子源 | ① 播放页 UI（竖屏 + 横屏）<br>② 底部播放栏 | 音源侧 musicUrl 返回 subSource 字段，App 侧要接住并显示 |
+| **音质档位表**<br>128k / 320k / flac / flac24bit / high | 音质选择弹窗 / 播放页音质标签 | 音源侧支持的音质档位，App 侧音质标签要能对应显示 |
+
+---
+
+## 二、迭代后检查流程（每次音源发新版本走一遍）
+
+1. **数 actions**：`grep -o "action === '" lx-source.js | wc -l`  → 对照 App 侧 userApi switch case 数量
+2. **看健康分**：音源侧健康分定义（阈值、权重）→ 对照 Health.tsx 里的数字
+3. **看 trend**：音源侧 trend 返回多少条 → 对照 Health.tsx 注释里的条数
+4. **看 lang**：有没有新增 toast / 设置文案 → 三语言都要加，键数一致
+5. **看 subSource / 音质**：有没有新字段透出 → App 侧 UI 要接住
+
+---
+
+## 三、回填机制
+
+每次发现新的同步点，在"同步点总表"追加一行：
+- 音源能力项（改了什么）
+- App 需同步的位置（文件路径）
+- 检查动作（怎么核对）
+
+> 踩过的坑：action 表曾只列 3 个（实际 8 个）、zh-tw 曾缺 24 词条、trend 注释 20→60——都是靠人肉记得才发现的。有了本表，每次音源迭代后照单检查，避免再踩。

@@ -12,6 +12,8 @@
 
 > 音源脚本**不要**在本仓库改（`assets/builtin_source.js` 由每次构建从 `luanmuc/backend-api` 拉取最新生成，本仓库不内置副本）；track-player fork 升级后需更新 `package.json` 中依赖的 commit hash。
 
+> 🔗 **跨仓库同步检查**：音源每次发新版本后，照 `docs/SYNC_POINTS.md` 总表逐行核对（actions / 健康分 / trend / lang / subSource / 音质），避免"音源改了、App 没跟上"。
+
 ## 二、分支策略
 
 - 当前**单分支（master）直推**模式：直接 push 即触发云编译发版

@@ -60,6 +60,11 @@ const RULES = [
     'docs:docs/UPSTREAM_LIFECYCLE.md（依赖清单）',
     'docs:docs/CUSTOM_CHANGELOG.md（顶部补记）',
   ]},
+  // 工程脚本：改脚本需同步命令段/发布 SOP
+  { match: 'scripts/', docs: [
+    'docs:docs/AGENTS.md（命令段）',
+    'docs:docs/RELEASE_SOP.md（如涉及发布流程）',
+  ]},
   // 兜底：任何 src/ 代码改动必须补 changelog 顶部
   { match: 'src/', docs: [
     'docs:docs/CUSTOM_CHANGELOG.md（顶部补记）',

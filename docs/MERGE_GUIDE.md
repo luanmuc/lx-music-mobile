@@ -51,6 +51,21 @@ git push origin master
 | `src/screens/PlayDetail/components/PlayListModal.tsx` | 本仓库新建（播放列表弹窗） | 以本仓库为准 |
 | `android/app/src/main/...` | 原生模块（UtilsModule 分享/打开文件）、FileProvider 配置、图标、应用名 | 以本仓库为准，注意 `applicationId` 为 `com.luanmuc.lxmusic` |
 
+---
+
+## 常见冲突点速查（快速定位版）
+
+> 从 v1.9.2 合并经验提炼，每条含：冲突原因 + 标准解法。
+
+| 文件 | 为什么容易冲突 | 标准解法 |
+|---|---|---|
+| `src/lang/zh-cn.json` / `zh-tw.json` / `en-us.json` | 上游经常加新翻译键，我们也加了定制键（nav_download 等） | 两边都保留：上游新增的键全合入，定制的键保留，最后检查键数一致（三语言 618 键） |
+| `src/config/defaultSetting.ts` | 上游改默认值，我们也改默认值（音质 flac24bit、歌词默认开等） | 以我们的定制默认值为准，上游新默认值人工评估是否合入（注意走设置迁移规则） |
+| `src/screens/Home/Views/Setting/settings/Health.tsx` | 我们新建的健康面板（v4.0），上游可能动了设置页结构 | 以我们为准；上游改了设置页布局的话，手动把健康面板挪到对应位置 |
+| `src/core/player/player.ts` | 上游改播放器核心逻辑，我们加了下载列表播放适配 | 以原版逻辑为准，我们的下载播放适配手动补回去 |
+| `package.json` | 上游升版本号、加依赖，我们改了 author/homepage | 版本号跟着上游升，author/homepage 保留我们的 `luanmuc`，依赖看情况合入 |
+| `android/app/build.gradle` | 上游改版本号，我们改 applicationId / versionCode | applicationId 保留 `com.luanmuc.lxmusic`，versionCode 跟着上游升 |
+
 ## 一般文件冲突策略
 
 - **UI/主题类**（screens 样式、components）：保持原版风格（用户明确要求 UI 与原版一致），只保留本仓库的功能性改动

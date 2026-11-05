@@ -114,6 +114,7 @@ export default memo(() => {
       const remoteScript = await Promise.race([fetchPromise, timeoutPromise]) as string
       if (remoteScript.length > 9_000_000) {
         toast('音源文件过大', 'long')
+        setUpdating(false)
         return
       }
 
@@ -132,6 +133,7 @@ export default memo(() => {
       // 版本一样 = 已是最新
       if (remoteVersion === localVersion) {
         toast(`已是最新版 v${remoteVersion}`, 'long')
+        setUpdating(false)
         return
       }
 

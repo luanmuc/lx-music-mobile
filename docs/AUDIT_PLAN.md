@@ -59,7 +59,7 @@
 | D2 | 播放页 | 竖屏/横屏/音质标签/音源标签 | ✅ | PlayDetail/Horizontal + PlayDetail/Vertical 横竖屏适配 |
 | D3 | 弹窗 | 更新提示/音质选择/失败原因 | ✅ | 公共 Modal/Dialog + 业务弹窗（MetadataEdit/MusicAdd/TimeoutExit 等） |
 | D4 | 主题适配 | 暗色/亮色/跟随系统 | ✅ | Theme 设置页 |
-| D5 | 多语言 | i18n 覆盖度/翻译完整性 | ✅ | 3 语言（zh-cn/zh-tw/en-us），各 618 条词条 |
+| D5 | 多语言 | i18n 覆盖度/翻译完整性 | ✅ | 3 语言各 618 条；2026-11-05 审计发现 zh-tw 缺 24 词条（v4/v8 新增 toast/nav 未同步）已补全，三语言键完全一致 |
 | D6 | 组件复用 | 重复组件/公共组件提取 | ✅ | common/ 24 个公共组件，共 72 个组件文件 |
 
 ## E 组：文档与工程

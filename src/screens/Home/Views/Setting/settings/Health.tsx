@@ -632,8 +632,9 @@ export default memo(() => {
                   trendData.flatMap(entry => Object.keys(entry.sources))
                 ))
                 return allSourceIds.map(id => {
-                  // 优先用历史快照里的中文名称，回退到 id（兼容旧数据）
-                  const sourceName = trendData[0]?.sources[id]?.name || id
+                  // 源名优先用实时快照的中文名（v30.1 起音源历史快照不含 name，仅 score/successRate）；
+                  // 再回退历史快照 name（兼容旧数据），最后回退 id
+                  const sourceName = snapshot?.[id]?.name || trendData[0]?.sources[id]?.name || id
                   // 最新一次探测的分数
                   const latestScore = trendData[trendData.length - 1]?.sources[id]?.score ?? null
                   const latestColor = latestScore === null ? '#9e9e9e' : latestScore >= 3 ? '#4caf50' : latestScore >= -5 ? '#ff9800' : '#f44336'

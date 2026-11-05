@@ -274,7 +274,7 @@ export default async(setting: LX.AppSetting) => {
                 }
                 break
               case 'trend':
-                // v8.0：健康趋势（返回历史健康快照数组，保留最近20条）
+                // v8.0：健康趋势（返回历史健康快照数组，保留最近60条，与音源侧 HEALTH_HISTORY_MAX 一致）
                 apis[source].trend = () => {
                   const requestKey = `request__${Math.random().toString().substring(2)}`
                   return {

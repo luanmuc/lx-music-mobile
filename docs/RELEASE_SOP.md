@@ -1,6 +1,6 @@
 # 发布 SOP（Release SOP）
 
-本仓库采用 **push 即发版** 的云编译模式：任何对 `master` 的推送（`publish/**`、`npm-version-info/**` 除外）都会触发 GitHub Actions 自动编译并发布新版本。
+本仓库采用 **push 即发版** 的云编译模式：任何对 `master` 的推送（`publish/**`、`npm-version-info/**`、`README.md`、`docs/**` 除外——CI paths-ignore）都会触发 GitHub Actions 自动编译并发布新版本。
 
 ## 一、版本号规则（必读）
 
@@ -17,7 +17,7 @@
 ## 二、发布流程（CI 自动执行）
 
 ```
-push master（paths-ignore: publish/**、npm-version-info/**）
+push master（paths-ignore: publish/**、npm-version-info/**、README.md、docs/**）
   └─ Job Android
       ├─ 拉最新内置音源（GitHub Contents API ?ref=master → 生成 assets/builtin_source.js，>50KB + @name 校验；仓库不内置副本）
       ├─ Compute build number：读 publish/build-state.json → baseVersion 与 package.json version 不同则重置 build=0 → build+1、versionCode+1 → 回写状态文件，输出 outputs.build / outputs.versionCode
@@ -35,7 +35,7 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 > 与 AGENTS.md「实证开发流程」配套：先过 L0-L4 验证链，push 前逐项自查。
 
-1. **语法**：`node scripts/check_ts_syntax.js` 0 错误（508 个 TS/TSX）
+1. **语法**：`node scripts/check_ts_syntax.js` 0 错误（511 个 TS/TSX）
 2. **设置迁移**：若改默认值，确认已走迁移机制（见 MERGE_GUIDE），本地清 App 数据模拟老用户验证迁移生效
 3. **播放**：URL 刷新不卡死、切换音源、下载列表播放、通知栏歌词/按钮
 4. **下载**：并发任务、暂停/恢复、失败自动重试、仅 WiFi 开关、音质降级链、标签写入、下载目录权限
@@ -83,6 +83,6 @@ push master（paths-ignore: publish/**、npm-version-info/**）
 
 ## 七、开发侧注意
 
-- 改文档/配置（README、docs/、.github/、CUSTOM_CHANGELOG.md 等）也会触发构建发版——这是预期行为，正好让发布说明反映文档变更
+- 改 **README.md / docs/ 下文档不触发构建**（release.yml paths-ignore）；改 **.github/、根目录 CUSTOM_CHANGELOG.md 等**会触发构建发版——这是预期行为，正好让发布说明反映文档变更
 - 只更新版本信息（`publish/**`、`npm-version-info/**`，含 `publish/build-state.json`）不会触发构建，不会产生新版本号
 - 合并上游（含底座升版）后推送同样走本流程：`package.json` version 随底座 bump，CI 检测到 baseVersion 变化后自动从 `b1` 重新计数

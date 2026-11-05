@@ -61,6 +61,25 @@
 ### 审计计划同步 + 繁体词条补全（b44）
 - **zh-tw 补全 24 个缺失词条**：v4/v8 新增的 toast/nav 词条（音源健康/音质/下载队列/悬浮窗权限等）繁体翻译未同步，现三语言 618 条键完全一致
 - 审计计划基线更新 b43 + B6 补趋势排序审计结论 + E2 备注 K1~K19 同步 + 统计修正
+
+## [v1.9.2-b45 ~ b48] - 2026-11-05
+
+### 文档同步 Hook（b45）
+- **提交时自动提示必同步文档清单**：入库 git hook（`scripts/hooks/` + `scripts/doc-sync-map.js`），改代码即列出本次需同步的文档（含跨仓库提示），与提交一起更新
+- **强制校验**：改动含代码（src/）但提交不带文档更新 → 拒绝提交（`--no-verify` 可绕过）；新账号 clone 后 `sh scripts/install-hooks.sh` 安装一次
+
+### L4 文档一致性巡检（b46）
+- **`scripts/docs-audit.js`**：低风险项自动对齐——TS/TSX 文件数 ↔ RELEASE_SOP/DEV_SETUP、底座版本 bN ↔ README、track-player 锁定 commit ↔ UPSTREAM_LIFECYCLE；报告项（不修改）——三语言键数一致
+- 解决历史欠账型文档漂移（Hook 管当下提交，巡检管存量）
+
+### L4 巡检定时化（b47）
+- **GitHub Actions 每周一凌晨自动巡检**（`.github/workflows/docs-audit.yml`，UTC 周日 18:15 = 北京时间周一 02:15）：自动修复 + 自动提交写回，无需人工/账号依赖
+- 健壮性修复：退出码恒 0（workflow 以 git diff 判断提交）、execSync cwd 指向仓库根（防外部目录误修）、doc-sync 排除巡检脚本自身
+
+### 发布记录清理与自动发布重建验证（b48）
+- **GitHub Releases/tags/编译记录清零**（2026-11-05，历史发布页与安装包归档删除）
+- **自动发布机制保留**：手动触发编译重建 Release `v1.9.2-b48` + tag + 5 个 APK（arm64-v8a/armeabi-v7a/universal/x86/x86_64），版本计数由 `build-state.json` 驱动（b47 → b48）
+
 ## [v1.9.2-b32] - 2026-11-05
 
 ### 更新音源按钮超时控制

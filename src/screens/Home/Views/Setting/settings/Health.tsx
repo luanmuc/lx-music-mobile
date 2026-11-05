@@ -631,6 +631,16 @@ export default memo(() => {
                 const allSourceIds = Array.from(new Set(
                   trendData.flatMap(entry => Object.keys(entry.sources))
                 ))
+                // v8.1：按最新健康分从低到高排序（异常排前面，一眼看到问题源）
+                // 排序权重：异常(红) < 一般(黄) < 无样本(灰) < 健康(绿)
+                const getSortWeight = (id: string) => {
+                  const latestScore = trendData[trendData.length - 1]?.sources[id]?.score ?? null
+                  if (latestScore === null) return 2 // 无样本排中间
+                  if (latestScore < -5) return 0   // 异常排最前
+                  if (latestScore < 3) return 1      // 一般排第二
+                  return 3                           // 健康排最后
+                }
+                allSourceIds.sort((a, b) => getSortWeight(a) - getSortWeight(b))
                 return allSourceIds.map(id => {
                   // 源名优先用实时快照的中文名（音源侧历史快照不含 name，仅 score/successRate）；
                   // 再回退历史快照 name（兼容旧数据），最后回退 id

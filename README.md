@@ -20,7 +20,7 @@
 
 ## 下载安装
 
-- 前往 [GitHub Releases](https://github.com/luanmuc/mobile-app/releases) 下载最新 `v1.9.2-bN` 安装包
+- 前往 [GitHub Releases](https://github.com/luanmuc/mobile-app/releases) 下载最新 `v1.9.2-bN` 安装包（发布记录于 2026-11-05 清理，CI 自动发布随下次构建重建）
 - 按 ABI 选择：`arm64-v8a`（主流新机）/ `armeabi-v7a`（老机）/ `x86_64`（模拟器）/ `universal`（全兼容大包）
 - App 内「设置 → 软件更新」可在线检查更新并自动下载安装
 

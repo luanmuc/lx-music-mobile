@@ -6,7 +6,8 @@
 - **点击行为**：原生发出 `remote-cycle-repeat` 事件 → App 读当前 `player.togglePlayMethod`，在四个真实模式（列表循环 / 随机 / 顺序 / 单曲循环）之间循环，**跳过 `none` 禁用态** → `updateSetting` 落盘 → 回写原生图标
 - **同步机制**：启动时同步一次；运行期统一监听 `player.togglePlayMethod` 的 `configUpdated` 事件回写。横屏与竖屏播放页是两个独立组件，只挂钩子调用点会漏掉竖屏入口，因此改为事件驱动，横屏/竖屏/设置变更/通知栏点击全覆盖
 - **原生接口**：新增 `setNotificationRepeatMode(int)`，0=顺序 1=列表循环 2=单曲循环 3=随机
-- **依赖**：track-player 升到 `ca72e89d`，`package-lock.json` 同步
+- **依赖**：track-player 升到 `87bf38ba`，`package-lock.json` 同步
+- **顺带修复**：通知栏两处自定义按钮（词 / 模式）的 `PendingIntent` 补 `FLAG_IMMUTABLE`，避免将来升 targetSdk 到 31+ 时抛异常
 
 ---
 

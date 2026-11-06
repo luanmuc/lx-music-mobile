@@ -15,6 +15,7 @@
 | **lang 词条**<br>新增 toast / nav / 设置项文案 | `src/lang/zh-cn.json` / `zh-tw.json` / `en-us.json` 三语言 | 三语言键数要一致（当前基线 618 键）；新增词条三语言都要加 |
 | **subSource 透出**<br>播放页显示音源子源 | ① 播放页 UI（竖屏 + 横屏）<br>② 底部播放栏 | 音源侧 musicUrl 返回 subSource 字段，App 侧要接住并显示 |
 | **音质档位表**<br>128k / 320k / flac / flac24bit / high | 音质选择弹窗 / 播放页音质标签 | 音源侧支持的音质档位，App 侧音质标签要能对应显示 |
+| **版本号（两套读取规则）**<br>`@version` 首 token（设置页检查更新）<br>logInfo 全文（启动导入判定） | ① `src/screens/Home/Views/Setting/settings/Basic/Source.tsx`（`@version\s+(\S+)` 取第一 token）<br>② `src/core/init/userApi/index.ts`（logInfo 正则取完整版本） | 音源侧 `@version` 的**第一个 token 必须就是完整版本号**（如 `8.10.2 记账顺序修复…`），不得写成 `8.10 + 说明`——否则启动导入认 8.10.2、设置页却显示 8.10。发布前两边各取一次比对<br>（`self-check.js` 只校验代码内两处版本串是否一致，**管不到 App 的实际显示路径**，此项必须人工核对） |
 
 ---
 

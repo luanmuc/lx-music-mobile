@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b59",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- f04d27b5 chore: 升级 track-player 到 845ec66（测试右侧按钮）\n- bacb605d feat: 通知栏艺术家行显示「歌手名 · 子源名 · 音质」",
+  "version": "1.9.2-b60",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 9030591b chore: 触发编译发布 b60",
   "history": [
+    {
+      "version": "1.9.2-b59",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- f04d27b5 chore: 升级 track-player 到 845ec66（测试右侧按钮）\n- bacb605d feat: 通知栏艺术家行显示「歌手名 · 子源名 · 音质」"
+    },
     {
       "version": "1.9.2-b58",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- bacb605d feat: 通知栏艺术家行显示「歌手名 · 子源名 · 音质」"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b54",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e30c29a9 fix(player): 刷新元数据时补 quality/subSource，修通知栏音源名被覆盖"
-    },
-    {
-      "version": "1.9.2-b53",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b287ffaf chore: 升级 react-native-track-player 到 9e3a51b（6项定制功能）\n- 9f4b9f14 docs(SYNC_POINTS): 补版本号双读取规则为同步点——@version 首 token 必须等于完整版本号，self-check 管不到 App 显示路径需人工核对"
     }
   ]
 }

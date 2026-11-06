@@ -176,7 +176,11 @@ export function useBufferProgress() {
 
     void updateBuffer()
     void TrackPlayer.getState().then((state) => {
-      if (state == State.Buffering) interval = setInterval(updateBuffer, 1000)
+      if (state == State.Buffering) {
+        // 先清掉可能已存在的同款计时器，否则这里会再起一个且旧引用丢失，永远清不掉
+        clearItv()
+        interval = setInterval(updateBuffer, 1000)
+      }
     })
     return () => {
       isUnmounted = true

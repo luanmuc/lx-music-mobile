@@ -44,6 +44,8 @@ export default forwardRef<LeftBarType, LeftBarProps>(({ onChangeList }, ref) => 
   const onSourceChange = (source: LX.OnlineSource) => {
     boundInfo.current.source = source
     void getBoardsList(source).then(list => {
+      // 接口返回空列表时直接跳过，避免 list[0] 下标越界
+      if (!list.length) return
       const id = list[0].id
       requestAnimationFrame(() => {
         boardsListRef.current?.setList(list, id)

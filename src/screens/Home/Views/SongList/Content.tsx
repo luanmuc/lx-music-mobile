@@ -44,7 +44,10 @@ export default () => {
   const handleSourceChange: HeaderBarProps['onSourceChange'] = (source) => {
     songlistInfo.current.source = source
     songlistInfo.current.tagId = ''
-    songlistInfo.current.sortId = songlistState.sortList[source]![0].id
+    // sortList 里该源可能为空，用可选链兜住后再判空，避免 [0] 越界
+    const firstSort = songlistState.sortList[source]?.[0]
+    if (!firstSort) return
+    songlistInfo.current.sortId = firstSort.id
     void saveSongListSetting({ sortId: songlistInfo.current.sortId, source, tagId: '', tagName: '' })
     headerBarRef.current?.setSource(source, songlistInfo.current.sortId, '', songlistInfo.current.tagId)
     listRef.current?.loadList(source, songlistInfo.current.sortId, songlistInfo.current.tagId)

@@ -160,8 +160,11 @@ export const updateMetaData = async(musicInfo: LX.Player.MusicInfo, isPlay: bool
 export const initTrackInfo = async(musicInfo: LX.Player.PlayMusic, mInfo: LX.Player.MusicInfo) => {
   const tracks = buildTracks(musicInfo)
   await TrackPlayer.add(tracks).then(() => list.push(...tracks))
+  // 空队列时不再取 tracks[0].id，避免构建失败时下标越界
+  const firstTrackId = tracks[0]?.id
+  if (firstTrackId == null) return
   const queue = await TrackPlayer.getQueue() as LX.Player.Track[]
-  await TrackPlayer.skip(queue.findIndex(t => t.id == tracks[0].id))
+  await TrackPlayer.skip(queue.findIndex(t => t.id == firstTrackId))
   delayUpdateMusicInfo(mInfo)
 }
 

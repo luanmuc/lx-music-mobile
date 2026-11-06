@@ -8,6 +8,7 @@
 - **存储读取兜底（防启动崩溃）**：`getData` / `getDataMultiple` 里的 `JSON.parse` 原本没有保护，某个 key 的 JSON 被写坏（异常退出写了一半等）会直接抛 SyntaxError 冒泡到启动流程，导致 App 完全打不开——b64 在设备上真实发生过，清数据后恢复。现在解析失败按空值返回并清掉坏数据，等价于只把那一项重置成默认值；AsyncStorage 读失败也不再抛出。`initSetting` 的版本迁移额外加了字符串类型判断。
 - **存储删除路径兜底**：`removeData` / `removeDataMultiple` 解析索引数据同样没有保护，坏数据会让「保存前先删旧值」抛异常，表现为设置或歌单改了不生效、重启后回退。现在解析失败只删主 key 并记日志。
 - **音源事件解析兜底**：`userApi` 的 `api-action` 回调里 `JSON.parse` 失败会中断整条事件处理，改为按空对象处理。
+- **定时器与下标健壮性**：`hook.ts` 查询初始状态若为缓冲，会再起一个计时器且旧引用丢失（永远清不掉，多一个每秒回调）；`playList.ts` 空队列仍取 `tracks[0].id`；排行榜横/竖屏与歌单切换在接口返回空列表时取 `list[0]`。以上均已加判空/先清理。
 - **点击行为**：原生发出 `remote-cycle-repeat` 事件 → App 读当前 `player.togglePlayMethod`，在四个真实模式（列表循环 / 随机 / 顺序 / 单曲循环）之间循环，**跳过 `none` 禁用态** → `updateSetting` 落盘 → 回写原生图标
 - **同步机制**：启动时同步一次；运行期统一监听 `player.togglePlayMethod` 的 `configUpdated` 事件回写。横屏与竖屏播放页是两个独立组件，只挂钩子调用点会漏掉竖屏入口，因此改为事件驱动，横屏/竖屏/设置变更/通知栏点击全覆盖
 - **原生接口**：新增 `setNotificationRepeatMode(int)`，0=顺序 1=列表循环 2=单曲循环 3=随机

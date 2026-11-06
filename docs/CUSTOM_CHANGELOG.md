@@ -12,11 +12,27 @@
 
 ### 通知栏定制真正接通 + 播放卡加载态修复
 - **依赖升级**：track-player fork 升到 `01f34b15`（原 `9e3a51b`）
-- **修播放卡住**：`requestAudioFocus` 加幂等——原实现每次播放都重复请求，焦点栈累积会触发系统下发 LOSS，`stop()` 把刚开始的播放打断（表现为点播放一直停在加载/缓冲态）；`AUDIOFOCUS_LOSS` 由 `stop()` 改 `pause()`，不再把进度归零，同时复位鸭子音量
+- **修播放卡住（b53 根因）**：`handleAudioFocus` 默认 true 时 media3 内置 `AudioFocusManager` 会自己请求音频焦点，与 fork 在 `onPlay()` 里的手动 `requestAudioFocus` 形成两套管理器——系统授给一方后另一方立刻收到 LOSS，内置侧自行 pause、fork 侧又 `stop()`，互相打断导致播放推进不下去、界面恒在缓冲中。现已 `setAudioAttributes(..., false)` 恒关闭内置侧，焦点统一由 fork 接管（按 `handleAudioFocus` 开关启停）
+- **焦点细节**：`requestAudioFocus` 加幂等（原实现每次 onPlay 都重复请求）；`AUDIOFOCUS_LOSS` 由 `stop()` 改 `pause()`，不再 `seekTo(0)` 归零进度，同时复位鸭子音量
 - **参数接通**：`buildTracks` 补 `quality` / `subSource`——此前 Java 侧读 bundle 恒为 null，「标题 [FLAC]」「歌手 · helloworld(kw)」两项实际不显示
 - **歌词按钮状态**：桌面歌词显隐时调用 `setLyricButtonActive`，通知栏「词」按钮不再恒为置灰
 - **锁文件同步**：此前 `package.json`（`9e3a51b`）与 `package-lock.json`（`001e2dd`）指向不同 commit，本次一并更新为 `01f34b15`
 - **元数据判空**：`displayTitle` / `displayArtist` 拼接前判 `title` / `artist` 非空，避免 `"null [FLAC]"` / `"null · xxx"`
+
+### 审查项修复对照（审查报告 9 项）
+
+| 审查项 | 处理 | 说明 |
+|---|---|---|
+| 锁文件与 package.json 不一致 | 已修 | 同步到同一 commit。**更正**：此前判断“npm ci 按 lock 装旧包、新功能进不了包”不成立——拆 b52/b53 APK 比对 dex，`setLyricButtonActive` 在 b53 出现 2 次、b52 为 0，实际按 package.json 装了新 commit |
+| 音质标签不生效 | 已修 | 原生读 bundle 恒为 null，App `buildTracks` 补 `quality` |
+| 音源名不显示 | 已修 | 同上，App 补 `subSource` |
+| 「词」按钮恒置灰 | 已修 | 原生 `lyricButtonActive` 默认 false 且无调用方，App 在歌词显隐时同步 |
+| 鸭子音量残留 0.2 | 已修 | `LOSS` 分支未复位 `wasDucking`，切歌后音量卡在 20%；已在 LOSS 分支复位 |
+| `LOSS` 用 `stop()` 归零进度 | 已修 | `ExoPlayback.stop()` 内含 `seekTo(0)`，改为 `pause()` |
+| 标题拼接未判空 | 已修 | 会出 `"null [FLAC]"` / `"null · xxx"`，已判 `title` / `artist` |
+| 拔耳机双暂停 | 无需改 | 核查 JS 侧 `RemotePause` 仅 `void pause()`，幂等；原生先 `pause` 是为不依赖 JS 立刻停，`emit` 为同步 UI 状态 |
+| GAIN 后 500ms 覆盖手动操作 | 已修 | 恢复前加 `playback.getState() != 3` 判断 |
+| 双重焦点管理（审查时新增） | 已修 | b53 点播放一直缓冲的根因，见上 |
 
 ---
 

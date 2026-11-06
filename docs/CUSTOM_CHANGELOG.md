@@ -1,7 +1,7 @@
 ## [v1.9.2-b62] - 2026-11-06
 
 ### 通知栏新增播放模式按钮
-- **位置**：展开态「词」按钮之后新增一个播放模式按钮，共 7 个
+- **位置**：展开态「词」按钮之后新增一个播放模式按钮。实际可见按钮共 5 个（上一首 / 播放暂停 / 下一首 / 词 / 模式）：`rewindAction` 与 `forwardAction` 因 App 的 `notificationCapabilities` 未声明 Rewind / FastForward，`createAction` 返回 null、`addAction` 直接跳过，不会出现在通知栏
 - **图标随模式切换**：顺序播放 / 列表循环 / 单曲循环 / 随机，四种图标各自对应；统一灰态（白色 40% alpha），与「词」按钮关闭态一致，不做白灰二态
 - **点击行为**：原生发出 `remote-cycle-repeat` 事件 → App 读当前 `player.togglePlayMethod`，在四个真实模式（列表循环 / 随机 / 顺序 / 单曲循环）之间循环，**跳过 `none` 禁用态** → `updateSetting` 落盘 → 回写原生图标
 - **同步机制**：启动时同步一次；运行期统一监听 `player.togglePlayMethod` 的 `configUpdated` 事件回写。横屏与竖屏播放页是两个独立组件，只挂钩子调用点会漏掉竖屏入口，因此改为事件驱动，横屏/竖屏/设置变更/通知栏点击全覆盖

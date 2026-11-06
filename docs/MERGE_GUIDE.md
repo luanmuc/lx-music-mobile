@@ -49,6 +49,9 @@ git push origin master
 | `src/config/defaultSetting.ts` | 定制默认值 + 设置迁移版本号 | 以本仓库为准 |
 | `src/config/migrateSetting.ts` | 设置迁移块（v1→v2 结构迁移） | 以本仓库为准 |
 | `src/screens/PlayDetail/components/PlayListModal.tsx` | 本仓库新建（播放列表弹窗） | 以本仓库为准 |
+| `src/plugins/player/playList.ts` | 通知栏标题与艺术家行拼接（歌名 / `歌手 · 音源 · 音质`），歌词换行刷新时也要带后缀 | 以本仓库为准；上游若重构 track 构建，需手动补回两处后缀注入（`buildTracks` 与 `updateNowPlayingMetadata`） |
+| `src/plugins/player/service.ts` | 通知栏自定义按钮事件监听（词按钮、播放模式按钮） | 以本仓库为准；上游加新事件时逐个核对，别把定制监听覆盖掉 |
+| `src/core/player/repeatMode.ts` | 本仓库新建（播放模式 ↔ 原生图标映射） | 以本仓库为准 |
 | `android/app/src/main/...` | 原生模块（UtilsModule 分享/打开文件）、FileProvider 配置、图标、应用名 | 以本仓库为准，注意 `applicationId` 为 `com.luanmuc.lxmusic` |
 
 ---

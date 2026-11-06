@@ -51,6 +51,14 @@ const getNotificationQualityTag = () => {
 }
 const getNotificationSubSource = () => playerState.playSource?.name || undefined
 
+// 生成通知栏艺术家行：歌手名 · 子源名 · 音质
+const getNotificationArtist = (singer: string) => {
+  const quality = getNotificationQualityTag()
+  const subSource = getNotificationSubSource()
+  const parts = [singer, subSource, quality].filter(Boolean)
+  return parts.join(' · ')
+}
+
 const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'], duration?: LX.Player.Track['duration']): LX.Player.Track[] => {
   const mInfo = formatMusicInfo(musicInfo)
   const track = [] as LX.Player.Track[]
@@ -66,7 +74,7 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
       id: `${mInfo.id}__//${Math.random()}__//${url}`,
       url,
       title: mInfo.name || 'Unknow',
-      artist: mInfo.singer || 'Unknow',
+      artist: getNotificationArtist(mInfo.singer || 'Unknow'),
       album,
       artwork,
       userAgent: defaultUserAgent,
@@ -82,7 +90,7 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
     id: `${mInfo.id}__//${Math.random()}__//default`,
     url: defaultUrl,
     title: mInfo.name || 'Unknow',
-    artist: mInfo.singer || 'Unknow',
+    artist: getNotificationArtist(mInfo.singer || 'Unknow'),
     album,
     artwork,
     musicId: mInfo.id,
@@ -236,7 +244,7 @@ const updateMetaInfo = async(mInfo: LX.Player.MusicInfo) => {
   let artist: string
   if (playerState.lastLyric == null) {
     title = mInfo.name ?? 'Unknow'
-    artist = mInfo.singer ?? 'Unknow'
+    artist = getNotificationArtist(mInfo.singer ?? 'Unknow')
   } else {
     title = playerState.lastLyric
     artist = `${mInfo.name}${mInfo.singer ? ` - ${mInfo.singer}` : ''}`

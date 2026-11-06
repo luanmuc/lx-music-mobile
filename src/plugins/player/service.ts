@@ -9,7 +9,7 @@ import { getCurrentTrackId } from './playList'
 import { pause, play, playNext, playPrev } from '@/core/player/player'
 import { hideDesktopLyric, showDesktopLyric, checkDesktopLyricOverlayPermission } from '@/core/desktopLyric'
 import settingState from '@/store/setting/state'
-import { MUSIC_TOGGLE_MODE_LIST } from '@/config/constant'
+import { MUSIC_TOGGLE_MODE_LIST, MUSIC_TOGGLE_MODE } from '@/config/constant'
 import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
 import { toast } from '@/utils/tools'
 
@@ -83,10 +83,12 @@ const registerPlaybackService = async() => {
   })
 
   // 通知栏"播放模式"按钮：点一下切到下一个模式，并回写原生图标
+  // 只走四个真实模式，跳过 none（禁用）——快捷按钮不适合藏一个"播完就停"的状态
   TrackPlayer.addEventListener('remote-cycle-repeat' as unknown as TPEvent, () => {
-    let index = MUSIC_TOGGLE_MODE_LIST.indexOf(settingState.setting['player.togglePlayMethod'])
-    if (++index >= MUSIC_TOGGLE_MODE_LIST.length) index = 0
-    const mode = MUSIC_TOGGLE_MODE_LIST[index]
+    const modes = MUSIC_TOGGLE_MODE_LIST.filter(m => m != MUSIC_TOGGLE_MODE.none)
+    let index = modes.indexOf(settingState.setting['player.togglePlayMethod'] as typeof modes[number])
+    if (++index >= modes.length) index = 0
+    const mode = modes[index]
     updateSetting({ 'player.togglePlayMethod': mode })
     syncNotificationRepeatMode(mode)
   })

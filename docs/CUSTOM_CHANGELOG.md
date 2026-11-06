@@ -8,6 +8,15 @@
 
 ---
 
+## [v1.9.2-b55] - 2026-11-06
+
+### 修通知栏音源名不显示
+- **现象**：b54 装上后「词」按钮正常，但通知栏歌手名后面没有 ` · helloworld(kw)` 这类音源名
+- **原因**：`updateMetaInfo` 在歌词行变化时高频调用 `updateNowPlayingMetadata`，但没带 `subSource` / `quality`，把 `buildTracks` 在 add 时拼好的后缀覆盖成了无后缀（音质标签同理会丢）
+- **修复**：抽出 `getNotificationQualityTag` / `getNotificationSubSource` 两个公共取值函数，`buildTracks` 与 `updateMetaInfo` 两处统一带上
+
+---
+
 ## [v1.9.2-b54] - 2026-11-06
 
 ### 通知栏定制真正接通 + 播放卡加载态修复

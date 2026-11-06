@@ -107,7 +107,8 @@ export const initSetting = async() => {
   // console.log(setting)
 
   // 定制版设置迁移：按版本号升级默认值（老用户升级后自动应用新默认值）
-  if (setting && setting.version) {
+  // 防御：version 非字符串（数据被写坏/手改成数字）时跳过迁移，避免 compareVer 里 split 报错
+  if (setting && typeof setting.version === 'string' && setting.version) {
     // v2.1 迁移
     if (compareVer(setting.version as string, '2.1') < 0) {
       setting['common.allowProgressBarSeek'] = false

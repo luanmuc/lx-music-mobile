@@ -64,12 +64,21 @@ export const getData = async<T = unknown>(key: string): Promise<T | null> => {
   } catch (e: any) {
     // error reading value
     log.error('storage error[getData]:', key, e.message)
-    throw e
+    // 读失败按空值处理：单个 key 读不出来不应该让整个启动流程崩掉
+    return null
   }
-  if (value && (partKeyPrefixRxp.test(value) || partKeyArrPrefixRxp.test(value))) {
-    return handleGetData<T>(value)
-  } else if (value == null) return value
-  return JSON.parse(value)
+  if (!value) return null
+  try {
+    if (partKeyPrefixRxp.test(value) || partKeyArrPrefixRxp.test(value)) {
+      return await handleGetData<T>(value)
+    }
+    return JSON.parse(value)
+  } catch (e: any) {
+    // 数据损坏：按空值处理并清掉这份坏数据，下次读取即为默认值（等价于重置该项）
+    log.error('storage error[getData]: 数据损坏，已按空值处理并清除', key, e.message)
+    void removeData(key).catch(() => {})
+    return null
+  }
 }
 
 export const removeData = async(key: string) => {
@@ -140,13 +149,27 @@ export const getDataMultiple = async<T extends readonly string[]>(keys: T) => {
     log.error('storage error[getDataMultiple]:', e.message)
     throw e
   }
-  const promises: Array<Promise<ReadonlyArray<[unknown | null]>>> = []
-  for (const [, value] of datas) {
-    if (value && (partKeyPrefixRxp.test(value) || partKeyArrPrefixRxp.test(value))) {
-      promises.push(handleGetData(value))
+  const promises: Array<Promise<unknown | null>> = []
+  for (const [key, value] of datas) {
+    if (!value) {
+      promises.push(Promise.resolve(null))
+      continue
+    }
+    if (partKeyPrefixRxp.test(value) || partKeyArrPrefixRxp.test(value)) {
+      // 单项数据损坏只影响这一项，按空值处理并清掉坏数据
+      promises.push(handleGetData(value).catch((e: any) => {
+        log.error('storage error[getDataMultiple]: 数据损坏，已按空值处理', key, e.message)
+        void removeData(key).catch(() => {})
+        return null
+      }))
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      promises.push(Promise.resolve(value ? JSON.parse(value) : value))
+      try {
+        promises.push(Promise.resolve(JSON.parse(value)))
+      } catch (e: any) {
+        log.error('storage error[getDataMultiple]: 数据损坏，已按空值处理', key, e.message)
+        void removeData(key).catch(() => {})
+        promises.push(Promise.resolve(null))
+      }
     }
   }
   return Promise.all(promises).then(values => {

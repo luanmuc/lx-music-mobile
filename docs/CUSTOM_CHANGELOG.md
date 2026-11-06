@@ -1,3 +1,14 @@
+## [v1.9.2-b61] - 2026-11-06
+
+### 通知栏显示格式调整 + 修音源名/音质被歌词刷新覆盖
+- **显示格式**：标题只显示歌名（如「黄昏」）；音源与音质统一放到艺术家行，按「歌手 · 音源 · 音质」排列（如「周传雄 · 树音 · FLAC」）。缺项自动跳过，不会出现多余的分隔符
+- **修覆盖 bug**：`updateMetaInfo` 在歌词每换一行时都会调 `updateNowPlayingMetadata`，但没带 `subSource` / `quality`，把 `buildTracks` 在 add 时拼好的后缀覆盖成无后缀——这是 b54 通知栏看不到音源名的根因
+- **修复方式**：抽出 `getNotificationQualityTag` / `getNotificationSubSource` 两个公共取值函数，`buildTracks` 与 `updateMetaInfo` 两处统一带上
+- **依赖与锁文件**：track-player 升到 `e9585c96`，`package-lock.json` 同步
+- **版本号修正**：从 b54 回退后 `build-state` 是 53，直接编译会再产出 b54 并覆盖历史包，已推进到 60（本次编译后为 b61）
+
+---
+
 # 定制版更新日志（CUSTOM CHANGELOG）
 
 本文件记录本仓库（`luanmuc/mobile-app` 洛雪音乐定制版）**自 v1.9.1-b1 重建以来**的变更历史，供用户与开发者查阅。

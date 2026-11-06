@@ -39,6 +39,18 @@ const getCurrentFullLyric = (targetId: string | null) => {
     : undefined
 }
 
+// 通知栏艺术家行附加信息：音质标签与实际音源名（原生侧拼成「周传雄 · 树音 · FLAC」）
+// buildTracks 构造 track 与 updateMetaInfo 刷新元数据两处都要带，否则后者会把前者拼好的后缀覆盖掉
+const getNotificationQualityTag = () => {
+  const q = playerState.playQuality
+  if (!q) return undefined
+  if (q === 'flac') return 'FLAC'
+  if (q === 'flac24bit') return 'FLAC24'
+  if (q === 'hires') return 'Hi-Res'
+  return q
+}
+const getNotificationSubSource = () => playerState.playSource?.name || undefined
+
 const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'], duration?: LX.Player.Track['duration']): LX.Player.Track[] => {
   const mInfo = formatMusicInfo(musicInfo)
   const track = [] as LX.Player.Track[]
@@ -46,17 +58,9 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
   const album = mInfo.album || undefined
   const artwork = isShowNotificationImage && mInfo.pic && httpRxp.test(mInfo.pic) ? mInfo.pic : undefined
   const lyric = getCurrentFullLyric(mInfo.id)
-  // 通知栏定制：音质标签与实际子源名（原生侧拼成「标题 [FLAC]」「歌手 · helloworld(kw)」）
   // 取 playerState 的当前播放音质/子源——取链成功时写回，构造 track 时读最新值
-  const qualityTag = (() => {
-    const q = playerState.playQuality
-    if (!q) return undefined
-    if (q === 'flac') return 'FLAC'
-    if (q === 'flac24bit') return 'FLAC24'
-    if (q === 'hires') return 'Hi-Res'
-    return q
-  })()
-  const subSource = playerState.playSource?.name || undefined
+  const qualityTag = getNotificationQualityTag()
+  const subSource = getNotificationSubSource()
   if (url) {
     track.push({
       id: `${mInfo.id}__//${Math.random()}__//${url}`,
@@ -244,6 +248,10 @@ const updateMetaInfo = async(mInfo: LX.Player.MusicInfo) => {
     artwork,
     duration: state.prevDuration || 0,
     lyric: getCurrentFullLyric(mInfo.id),
+    // 原生侧按这两项把艺术家行拼成「周传雄 · 树音 · FLAC」
+    // 必须带上：本函数在歌词行变化时高频调用，漏传会把 add 时拼好的后缀覆盖成无后缀
+    quality: getNotificationQualityTag(),
+    subSource: getNotificationSubSource(),
   }, state.isPlaying)
 }
 

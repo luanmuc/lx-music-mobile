@@ -54,6 +54,8 @@ export default async(setting: LX.AppSetting) => {
       if (playerState.playedList.length) clearPlayedList()
       const playMusicInfo = playerState.playMusicInfo
       if (newValue == 'random' && playMusicInfo.musicInfo && !playMusicInfo.isTempPlay) addPlayedList({ ...(playMusicInfo as LX.Player.PlayMusicInfo) })
+      // 模式变了就同步通知栏图标：播放页（横屏/竖屏）、设置页、通知栏点击，最终都走 updateSetting 这条路径
+      syncNotificationRepeatMode(newValue)
     }
   }
 

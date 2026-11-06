@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b61",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 12d1591c fix(player): 艺术家行显示「歌手 · 音源 · 音质」，并修歌词刷新覆盖后缀\n- dce707ad feat(player): 接通通知栏定制参数 + 修复播放卡加载态（依赖升 01f34b15）",
+  "version": "1.9.2-b63",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- f6b9b157 chore: 修正 build-state 到 b62\n- ef36595e docs: 订正通知栏按钮数量，同步依赖版本与高冲突区\n- ff7f278e fix(player): 通知栏自定义按钮 PendingIntent 补 FLAG_IMMUTABLE\n- fe19c78e feat(player): 通知栏播放模式按钮跳过禁用态，只循环四个真实模式\n- c7cd05c4 fix(player): 播放模式图标改走统一配置变更事件同步",
   "history": [
+    {
+      "version": "1.9.2-b61",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 12d1591c fix(player): 艺术家行显示「歌手 · 音源 · 音质」，并修歌词刷新覆盖后缀\n- dce707ad feat(player): 接通通知栏定制参数 + 修复播放卡加载态（依赖升 01f34b15）"
+    },
     {
       "version": "1.9.2-b54",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- dce707ad feat(player): 接通通知栏定制参数 + 修复播放卡加载态（依赖升 01f34b15）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b50",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e236844b docs: MUSIC_SOURCE_GUIDE 补 v8.10.1 缓存 LRU delete 修复说明\n- c9e53819 docs: MUSIC_SOURCE_GUIDE 同步音源 v8.10（分档预算/冷启动豁免/缓存分级/快照扩容）"
-    },
-    {
-      "version": "1.9.2-b49",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- d7e21dcc docs: MUSIC_SOURCE_GUIDE 同步音源 v8.9（huibq 仅 kw/wy、短路判据拆分、--strict 退出码）\n- b2adb49a docs: MUSIC_SOURCE_GUIDE 同步音源 v8.8 竞速引擎改造\n- 6382a1de docs: MUSIC_SOURCE_GUIDE 同步 v8.7（huibq 假成功治理）\n- c972396f docs: MUSIC_SOURCE_GUIDE 同步 v8.6（huibq 默认开启 A 方案）\n- 07891bc6 docs: MUSIC_SOURCE_GUIDE 音源结构同步 v8.5（巡检工具与监控口径升级）\n- a876d8df docs: MUSIC_SOURCE_GUIDE 音源结构同步 v8.3/v8.4（ikun 默认开启 + 全源全接口深度巡检修复）\n- 28a519b2 docs: MUSIC_SOURCE_GUIDE 音源结构同步 v8.2（ikun 探针接入 + POST 探测 method/body 修复）\n- 3ad0ff52 docs: MUSIC_SOURCE_GUIDE 音源结构同步 v8.1（ikun 源复活：c.wwwweb.top + POST /music/url + 公益免卡密）\n- 8339bbd4 docs: L4 巡检自动修复 README 底座版本 b46→b48（b48 发布后遗漏）\n- c2ec4711 docs: CUSTOM_CHANGELOG 补记 b45~b48（文档同步Hook/L4巡检定时化/发布记录清理与自动发布重建）"
     }
   ]
 }

@@ -9,6 +9,8 @@ import { getCurrentTrackId } from './playList'
 import { pause, play, playNext, playPrev } from '@/core/player/player'
 import { hideDesktopLyric, showDesktopLyric, checkDesktopLyricOverlayPermission } from '@/core/desktopLyric'
 import settingState from '@/store/setting/state'
+import { MUSIC_TOGGLE_MODE_LIST } from '@/config/constant'
+import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
 import { toast } from '@/utils/tools'
 
 let isInitialized = false
@@ -78,6 +80,15 @@ const registerPlaybackService = async() => {
   // 通知栏"桌面歌词"开关按钮：点一下开，再点一下关（track-player fork 自定义事件）
   TrackPlayer.addEventListener(TPEvent.RemoteToggleDesktopLyric, () => {
     void toggleDesktopLyric()
+  })
+
+  // 通知栏"播放模式"按钮：点一下切到下一个模式，并回写原生图标
+  TrackPlayer.addEventListener('remote-cycle-repeat' as unknown as TPEvent, () => {
+    let index = MUSIC_TOGGLE_MODE_LIST.indexOf(settingState.setting['player.togglePlayMethod'])
+    if (++index >= MUSIC_TOGGLE_MODE_LIST.length) index = 0
+    const mode = MUSIC_TOGGLE_MODE_LIST[index]
+    updateSetting({ 'player.togglePlayMethod': mode })
+    syncNotificationRepeatMode(mode)
   })
 
   // TrackPlayer.addEventListener(TPEvent.RemoteDuck, async({ permanent, paused, ducking }) => {

@@ -6,9 +6,13 @@ import { setStop } from '@/plugins/player'
 import { delayUpdateMusicInfo } from '@/plugins/player/playList'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
+import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
 
 
 export default async(setting: LX.AppSetting) => {
+  // 启动时把播放模式同步给通知栏按钮
+  syncNotificationRepeatMode()
+
   const setPlayStatus = () => {
     setIsPlay(true)
   }

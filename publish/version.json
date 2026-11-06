@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b65",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 48ef3187 fix(player): 回滚通知栏模式图标重绘",
+  "version": "1.9.2-b66",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 11740027 fix(player): 恢复通知栏模式图标重绘",
   "history": [
+    {
+      "version": "1.9.2-b65",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 48ef3187 fix(player): 回滚通知栏模式图标重绘"
+    },
     {
       "version": "1.9.2-b64",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- ce893520 feat(player): 通知栏播放模式图标改用标准符号"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b53",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b287ffaf chore: 升级 react-native-track-player 到 9e3a51b（6项定制功能）\n- 9f4b9f14 docs(SYNC_POINTS): 补版本号双读取规则为同步点——@version 首 token 必须等于完整版本号，self-check 管不到 App 显示路径需人工核对"
-    },
-    {
-      "version": "1.9.2-b52",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- dadeec19 chore: 升级 react-native-track-player 到 e5632f5（通知栏歌词按钮图标修复为「词」字）"
     }
   ]
 }

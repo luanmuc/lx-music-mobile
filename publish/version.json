@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b66",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 11740027 fix(player): 恢复通知栏模式图标重绘",
+  "version": "1.9.2-b67",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a4643e13 fix: 补强定时器与列表下标的健壮性\n- c86b2f9f fix(storage): 补齐删除路径与音源事件的解析兜底\n- c2a5b8d9 fix(storage): 数据损坏不再拖垮启动",
   "history": [
+    {
+      "version": "1.9.2-b66",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 11740027 fix(player): 恢复通知栏模式图标重绘"
+    },
     {
       "version": "1.9.2-b65",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 48ef3187 fix(player): 回滚通知栏模式图标重绘"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b54",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- dce707ad feat(player): 接通通知栏定制参数 + 修复播放卡加载态（依赖升 01f34b15）"
-    },
-    {
-      "version": "1.9.2-b53",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b287ffaf chore: 升级 react-native-track-player 到 9e3a51b（6项定制功能）\n- 9f4b9f14 docs(SYNC_POINTS): 补版本号双读取规则为同步点——@version 首 token 必须等于完整版本号，self-check 管不到 App 显示路径需人工核对"
     }
   ]
 }

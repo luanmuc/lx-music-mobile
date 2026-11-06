@@ -8,8 +8,19 @@ import { exitApp, updateSetting } from '@/core/common'
 import { getCurrentTrackId } from './playList'
 import { pause, play, playNext, playPrev } from '@/core/player/player'
 import { hideDesktopLyric, showDesktopLyric, checkDesktopLyricOverlayPermission } from '@/core/desktopLyric'
+import { startTimeoutExit, stopTimeoutExit, onTimeUpdate } from '@/core/player/timeoutExit'
 import settingState from '@/store/setting/state'
 import { toast } from '@/utils/tools'
+
+// 通知栏播放模式按钮（原生 0/1/2/3）与 App 播放策略的双向映射
+const NOTIFICATION_PLAY_MODE_TO_METHOD: Record<number, 'list' | 'listLoop' | 'singleLoop' | 'random'> = {
+  0: 'list',
+  1: 'listLoop',
+  2: 'singleLoop',
+  3: 'random',
+}
+// 上一次推给通知栏的剩余分钟数，避免每秒都触发通知刷新
+let lastPushedTimerMinutes = -2
 
 let isInitialized = false
 
@@ -58,6 +69,29 @@ const registerPlaybackService = async() => {
   TrackPlayer.addEventListener(TPEvent.RemotePause, () => {
     // console.log('remote-pause')
     void pause()
+  })
+
+  // lx-music fork: 通知栏右侧竖排「定时关闭」按钮（原生循环预设时长后回传分钟数，0=关闭）
+  TrackPlayer.addEventListener('remote-toggle-timer' as unknown as TPEvent, (data: any) => {
+    const minutes = (data as { minutes?: number } | null)?.minutes ?? 0
+    // 原生给的是分钟，App 定时器按秒计时
+    if (minutes > 0) startTimeoutExit(minutes * 60)
+    else stopTimeoutExit()
+  })
+
+  // lx-music fork: 通知栏右侧竖排「播放模式」按钮（原生回传 0=顺序 1=列表循环 2=单曲循环 3=随机）
+  TrackPlayer.addEventListener('remote-cycle-repeat' as unknown as TPEvent, (data: any) => {
+    const mode = (data as { mode?: number } | null)?.mode ?? 1
+    updateSetting({ 'player.togglePlayMethod': NOTIFICATION_PLAY_MODE_TO_METHOD[mode] ?? 'listLoop' })
+  })
+
+  // lx-music fork: 定时器倒计时期间把剩余分钟推给通知栏，让数字随时间递减
+  onTimeUpdate((time) => {
+    const minutes = time > 0 ? Math.ceil(time / 60) : 0
+    if (minutes === lastPushedTimerMinutes) return
+    lastPushedTimerMinutes = minutes
+    void (TrackPlayer as unknown as { setTimerMinutes?: (m: number) => Promise<void> })
+      .setTimerMinutes?.(minutes)
   })
 
   TrackPlayer.addEventListener(TPEvent.RemoteNext, () => {

@@ -4,11 +4,26 @@ import { setStatusText, setIsPlay } from '@/core/player/playStatus'
 // import { resetPlayerMusicInfo } from '@/core/player/playInfo'
 import { setStop } from '@/plugins/player'
 import { delayUpdateMusicInfo } from '@/plugins/player/playList'
+import TrackPlayer from 'react-native-track-player'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
 
 
+// 通知栏播放模式图标：App 播放策略 → 原生 0=顺序 1=列表循环 2=单曲循环 3=随机
+const PLAY_METHOD_TO_MODE: Record<string, number> = {
+  list: 0,
+  listLoop: 1,
+  singleLoop: 2,
+  random: 3,
+}
+const syncNotificationPlayMode = (method: string) => {
+  void (TrackPlayer as unknown as { setNotificationRepeatMode?: (m: number) => Promise<void> })
+    .setNotificationRepeatMode?.(PLAY_METHOD_TO_MODE[method] ?? 1)
+}
+
 export default async(setting: LX.AppSetting) => {
+  // 冷启时把当前播放策略同步到通知栏图标（原生默认是 0=顺序，与 App 默认 listLoop 不一致）
+  syncNotificationPlayMode(setting['player.togglePlayMethod'])
   const setPlayStatus = () => {
     setIsPlay(true)
   }
@@ -47,6 +62,7 @@ export default async(setting: LX.AppSetting) => {
   const handleConfigUpdated: typeof global.state_event.configUpdated = (keys, settings) => {
     if (keys.includes('player.togglePlayMethod')) {
       const newValue = settings['player.togglePlayMethod']
+      syncNotificationPlayMode(newValue)
       if (playerState.playedList.length) clearPlayedList()
       const playMusicInfo = playerState.playMusicInfo
       if (newValue == 'random' && playMusicInfo.musicInfo && !playMusicInfo.isTempPlay) addPlayedList({ ...(playMusicInfo as LX.Player.PlayMusicInfo) })

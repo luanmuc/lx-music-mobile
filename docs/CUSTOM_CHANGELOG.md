@@ -8,6 +8,19 @@
 
 ---
 
+## [v1.9.2-b56] - 2026-11-06
+
+### 通知栏右侧两按钮真正可用 + 展开布局补回播放控制
+- **接上定时关闭**：原生「定时关闭」按钮点击后循环预设时长（10/20/30/40/50/60/90/120 分钟），`emit` 出 `remote-toggle-timer`；App 侧此前没有监听，点了只有数字变。现已在 `src/plugins/player/service.ts` 接上，收到分钟数后走已有模块 `startTimeoutExit(minutes * 60)`，0 则 `stopTimeoutExit()`
+- **接上播放模式**：同理接上 `remote-cycle-repeat`，原生 `0/1/2/3` 映射到 `list / listLoop / singleLoop / random` 后写 `player.togglePlayMethod`
+- **双向同步**：App 侧任何地方改了 `player.togglePlayMethod` 或冷启恢复设置时，都会调 `setNotificationRepeatMode` 回写通知栏图标。此前原生默认 `0=顺序`、App 默认 `listLoop`，冷启后图标一开始就是错的
+- **定时数字会递减**：注册 `onTimeUpdate`，剩余分钟数变化时调 `setTimerMinutes` 推给原生，通知栏数字不再静止在预设值
+- **展开布局补播放控制**：自定义展开布局此前只有封面/标题/艺术家/两个竖排按钮，覆盖掉 MediaStyle 大布局后展开态反而不能控制播放。现补上上一首 / 播放暂停 / 下一首（走 `MediaButtonReceiver`，复用 `MusicService` 的 `ACTION_MEDIA_BUTTON` 分支），播放/暂停图标随状态切换
+- **RemoteViews 缓存复用**：`updateNotification()` 有 7 处调用（含歌词行刷新），原来每次重建 `RemoteViews` 并把封面 Bitmap 重新写入。现改为字段缓存 + `setTextViewText` / `setImageViewResource` 局部更新，封面仅在换图时写一次
+- **依赖与锁文件**：track-player 升到 `bc177c84`，`package-lock.json` 已同步（`npm install --package-lock-only`，仅 3 行变化）
+
+---
+
 ## [v1.9.2-b55] - 2026-11-06
 
 ### 修通知栏音源名不显示

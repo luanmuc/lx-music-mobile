@@ -81,7 +81,16 @@ export const onScriptAction = (handler: (event: ActionsEvent) => void): () => vo
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const eventEmitter = new NativeEventEmitter(UserApiModule)
   const eventListener = eventEmitter.addListener('api-action', event => {
-    if (event.data) event.data = JSON.parse(event.data as string)
+    if (event.data) {
+      try {
+        event.data = JSON.parse(event.data as string)
+      } catch (e: any) {
+        // 音源吐出的事件数据不是合法 JSON 时不能抛，否则整条事件处理会中断
+        // 按空对象处理：后续逻辑依赖 data 为对象（Object.keys / 属性访问）
+        logger.warn('userApi', '事件数据解析失败，按空对象处理', e.message)
+        event.data = {} as any
+      }
+    }
     if (event.action == 'init') {
       logger.info('userApi', `[debug] init event.data keys = ${Object.keys(event.data).join(',')}`)
       if (event.data.info) event.data.info = { ...loadScriptInfo, ...event.data.info }

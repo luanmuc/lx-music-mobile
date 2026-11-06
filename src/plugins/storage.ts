@@ -103,7 +103,13 @@ export const removeData = async(key: string) => {
       }
       return
     } else if (partKeyArrPrefixRxp.test(value)) {
-      let partKeys = JSON.parse(value.replace(partKeyArrPrefixRxp, '')) as string[]
+      // 索引数据损坏时只删主 key，不让解析失败中断整个删除流程
+      let partKeys: string[] = []
+      try {
+        partKeys = JSON.parse(value.replace(partKeyArrPrefixRxp, '')) as string[]
+      } catch (e: any) {
+        log.error('storage error[removeData]: 索引数据损坏，跳过子项清理', key, e.message)
+      }
       partKeys.push(key)
       try {
         await AsyncStorage.multiRemove(partKeys)
@@ -203,7 +209,11 @@ export const removeDataMultiple = async(keys: string[]) => {
       if (partKeyPrefixRxp.test(value)) {
         allKeys.push(...value.replace(partKeyPrefixRxp, '').split(keySplit))
       } else if (partKeyArrPrefixRxp.test(value)) {
-        allKeys.push(...JSON.parse(value.replace(partKeyArrPrefixRxp, '')) as string[])
+        try {
+          allKeys.push(...JSON.parse(value.replace(partKeyArrPrefixRxp, '')) as string[])
+        } catch (e: any) {
+          log.error('storage error[removeDataMultiple]: 索引数据损坏，跳过子项清理', key, e.message)
+        }
       }
     }
   }

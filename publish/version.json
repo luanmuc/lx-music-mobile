@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b51",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 17269304 docs: MUSIC_SOURCE_GUIDE 同步音源 v8.10.1（版本号真正升级，App 可识别）",
+  "version": "1.9.2-b52",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- dadeec19 chore: 升级 react-native-track-player 到 e5632f5（通知栏歌词按钮图标修复为「词」字）",
   "history": [
+    {
+      "version": "1.9.2-b51",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 17269304 docs: MUSIC_SOURCE_GUIDE 同步音源 v8.10.1（版本号真正升级，App 可识别）"
+    },
     {
       "version": "1.9.2-b50",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- e236844b docs: MUSIC_SOURCE_GUIDE 补 v8.10.1 缓存 LRU delete 修复说明\n- c9e53819 docs: MUSIC_SOURCE_GUIDE 同步音源 v8.10（分档预算/冷启动豁免/缓存分级/快照扩容）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b46",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- f6d47e30 docs: AGENTS 补 docs-audit 命令段（L4 巡检）\n- 887c4c9b feat: L4 文档一致性巡检（docs-audit）——TS 文件数/三语言键数/底座 bN/track-player commit 自动对齐，低风险自动修复，--dry-run 只报告"
-    },
-    {
-      "version": "1.9.2-b45",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a667d309 docs+hooks: doc-sync RULES 补 scripts/ 规则（改脚本需同步 AGENTS 命令段/RELEASE_SOP）\n- 995320ae docs+hooks: 文档同步 Hook——doc-sync-map 映射脚本 + prepare-commit-msg/commit-msg 双 hook + 安装脚本，提交时自动提示必同步文档清单（mobile 规则表）\n- e644a2de docs: 全量梳理修复——CUSTOM_CHANGELOG 去重(旧b38~b39错误归因)、TS文件数508→511(DEV_SETUP/RELEASE_SOP)、RELEASE_SOP paths-ignore补全(README/docs不触发)、README changelog bN描述更新、DOWNLOAD_DESIGN行数787→835\n- f8c8f4e0 docs: 音源→App 同步点总表建成（Task 3）\n- 8258132d docs: 合并冲突速查建成（Task 2）\n- 2909f697 docs: CUSTOM_CHANGELOG 归档 b38~b44（审计发现缺失，含 zh-tw 词条补全/趋势排序/审计同步）\n- 5c67a337 docs: A4 判否/F5 未测量 正式关闭（用户确认不再推进），mobile 审计 39 维全绿\n- 9864d98e docs: F4 包体积审计关闭（用户确认与官方版相当），剩余 F5 真机实测"
     }
   ]
 }

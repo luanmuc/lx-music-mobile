@@ -46,6 +46,17 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
   const album = mInfo.album || undefined
   const artwork = isShowNotificationImage && mInfo.pic && httpRxp.test(mInfo.pic) ? mInfo.pic : undefined
   const lyric = getCurrentFullLyric(mInfo.id)
+  // 通知栏定制：音质标签与实际子源名（原生侧拼成「标题 [FLAC]」「歌手 · helloworld(kw)」）
+  // 取 playerState 的当前播放音质/子源——取链成功时写回，构造 track 时读最新值
+  const qualityTag = (() => {
+    const q = playerState.playQuality
+    if (!q) return undefined
+    if (q === 'flac') return 'FLAC'
+    if (q === 'flac24bit') return 'FLAC24'
+    if (q === 'hires') return 'Hi-Res'
+    return q
+  })()
+  const subSource = playerState.playSource?.name || undefined
   if (url) {
     track.push({
       id: `${mInfo.id}__//${Math.random()}__//${url}`,
@@ -57,6 +68,8 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
       userAgent: defaultUserAgent,
       musicId: mInfo.id,
       lyric,
+      quality: qualityTag,
+      subSource,
       // original: { ...musicInfo },
       duration,
     })
@@ -70,6 +83,8 @@ const buildTracks = (musicInfo: LX.Player.PlayMusic, url?: LX.Player.Track['url'
     artwork,
     musicId: mInfo.id,
     lyric,
+    quality: qualityTag,
+    subSource,
     // original: { ...musicInfo },
     duration: 0,
   })

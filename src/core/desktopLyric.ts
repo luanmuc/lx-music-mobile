@@ -1,3 +1,4 @@
+import TrackPlayer from 'react-native-track-player'
 import {
   hideDesktopLyricView,
   showDesktopLyricView,
@@ -30,6 +31,12 @@ export {
   onLyricLinePlay,
 } from '@/utils/nativeModules/lyricDesktop'
 
+// 通知栏「词」按钮状态同步（lx 定制：原生 setLyricButtonActive）
+const syncLyricButtonState = (active: boolean) => {
+  const tp = TrackPlayer as unknown as { setLyricButtonActive?: (a: boolean) => Promise<unknown> }
+  void tp.setLyricButtonActive?.(active)?.catch(() => {})
+}
+
 export const showDesktopLyric = async() => {
   const setting = settingState.setting
   await showDesktopLyricView({
@@ -61,9 +68,11 @@ export const showDesktopLyric = async() => {
       void play(position * 1000)
     })
   }
+  syncLyricButtonState(true)
 }
 
 export const hideDesktopLyric = async() => {
+  syncLyricButtonState(false)
   return hideDesktopLyricView()
 }
 

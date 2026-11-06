@@ -77,8 +77,10 @@ declare global {
 
       interface Track extends RNTrack {
         musicId: string
+        // 通知栏定制：音质标签 + 实际子源名（原生侧拼进标题/艺术家行）
+        quality?: string
+        subSource?: string
         // original: PlayMusic
-        // quality: LX.Quality
       }
 
     }

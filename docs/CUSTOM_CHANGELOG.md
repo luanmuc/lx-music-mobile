@@ -8,6 +8,18 @@
 
 ---
 
+## [v1.9.2-b54] - 2026-11-06
+
+### 通知栏定制真正接通 + 播放卡加载态修复
+- **依赖升级**：track-player fork 升到 `01f34b15`（原 `9e3a51b`）
+- **修播放卡住**：`requestAudioFocus` 加幂等——原实现每次播放都重复请求，焦点栈累积会触发系统下发 LOSS，`stop()` 把刚开始的播放打断（表现为点播放一直停在加载/缓冲态）；`AUDIOFOCUS_LOSS` 由 `stop()` 改 `pause()`，不再把进度归零，同时复位鸭子音量
+- **参数接通**：`buildTracks` 补 `quality` / `subSource`——此前 Java 侧读 bundle 恒为 null，「标题 [FLAC]」「歌手 · helloworld(kw)」两项实际不显示
+- **歌词按钮状态**：桌面歌词显隐时调用 `setLyricButtonActive`，通知栏「词」按钮不再恒为置灰
+- **锁文件同步**：此前 `package.json`（`9e3a51b`）与 `package-lock.json`（`001e2dd`）指向不同 commit，本次一并更新为 `01f34b15`
+- **元数据判空**：`displayTitle` / `displayArtist` 拼接前判 `title` / `artist` 非空，避免 `"null [FLAC]"` / `"null · xxx"`
+
+---
+
 ## [v1.9.2-b33] - 2026-11-05
 
 ### 更新音源按钮完整修复

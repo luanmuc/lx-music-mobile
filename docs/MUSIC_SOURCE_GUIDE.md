@@ -54,14 +54,14 @@ musicSdk（内置官方源）  ──┐
 
 App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`android/app/src/main/java/cn/toside/music/mobile/userApi/`。
 
-## 四、聚合源内部结构（豆包定制 v8.0）
+## 四、聚合源内部结构（豆包定制 v8.1）
 
-> 每次构建自动拉取音源仓库 master 最新版，以下为当前（v8.0）结构；随音源迭代会更新。
+> 每次构建自动拉取音源仓库 master 最新版，以下为当前（v8.1）结构；随音源迭代会更新。
 
 当前内置聚合源含多个后端，按需路由与降级：
 
 - 后端：溯音（酷我 / 咪咕 verified、163、QQ）/ 星海后端 / 酷我官方 / 长青 / 念心 / helloworld(kw 备用) / 网易云 outer / GDAPI / Juhe 聚合（kw/tx/wy/kg/mg）/ ikun / 灰灰 / 聆川 等
-- 特性：音质校验（探测歌曲实际可用音质）、双音质分域探测、探测歌曲池轮换、失败兜底降级、URL 有效期处理、健康探测自愈（休眠/自动关闭/复活）、子源透出（v6.0+）、沙箱兼容（v6.0）、试听片段检测（v8.0：helloworld 等源若返回酷我 VIP 5 秒试听链接（URL 含 preview/test/sample/试听/片段等关键词）自动判失败换源，且该源降为低优先级备用）
+- 特性：音质校验（探测歌曲实际可用音质）、双音质分域探测、探测歌曲池轮换、失败兜底降级、URL 有效期处理、健康探测自愈（休眠/自动关闭/复活）、子源透出（v6.0+）、沙箱兼容（v6.0）、试听片段检测（v8.0：helloworld 等源若返回酷我 VIP 5 秒试听链接（URL 含 preview/test/sample/试听/片段等关键词）自动判失败换源，且该源降为低优先级备用）；ikun 源复活（v8.1：域名 c.wwwweb.top + POST /music/url + 公益版免卡密，默认关闭开启即用）
 - 音质优先级：`flac24bit → flac → wav → ape → 320k → 192k → 128k`（与 App 端 `core/music/utils.ts` 的 `FULL_QUALITYS_LIST` 对齐）
 
 ## 四b、音源健康面板与健康分（App 侧语义）

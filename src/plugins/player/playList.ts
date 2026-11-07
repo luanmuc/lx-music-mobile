@@ -255,7 +255,7 @@ const updateMetaInfo = async(mInfo: LX.Player.MusicInfo) => {
     // 必须带上：本函数在歌词行变化时高频调用，漏传会把 add 时拼好的后缀覆盖成无后缀
     quality: getNotificationQualityTag(),
     subSource: getNotificationSubSource(),
-  } as any, state.isPlaying)
+  }, state.isPlaying)
 }
 
 

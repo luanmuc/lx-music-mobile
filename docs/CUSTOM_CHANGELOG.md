@@ -29,6 +29,7 @@
 - `getQuerier` 补 `'trend'`、`UserApiSourceInfoActions` 补 5 个治理 action（音源 v8.0 已实现，App 只漏类型）
 - 趋势历史显式类型，消除 3 处隐式 any；补 3 个图例样式（此前只引用未定义）；`Button` 移除无效 `size`/`type`
 - `app_setting.d.ts` 补 `common.enableDebugLog`
+- `MUSIC_SOURCE_GUIDE` 四b 补 `playDead`/`rateLimited` 快照字段说明
 - `logger.warn` 第三参数被签名丢弃（2 处）→ 改模板串，保留失败原因
 
 ## [v1.9.2-b74] - 2026-11-07

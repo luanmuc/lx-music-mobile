@@ -77,6 +77,8 @@ App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`andr
 | 负分 | 保留（严重异常源可为负）——配合 `closed 且成功率 0% 且健康分<0` → 状态显示「异常」红（v-b45 语义） |
 | 无样本 | 显示 `-`（音源侧 successRate/avgTime 返回 null，v4.0 语义） |
 
+**快照附加字段（v26.1 / v17.2 起）**：源条目除 `score`/`successRate`/`closed` 外还提供 `playDead`（播放死链标记）与 `rateLimited`（限流中标记）；App 的 `HealthItem` 已补这两个可选字段并在状态列展示，缺字段时按正常处理。
+
 **面板分区排序（音源 v6.0 起）**：使用中 → 正常 → 待采样 → 休眠 → 已关（按 `lastUsedAt` 真实播放记录分组）。
 
 > 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [backend-api DEV_GUIDE §3.4b](https://github.com/luanmuc/backend-api/blob/master/DEV_GUIDE.md)。

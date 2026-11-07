@@ -154,20 +154,29 @@ export const setResource = (musicInfo: LX.Player.PlayMusic, url: string, duratio
   playMusic(musicInfo, url, duration ?? 0)
 }
 
-export const setPlay = async() => TrackPlayer.play()
-export const getPosition = async() => TrackPlayer.getPosition()
-export const getDuration = async() => TrackPlayer.getDuration()
+// 播放器未初始化时（进程冷启动、setupPlayer 尚未完成、或 destroy 之后），
+// 原生 binder.getPlayback() 为 null，任何播放控制调用都会在主线程抛 NullPointerException 直接崩掉。
+// 这里统一在 JS 侧拦住，等初始化完成后再放行（初始化内部会自己调用 setVolume/setPlaybackRate）。
+const isReady = () => global.lx.playerStatus.isInitialized === true
+
+export const setPlay = async() => { if (!isReady()) return; await TrackPlayer.play() }
+export const getPosition = async() => isReady() ? TrackPlayer.getPosition() : 0
+export const getDuration = async() => isReady() ? TrackPlayer.getDuration() : 0
 export const setStop = async() => {
+  if (!isReady()) return
   await TrackPlayer.stop()
   if (!isEmpty()) await TrackPlayer.skipToNext()
 }
-export const setLoop = async(loop: boolean) => TrackPlayer.setRepeatMode(loop ? RepeatMode.Off : RepeatMode.Track)
+export const setLoop = async(loop: boolean) => {
+  if (!isReady()) return
+  await TrackPlayer.setRepeatMode(loop ? RepeatMode.Off : RepeatMode.Track)
+}
 
-export const setPause = async() => TrackPlayer.pause()
+export const setPause = async() => { if (!isReady()) return; await TrackPlayer.pause() }
 // export const skipToNext = () => TrackPlayer.skipToNext()
-export const setCurrentTime = async(time: number) => TrackPlayer.seekTo(time)
-export const setVolume = async(num: number) => TrackPlayer.setVolume(num)
-export const setPlaybackRate = async(num: number) => TrackPlayer.setRate(num)
+export const setCurrentTime = async(time: number) => { if (!isReady()) return; await TrackPlayer.seekTo(time) }
+export const setVolume = async(num: number) => { if (!isReady()) return; await TrackPlayer.setVolume(num) }
+export const setPlaybackRate = async(num: number) => { if (!isReady()) return; await TrackPlayer.setRate(num) }
 export interface NowPlayingTitles {
   title?: string
   artist?: string
@@ -176,14 +185,15 @@ export interface NowPlayingTitles {
 }
 export const updateNowPlayingTitles = async(titles: NowPlayingTitles) => {
   // console.log('set playing titles', titles)
+  if (!isReady()) return
   return TrackPlayer.updateNowPlayingTitles(titles)
 }
 
 export const resetPlay = async() => Promise.all([setPause(), setCurrentTime(0)])
 
-export const isCached = async(url: string) => TrackPlayer.isCached(url)
-export const getCacheSize = async() => TrackPlayer.getCacheSize()
-export const clearCache = async() => TrackPlayer.clearCache()
+export const isCached = async(url: string) => isReady() ? TrackPlayer.isCached(url) : false
+export const getCacheSize = async() => isReady() ? TrackPlayer.getCacheSize() : 0
+export const clearCache = async() => { if (!isReady()) return; return TrackPlayer.clearCache() }
 export const migratePlayerCache = async() => {
   const newCachePath = privateStorageDirectoryPath + '/TrackPlayer'
   if (await existsFile(newCachePath)) return

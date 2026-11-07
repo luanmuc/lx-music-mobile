@@ -174,8 +174,10 @@ export function useBufferProgress() {
       }
     })
 
-    void updateBuffer()
-    void TrackPlayer.getState().then((state) => {
+    // 启动早期播放器还没 setupPlayer 时不要碰原生：binder 会顺手创建一个默认 playback 并拉起 MusicService
+    const isReady = () => global.lx.playerStatus.isInitialized === true
+    if (isReady()) void updateBuffer()
+    if (isReady()) void TrackPlayer.getState().then((state) => {
       if (state == State.Buffering) {
         // 先清掉可能已存在的同款计时器，否则这里会再起一个且旧引用丢失，永远清不掉
         clearItv()

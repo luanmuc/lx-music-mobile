@@ -33,6 +33,8 @@ export {
 
 // 通知栏「词」按钮状态同步（lx 定制：原生 setLyricButtonActive）
 const syncLyricButtonState = (active: boolean) => {
+  // 播放器未初始化时原生 getPlayback() 为 null，调用会崩主线程（同 b68 启动崩溃一类），先拦住
+  if (!global.lx.playerStatus.isInitialized) return
   const tp = TrackPlayer as unknown as { setLyricButtonActive?: (a: boolean) => Promise<unknown> }
   void tp.setLyricButtonActive?.(active)?.catch(() => {})
 }

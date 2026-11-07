@@ -1,3 +1,18 @@
+## [v1.9.2-b70] - 2026-11-07
+
+### 同类隐患二次排查：播放器未初始化时的其余原生崩溃 / 异常路径
+> 起因：b69 修完启动崩溃后，要求把「播放器没初始化就调原生 / 原生没判空就解引用」这一类问题全仓过一遍。
+
+- **原生 `MusicManager.onPause` / `onStop` / `onStateChange`**：`playback.shouldAutoUpdateMetadata()` 未判空。若暂停/停止/状态回调在 playback 为 null 时到达（服务被系统重启、destroy 之后），会崩主线程 → 已加 `playback != null` 判断
+- **原生 `ButtonEvents.onSkipToQueueItem`**：`manager.getPlayback().getQueue()` 是原生侧唯一还没判空的 `manager` 链式解引用，媒体会话的「从队列项播放」（蓝牙/车机）触发时若 playback 为 null 会崩 → 已判空
+- **App `plugins/player/index.ts` 初始化状态机**：`initial()` 中途任一 `await` 抛异常时 `isIniting` 会永久停在 `true`，之后每次点播放都被 `initial` 直接 return 掉、控件全空 → 表现为「点播放一直卡在缓存中」且无法自愈。改为 `try/catch/finally`，失败时复位 `isInitialized` 并清 `isIniting`
+- **App `plugins/player/utils.ts` 统一入口守卫**：`setPlay` / `setPause` / `setStop` / `setCurrentTime` / `setVolume` / `setPlaybackRate` / `setLoop` / `getPosition` / `getDuration` / `isCached` / `getCacheSize` / `clearCache` / `updateNowPlayingTitles` 在 `isInitialized` 为 false 时直接返回。原实现会真的打到原生：`MusicBinder.getPlayback()` 在 playback 为 null 时会**顺手建一个默认 playback 并拉起 MusicService**（空 Bundle → 默认 audioFocus/缓存参数），属于隐性的静默副作用
+- **App `plugins/player/hook.ts`**：首页播放条的 `useBufferProgress` 挂载即调 `getBufferedPosition` / `getDuration` / `getState`，冷启动时同样会触发上面那个「默认 playback + 拉服务」副作用 → 未初始化时跳过首次轮询
+- **App `core/desktopLyric.ts`**：通知栏「词」按钮状态同步加 `isInitialized` 判断，避免启动期（桌面歌词自动开启时）提前调原生
+- **依赖**：track-player 升到 `ed97de5`
+
+---
+
 ## [v1.9.2-b69] - 2026-11-07
 
 ### 修复：关掉音频焦点主开关后 App 启动即崩溃（b68 回归，根因在原生）

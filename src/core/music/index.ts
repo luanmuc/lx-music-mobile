@@ -37,9 +37,9 @@ export const getMusicUrl = async({
   onSource?: (source: { id: string; name: string } | null) => void
 }): Promise<string> => {
   if ('progress' in musicInfo) {
-    return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
+    return getDownloadMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource } as any)
   } else if (musicInfo.source == 'local') {
-    return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource })
+    return getLocalMusicUrl({ musicInfo, isRefresh, onToggleSource, allowToggleSource, onSource } as any)
   } else {
     // v-b73：必须透传 onSource——player.ts 的 onSource（setPlaySource）经此路由到 online.ts，
     // 若丢失则在线播放永远收不到子源回调 → 播放页音源标签只显示平台名（历史多轮修复未达此层）

@@ -102,7 +102,7 @@ export class ListEvent extends Event {
     // const changedIds: string[] = []
     fixListIdType(lists)
     for (const list of lists) {
-      userListCreate({ ...list, position })
+      userListCreate({ ...list, position, locationUpdateTime: list.locationUpdateTime ?? null })
       // changedIds.push(list.id)
     }
     await updateUserList(userLists)

@@ -145,10 +145,13 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
     logger.musicResolve(
       (musicInfo as LX.Music.MusicInfoOnline).source || 'local',
       musicInfo.id,
-      musicInfo.name,
-      Array.isArray((musicInfo as LX.Music.MusicInfoOnline).singer) ? (musicInfo as LX.Music.MusicInfoOnline).singer.join('/') : '',
+      (musicInfo as LX.Music.MusicInfo).name,
+      (() => {
+        const singer = (musicInfo as LX.Music.MusicInfoOnline).singer
+        return Array.isArray(singer) ? singer.join('/') : ''
+      })(),
       url,
-      playerState.playMusicInfo.toggleQuality ?? '',
+      (playerState.playMusicInfo as any).toggleQuality ?? '',
     )
     return url
   }).catch(async err => {
@@ -158,7 +161,7 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
       diffCurrentMusicInfo(musicInfo) ||
       err.message == requestMsg.cancelRequest) return null
 
-    logger.error('MusicResolve', `解析异常: ${musicInfo.name} - ${err.message}`)
+    logger.error('MusicResolve', `解析异常: ${(musicInfo as LX.Music.MusicInfo).name} - ${err.message}`)
 
     if (err.message == requestMsg.tooManyRequests) return delayRetry(musicInfo, isRefresh)
 
@@ -298,7 +301,7 @@ const handlePlay = async() => {
 
   if (!musicInfo) return
 
-  logger.player('开始播放', `${musicInfo.name} - ${musicInfo.singer}`, `来源:${musicInfo.source}, id:${musicInfo.id}`)
+  logger.player('开始播放', `${(musicInfo as LX.Music.MusicInfo).name} - ${(musicInfo as LX.Music.MusicInfo).singer}`, `来源:${(musicInfo as LX.Music.MusicInfoOnline).source}, id:${musicInfo.id}`)
 
   await setStop()
   global.app_event.pause()

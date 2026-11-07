@@ -191,7 +191,7 @@ unzip -p apk assets/index.android.bundle | 按 UTF-16LE 查中文、按 ASCII �
 
 **验证证据（本机执行）**
 - `node_modules/.bin/tsc --noEmit`：**57 → 14** 条（剩余均为上游历史类型不一致，运行时无对应缺陷）
-- `node scripts/docs-audit.js`：三语言 **730** 键一致、底座 **b76**、track-player **`eceacb5`** 三项全绿（审计当轮为 b74 / `5bff17b`，b75/b76 后复跑现值如上）
+- `node scripts/docs-audit.js`：三语言 **730** 键一致、底座 **b77**、track-player **`eceacb5`** 三项全绿（审计当轮为 b74 / `5bff17b`，b75→b77 后复跑现值如上）
 - 占位符脚本：新键 0 缺失、0 未引用；三语 JSON 均可解析、无重复键
 - ESLint：改动文件只余项目既有风格类问题（`space-before-function-paren` 等），无 `no-unused-vars` / `no-undef`
 - 设备级（S 组）仍需实机：横屏播放页、清空已完成、重启恢复、权限流

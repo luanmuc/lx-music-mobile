@@ -42,7 +42,8 @@
 6. 文档同步：`CUSTOM_CHANGELOG`（b75 段）、`DOWNLOAD_DESIGN`（写探针/超时/错误码）、`AUDIT_PLAN`（文末修复记录）、`AUDIT_REPORT`、键数三处镜像（697→730）✓
 7. 门禁：`tsc` 错误 57→14、三语键 697→730 ✓
 8. 提交与推送：已入 `master`（b75 版本信息提交 `9a157ca`、b76 为 `e64c3611`，均由发布脚本自动生成）✓
-9. 后续收尾（同日）：清掉最后 3 处 `as any`（含 `toggleQuality` 死字段改读 `playQuality`）、文档镜像统一到 `eceacb5` / b76、`DEV_SETUP` 固化「升级 fork sha 三步」✓
+9. 后续收尾（同日）：清掉最后 3 处 `as any`（含 `toggleQuality` 死字段改读 `playQuality`）、文档镜像统一到 `eceacb5`、`DEV_SETUP` 固化「升级 fork sha 三步」✓
+10. 手动重编：取消 push 触发的首轮构建后 `workflow_dispatch` 重跑 → 成功产出 b77（tag `v1.9.2-b77` = `9af62c3d`，5 个 ABI APK，prerelease）✓
 
 ## 仍未做（需实机）
 

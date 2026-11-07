@@ -34,7 +34,7 @@ npm ci                    # 严格按 package-lock.json 安装（CI 同款）
 npm run dev
 
 # 2. 另开终端，安装并启动（连真机需先开启 USB 调试）
-npm run android
+npx react-native run-android
 ```
 
 - 首次运行前先执行 `npm run start` 的提示（或直接 `npx react-native run-android`）

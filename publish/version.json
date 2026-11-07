@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b73",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 36e6048f fix(hardening): 修迁移函数静默失效/文件名字节截断/占位符全局替换/下载状态i18n\n- e244f6f6 chore(docs): 三语言键数基线 618→685 [skip ci]",
+  "version": "1.9.2-b74",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 20ac0519 feat(download): 进度条可见性 + 无长度源文案 + 批量队列汇总\n- 0d936ed6 docs: README 底座版本更新到 b73 [skip ci]\n- fe921aea docs(agents): TS 文件数 511→514 [skip ci]\n- 21838da3 docs: 同步键数基线 694 / README 底座 b72 / TS 文件数 / AUDIT_PLAN 基线 b73 [skip ci]",
   "history": [
+    {
+      "version": "1.9.2-b73",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 36e6048f fix(hardening): 修迁移函数静默失效/文件名字节截断/占位符全局替换/下载状态i18n\n- e244f6f6 chore(docs): 三语言键数基线 618→685 [skip ci]"
+    },
     {
       "version": "1.9.2-b72",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6a72feba feat(i18n): 音频焦点主开关文案中性化 + 下载页三语国际化（65 键）\n- 93527737 docs(known-issues): K5 依赖提交更正为 5bff17b [skip ci]"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b68",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 7cbd5cba feat(audio-focus): 音频焦点拆成主开关 + 两个子开关"
-    },
-    {
-      "version": "1.9.2-b67",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a4643e13 fix: 补强定时器与列表下标的健壮性\n- c86b2f9f fix(storage): 补齐删除路径与音源事件的解析兜底\n- c2a5b8d9 fix(storage): 数据损坏不再拖垮启动"
     }
   ]
 }

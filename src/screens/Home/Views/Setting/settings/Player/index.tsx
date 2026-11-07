@@ -4,6 +4,8 @@ import Section from '../../components/Section'
 import IsSavePlayTime from './IsSavePlayTime'
 import PlayHighQuality from './PlayHighQuality'
 import IsHandleAudioFocus from './IsHandleAudioFocus'
+import IsAutoResumeAfterInterrupt from './IsAutoResumeAfterInterrupt'
+import IsDuckOnTransientDuck from './IsDuckOnTransientDuck'
 import IsEnableAudioOffload from './IsEnableAudioOffload'
 import IsAutoCleanPlayedList from './IsAutoCleanPlayedList'
 import IsShowBluetoothLyric from './IsShowBluetoothLyric'
@@ -25,6 +27,8 @@ export default memo(() => {
       <IsSavePlayTime />
       <IsAutoCleanPlayedList />
       <IsHandleAudioFocus />
+      <IsAutoResumeAfterInterrupt />
+      <IsDuckOnTransientDuck />
       <IsEnableAudioOffload />
       <IsShowBluetoothLyric />
       <IsShowBluetoothFullLyric />

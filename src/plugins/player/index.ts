@@ -16,11 +16,13 @@ import { updateOptions, setVolume, setPlaybackRate, migratePlayerCache } from '.
 //   })
 // }
 
-const initial = async({ volume, playRate, cacheSize, isHandleAudioFocus, isEnableAudioOffload }: {
+const initial = async({ volume, playRate, cacheSize, isHandleAudioFocus, autoResumeAfterInterrupt, duckOnTransientDuck, isEnableAudioOffload }: {
   volume: number
   playRate: number
   cacheSize: number
   isHandleAudioFocus: boolean
+  autoResumeAfterInterrupt: boolean
+  duckOnTransientDuck: boolean
   isEnableAudioOffload: boolean
 }) => {
   if (global.lx.playerStatus.isIniting || global.lx.playerStatus.isInitialized) return
@@ -32,6 +34,9 @@ const initial = async({ volume, playRate, cacheSize, isHandleAudioFocus, isEnabl
     maxBuffer: 1000,
     waitForBuffer: true,
     handleAudioFocus: isHandleAudioFocus,
+    // 两个子行为开关：焦点处理开启时才有意义
+    autoResumeAfterInterrupt: isHandleAudioFocus ? autoResumeAfterInterrupt : false,
+    duckOnTransientDuck: isHandleAudioFocus ? duckOnTransientDuck : false,
     audioOffload: isEnableAudioOffload,
     autoUpdateMetadata: false,
   })

@@ -356,6 +356,8 @@
   "setting_play_cache_size_save_tip": "The cache is set and takes effect after restarting the app.",
   "setting_play_handle_audio_focus": "Automatically pause playback when other apps playing sound",
   "setting_play_handle_audio_focus_tip": "Take effect after restarting the app",
+  "setting_play_auto_resume_after_interrupt": "Resume playback after the interruption ends",
+  "setting_play_duck_on_transient": "Lower the volume when another app asks to duck (e.g. navigation)",
   "setting_play_lyric_transition": "Show translated lyrics",
   "setting_play_play_quality": "Prioritize Sound Quality for Playback If Available",
   "setting_play_s2t": "Convert Chinese lyrics that are playing to traditional",

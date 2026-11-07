@@ -356,6 +356,8 @@
   "setting_play_cache_size_save_tip": "快取設定完畢，重啟應用後生效",
   "setting_play_handle_audio_focus": "其他應用播放聲音時，自動暫停播放",
   "setting_play_handle_audio_focus_tip": "重啟應用後生效",
+  "setting_play_auto_resume_after_interrupt": "被打斷結束後自動繼續播放",
+  "setting_play_duck_on_transient": "導航播報等要求壓低音量時，自動降低本應用音量",
   "setting_play_lyric_transition": "顯示歌詞翻譯",
   "setting_play_play_quality": "優先播放的音質（如果可用）",
   "setting_play_s2t": "將播放的中文歌詞轉換為繁體",

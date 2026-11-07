@@ -272,6 +272,8 @@ const handlePlay = async() => {
       playRate: settingState.setting['player.playbackRate'],
       cacheSize: settingState.setting['player.cacheSize'] ? parseInt(settingState.setting['player.cacheSize']) : 0,
       isHandleAudioFocus: settingState.setting['player.isHandleAudioFocus'],
+      autoResumeAfterInterrupt: settingState.setting['player.autoResumeAfterInterrupt'],
+      duckOnTransientDuck: settingState.setting['player.duckOnTransientDuck'],
       isEnableAudioOffload: settingState.setting['player.isEnableAudioOffload'],
     })
   }

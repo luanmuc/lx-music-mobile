@@ -167,6 +167,16 @@ declare global {
       'player.isHandleAudioFocus': boolean
 
       /**
+       * 被临时打断（来电、语音消息等）结束后是否自动续播（仅在开启焦点处理时有效）
+       */
+      'player.autoResumeAfterInterrupt': boolean
+
+      /**
+       * 其他应用要求压低音量（如导航播报）时是否降低本 App 音量（仅在开启焦点处理时有效）
+       */
+      'player.duckOnTransientDuck': boolean
+
+      /**
        * 是否启用音频卸载功能（这可以节省耗电量，没有播放异常问题不建议关闭）
        */
       'player.isEnableAudioOffload': boolean

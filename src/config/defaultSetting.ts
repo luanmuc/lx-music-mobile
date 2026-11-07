@@ -28,6 +28,8 @@ const defaultSetting: LX.AppSetting = {
   'player.timeoutExitPlayed': true,
   'player.isAutoCleanPlayedList': false,
   'player.isHandleAudioFocus': true,
+  'player.autoResumeAfterInterrupt': true,
+  'player.duckOnTransientDuck': true,
   'player.isEnableAudioOffload': false,
   'player.isShowLyricTranslation': false,
   'player.isShowLyricRoma': false,

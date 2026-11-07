@@ -205,7 +205,7 @@ v1 计划的 39 个维度全部标记 ✅，但 b68–b74 之间仍然连续暴�
 
 | # | 维度 | 状态 | 结论 |
 |---|---|---|---|
-| R1 | 镜像基线（键数/TS 数/底座版本） | ✅ | `node scripts/docs-audit.js` 三项全绿（730 键 / b75 / `eceacb5`） |
+| R1 | 镜像基线（键数/TS 数/底座版本） | ✅ | `node scripts/docs-audit.js` 三项全绿（730 键 / b76 / `eceacb5`） |
 | R2 | CI 触发条件认知 | ✅ | docs-audit 仅 schedule + dispatch，push 不跑（本轮已记录） |
 | R3 | 审计报告归档 | ✅ | 每轮结论写入 `docs/AUDIT_REPORT-YYYY-MM-DD.md` |
 

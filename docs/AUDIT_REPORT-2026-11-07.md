@@ -128,7 +128,7 @@
 | Duck 音量还原 | `volumeBeforeDuck` 记录再还原，不再写死 1.0 | L2 |
 | 设置项契约 | `defaultSetting` 75 键**全部**有真实消费点；"消费但未声明"的 5 个键全部在注释/迁移代码（`download.savePath`、`player.isPlayHighQuality` 均为注释） | L1 |
 | i18n 键 | 三语各 **730**（b75 后）、无重复键、占位符 0 缺失（1 处脚本误报已人工确认） | L1 |
-| 依赖锁定 | `5bff17b` 在 `package.json`×1 + `package-lock.json`×2，共 3 处一致（**b74 审计当时基线**；b75 后已升至 `eceacb5`，仍 3 处一致） | L1 |
+| 依赖锁定 | 当前 `eceacb5`（审计当时 `5bff17b`）；两者均为 `package.json`×1 + `package-lock.json`×2 共 3 处一致 | L1 |
 | 主题键 | 除 `c-font-1`/`c-border-1` 外，其余 `theme[...]` 引用合法 | L1 |
 | 升级/解析健壮性 | `officialVersion.parseOfficialVersion` 有 try/catch | L0 |
 | 下载状态 i18n | UI 优先 `statusKey`，`error` 只在 `unknown` 时附原始报错 | L1 |
@@ -191,7 +191,7 @@ unzip -p apk assets/index.android.bundle | 按 UTF-16LE 查中文、按 ASCII �
 
 **验证证据（本机执行）**
 - `node_modules/.bin/tsc --noEmit`：**57 → 14** 条（剩余均为上游历史类型不一致，运行时无对应缺陷）
-- `node scripts/docs-audit.js`：三语言 **730** 键一致、底座 b74、track-player `5bff17b` 三项全绿（**审计当时基线**；当前底座 b75、fork `eceacb5`）
+- `node scripts/docs-audit.js`：三语言 **730** 键一致、底座 **b75**、track-player **`eceacb5`** 三项全绿（审计当轮为 b74 / `5bff17b`，b75 后复跑现值如上）
 - 占位符脚本：新键 0 缺失、0 未引用；三语 JSON 均可解析、无重复键
 - ESLint：改动文件只余项目既有风格类问题（`space-before-function-paren` 等），无 `no-unused-vars` / `no-undef`
 - 设备级（S 组）仍需实机：横屏播放页、清空已完成、重启恢复、权限流

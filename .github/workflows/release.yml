@@ -45,6 +45,15 @@ jobs:
           head -5 android/app/src/main/assets/builtin_source.js | grep -q "@name" || { echo "音源文件异常"; exit 1; }
           ls -lh android/app/src/main/assets/builtin_source.js
           # 输出音源版本行（便于每次构建核对是否已拉到最新版）
+          # ── 跨仓闸门：文档里的内置音源版本必须等于本次实际拉到的 @version ──
+          SRC_VER=$(grep -o "@version [0-9.]*" android/app/src/main/assets/builtin_source.js | head -1 | awk '{print $2}')
+          DOC_VER=$(grep -o "豆包定制 v[0-9.]*" docs/MUSIC_SOURCE_GUIDE.md | head -1 | sed 's/豆包定制 v//')
+          if [ "$SRC_VER" != "$DOC_VER" ]; then
+            echo "❌ 文档音源版本 ${DOC_VER:-未找到} ≠ 本次内置 ${SRC_VER}"
+            echo "   → 请先更新 docs/MUSIC_SOURCE_GUIDE.md（§四标题与正文两处）后再构建"
+            exit 1
+          fi
+          echo "✅ 跨仓版本一致：MUSIC_SOURCE_GUIDE 与内置音源均为 v${SRC_VER}"
           grep -o "@version [0-9.]*" android/app/src/main/assets/builtin_source.js | head -1
           head -2 android/app/src/main/assets/builtin_source.js
           # debug：确认拉到的音源里有没有 config/trend action

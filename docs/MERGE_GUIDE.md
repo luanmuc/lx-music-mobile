@@ -52,6 +52,7 @@ git push origin master
 | `src/plugins/player/playList.ts` | 通知栏标题与艺术家行拼接（歌名 / `歌手 · 音源 · 音质`），歌词换行刷新时也要带后缀 | 以本仓库为准；上游若重构 track 构建，需手动补回两处后缀注入（`buildTracks` 与 `updateNowPlayingMetadata`） |
 | `src/plugins/player/service.ts` | 通知栏自定义按钮事件监听（词按钮、播放模式按钮） | 以本仓库为准；上游加新事件时逐个核对，别把定制监听覆盖掉 |
 | `src/core/player/repeatMode.ts` | 本仓库新建（播放模式 ↔ 原生图标映射） | 以本仓库为准 |
+| `src/core/init/player/player.ts` | 启动期播放器初始化流程（含通知栏模式同步，未初始化时不下发原生） | 以本仓库为准；上游若改初始化顺序，保留 `isInitialized()` 守卫 |
 | `android/app/src/main/...` | 原生模块（UtilsModule 分享/打开文件）、FileProvider 配置、图标、应用名 | 以本仓库为准，注意 `applicationId` 为 `com.luanmuc.lxmusic` |
 
 ---
@@ -65,7 +66,7 @@ git push origin master
 | `src/lang/zh-cn.json` / `zh-tw.json` / `en-us.json` | 上游经常加新翻译键，我们也加了定制键（nav_download 等） | 两边都保留：上游新增的键全合入，定制的键保留，最后检查键数一致（三语言 618 键） |
 | `src/config/defaultSetting.ts` | 上游改默认值，我们也改默认值（音质 flac24bit、歌词默认开等） | 以我们的定制默认值为准，上游新默认值人工评估是否合入（注意走设置迁移规则） |
 | `src/screens/Home/Views/Setting/settings/Health.tsx` | 我们新建的健康面板（v4.0），上游可能动了设置页结构 | 以我们为准；上游改了设置页布局的话，手动把健康面板挪到对应位置 |
-| `src/core/player/player.ts` | 上游改播放器核心逻辑，我们加了下载列表播放适配 | 以原版逻辑为准，我们的下载播放适配手动补回去 |
+| `src/core/player/player.ts` | 上游改播放器核心逻辑，我们加了下载列表播放适配、`playerInitial` 后的通知栏模式 / 「词」按钮状态补同步 | 以原版逻辑为准，我们的适配与两处补同步手动补回去 |
 | `package.json` | 上游升版本号、加依赖，我们改了 author/homepage | 版本号跟着上游升，author/homepage 保留我们的 `luanmuc`，依赖看情况合入 |
 | `android/app/build.gradle` | 上游改版本号，我们改 applicationId / versionCode | applicationId 保留 `com.luanmuc.lxmusic`，versionCode 跟着上游升 |
 

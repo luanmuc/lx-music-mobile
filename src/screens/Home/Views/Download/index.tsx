@@ -78,7 +78,7 @@ export default () => {
   const list = useDownloadList()
   const listRef = useRef<FlatList>(null)
 
-  const { activeList, completedList, activeCount, completedCount } = useMemo(() => {
+  const { activeList, completedList, activeCount, completedCount, runningCount, failedCount } = useMemo(() => {
     const active = list.filter(t => !t.isComplate)
     const completed = list.filter(t => t.isComplate)
     return {
@@ -86,10 +86,20 @@ export default () => {
       completedList: completed,
       activeCount: active.length,
       completedCount: completed.length,
+      runningCount: active.filter(t => t.status === 'run').length,
+      failedCount: active.filter(t => t.status === 'error').length,
     }
   }, [list])
 
   const hasActiveDownloading = activeList.some(t => t.status === 'run' || t.status === 'waiting')
+
+  // 批量下载时的队列汇总：单首下载不出现，避免打扰
+  const queueSummary = useMemo(() => {
+    const parts = [t('dl_queue_summary', { done: completedCount, total: list.length })]
+    if (runningCount > 0) parts.push(t('dl_queue_running', { count: runningCount }))
+    if (failedCount > 0) parts.push(t('dl_queue_failed', { count: failedCount }))
+    return parts.join(' · ')
+  }, [completedCount, list.length, runningCount, failedCount, t])
   const hasPaused = activeList.some(t => t.status === 'pause')
 
   const handlePlay = (item: LX.Download.ListItem) => {
@@ -170,12 +180,32 @@ export default () => {
           statusInfo.isProgress || item.status === 'waiting' || item.status === 'run'
             ? (
                 <View style={styles.progressArea}>
-                  <View style={styles.progressBar}>
-                    <View style={{ ...styles.progressInner, backgroundColor: theme['c-primary'], width: `${Math.min(100, Math.round(item.progress * 100))}%` }} />
-                  </View>
-                  <Text style={styles.progressText} size={11} color={theme['c-font-label']}>
-                    {`${Math.min(100, Math.round(item.progress * 100))}%${item.speed ? ` · ${item.speed}` : ''}${item.total > 0 ? ` · ${formatSize(item.downloaded)}/${formatSize(item.total)}` : ''}`}
-                  </Text>
+                  {
+                    item.total > 0
+                      ? (
+                          <View style={styles.progressRow}>
+                            <View style={styles.progressBar}>
+                              <View style={{ ...styles.progressInner, backgroundColor: theme['c-primary'], width: `${Math.min(100, Math.round(item.progress * 100))}%` }} />
+                            </View>
+                            <Text style={styles.progressPercent} size={12} color={theme['c-font-label']}>
+                              {`${Math.min(100, Math.round(item.progress * 100))}%`}
+                            </Text>
+                          </View>
+                        )
+                      // 服务端没给 Content-Length 时 total 为 0，画空条会显示成"卡在 0%"，这里只报已下载量
+                      : null
+                  }
+                  {
+                    item.speed || item.downloaded > 0
+                      ? (
+                          <Text numberOfLines={1} style={styles.progressText} size={11} color={theme['c-font-label']}>
+                            {item.total > 0
+                              ? `${item.speed ? `${item.speed} · ` : ''}${formatSize(item.downloaded)}/${formatSize(item.total)}`
+                              : `${item.speed ? `${item.speed} · ` : ''}${t('dl_downloaded', { size: formatSize(item.downloaded) })}`}
+                          </Text>
+                        )
+                      : null
+                  }
                 </View>
               )
             : null
@@ -292,6 +322,15 @@ export default () => {
   return (
     <View style={styles.container}>
       <DownloadSettings />
+      {
+        activeCount >= 2
+          ? (
+              <View style={styles.queueRow}>
+                <Text numberOfLines={1} size={12} color={theme['c-font-label']}>{queueSummary}</Text>
+              </View>
+            )
+          : null
+      }
       {sections.map(section => (
         <View key={section.type}>
           {renderSectionHeader(section)}
@@ -364,18 +403,33 @@ const styles = createStyle({
     paddingTop: 5,
     paddingBottom: 5,
   },
+  queueRow: {
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingBottom: 6,
+  },
   progressArea: {
     marginTop: 8,
   },
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   progressBar: {
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: 'rgba(128,128,128,0.25)',
+    flex: 1,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(128,128,128,0.35)',
     overflow: 'hidden',
   },
   progressInner: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
+  },
+  progressPercent: {
+    marginLeft: 8,
+    minWidth: 34,
+    textAlign: 'right',
   },
   progressText: {
     marginTop: 4,

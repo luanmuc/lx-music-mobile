@@ -692,5 +692,8 @@
   "version_title_latest": "🎉 目前版本已是最新 🎊",
   "version_title_new": "🌟 發現新版本 🌟",
   "version_title_unknown": "❓ 獲取最新版本資訊失敗 ❓",
-  "version_title_update": "🚀 軟體更新 🚀"
+  "version_title_update": "🚀 軟體更新 🚀",
+  "dl_queue_summary": "已完成 {done}/{total}",
+  "dl_queue_running": "下載中 {count}",
+  "dl_queue_failed": "失敗 {count}"
 }

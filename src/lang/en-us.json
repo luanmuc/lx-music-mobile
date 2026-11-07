@@ -692,5 +692,8 @@
   "version_title_latest": "🎉 The current version is already the latest 🎊",
   "version_title_new": "🌟 New version found 🌟",
   "version_title_unknown": "❓ Failed to get the latest version information ❓",
-  "version_title_update": "🚀 App update 🚀"
+  "version_title_update": "🚀 App update 🚀",
+  "dl_queue_summary": "Completed {done}/{total}",
+  "dl_queue_running": "{count} downloading",
+  "dl_queue_failed": "{count} failed"
 }

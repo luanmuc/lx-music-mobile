@@ -69,7 +69,7 @@
 
 ## [v1.9.2-b73] 加固轮 - 2026-11-07
 
-> 状态：本地已改并自查通过，**尚未推送、未出安装包**，等确认后再走构建。查出来的都是定制代码自身的隐性缺陷，不是新功能。
+> 状态：**已推送并出包**（b73 版本信息提交入库，随后 b74–b78 继续迭代）。查出来的都是定制代码自身的隐性缺陷，不是新功能。
 
 ### 1. `migrateDownloadDir()` 一直静默失效（b64 的目录迁移从未真正执行过）
 
@@ -206,8 +206,8 @@
 本文件记录本仓库（`luanmuc/mobile-app` 洛雪音乐定制版）**自 v1.9.1-b1 重建以来**的变更历史，供用户与开发者查阅。
 
 - 上游（lyswhut/lx-music-mobile）的更新日志见 [CHANGELOG.md](./CHANGELOG.md)
-- 每次云编译的**实时发布说明**由 CI 从 git 提交自动生成（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)），本文件是人工维护的归档
-- 版本号规则：`1.9.2-bN`，N 为底座版本内构建序号；底座（官方原版）升版后从 b1 重新计数（如 1.9.1-b79 → 1.9.2-b1）；versionCode 由 `publish/build-state.json` 状态文件驱动持续递增，保证覆盖安装（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)）
+- 每次云编译的**实时发布说明**由 CI 从 git 提交自动生成（见 [docs/RELEASE_SOP.md](RELEASE_SOP.md)），本文件是人工维护的归档
+- 版本号规则：`1.9.2-bN`，N 为底座版本内构建序号；底座（官方原版）升版后从 b1 重新计数（如 1.9.1-b79 → 1.9.2-b1）；versionCode 由 `publish/build-state.json` 状态文件驱动持续递增，保证覆盖安装（见 [docs/RELEASE_SOP.md](RELEASE_SOP.md)）
 
 ---
 

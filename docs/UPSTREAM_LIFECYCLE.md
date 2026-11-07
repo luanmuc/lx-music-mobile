@@ -20,7 +20,7 @@
 - **默认关**：能力类依赖先默认关闭验证，实测可用再开启（与音源新增流程同思路）。
 
 ### 活（监控与升级时机）
-- **上游 lyswhut**：关注上游 release/提交；出现与定制点相关的新功能或安全修复 → 评估合并（流程见 [MERGE_GUIDE.md](../MERGE_GUIDE.md)）；
+- **上游 lyswhut**：关注上游 release/提交；出现与定制点相关的新功能或安全修复 → 评估合并（流程见 [MERGE_GUIDE.md](MERGE_GUIDE.md)）；
 - **track-player fork**：上游发版时，先 diff fork 定制补丁（通知栏按钮等），评估冲突面再决定是否跟进；
 - **音源仓库**：App 每次构建自动拉取，无需手动升级；观察构建日志的音源版本行确认已更新；
 - **npm 版本信息**：发布失败会在 Actions 出现 `::error::`，需更换 `NPM_TOKEN` secret。

@@ -3,7 +3,7 @@
 本仓库 `luanmuc/mobile-app` 是 [lyswhut/lx-music-mobile](https://github.com/lyswhut/lx-music-mobile) 的定制 fork。
 本文档说明如何把原版（上游）后续更新合并进来，以及冲突处理策略。
 
-> 面向用户的定制功能清单与默认设置差异见 [README.md](./README.md)；多账号分工与提交规范见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)；版本号与发布流程见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md)。
+> 面向用户的定制功能清单与默认设置差异见 [README.md](../README.md)；多账号分工与提交规范见 [docs/DEV_CONVENTIONS.md](DEV_CONVENTIONS.md)；版本号与发布流程见 [docs/RELEASE_SOP.md](RELEASE_SOP.md)。
 
 ## 仓库关系
 
@@ -152,11 +152,11 @@ git push origin master
 
 ## 多账号协作说明
 
-本仓库由多个豆包账号共同开发。详细分工、提交规范与评审流程见 [docs/DEV_CONVENTIONS.md](./docs/DEV_CONVENTIONS.md)，这里是最短上手路径：
+本仓库由多个豆包账号共同开发。详细分工、提交规范与评审流程见 [docs/DEV_CONVENTIONS.md](DEV_CONVENTIONS.md)，这里是最短上手路径：
 
-1. 先读本文件（`MERGE_GUIDE.md`）+ [docs/DEV_SETUP.md](./docs/DEV_SETUP.md) 搭建环境
+1. 先读本文件（`MERGE_GUIDE.md`）+ [docs/DEV_SETUP.md](DEV_SETUP.md) 搭建环境
 2. 克隆后看 `git log --oneline -30` 了解最近改了什么
 3. 改代码前先确认是否在「高冲突区」列表里
 4. 改完默认值必须走「设置迁移规则」流程
 5. 推送前更新 `CUSTOM_CHANGELOG.md` 顶部（发版说明会引用真实变更）
-6. 推送后去 Actions 页面确认编译成功，再核对发布链路（见 [docs/RELEASE_SOP.md](./docs/RELEASE_SOP.md) 发布后验证清单），全部通过再通知用户
+6. 推送后去 Actions 页面确认编译成功，再核对发布链路（见 [docs/RELEASE_SOP.md](RELEASE_SOP.md) 发布后验证清单），全部通过再通知用户

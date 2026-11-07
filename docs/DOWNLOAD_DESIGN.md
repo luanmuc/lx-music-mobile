@@ -123,4 +123,4 @@ waiting ──→ run ──→ completed
 
 - 保持「正式目录永远完整」的原子性原则，不要在正式路径直接写流
 - 新状态/新字段必须同步 `state.ts` 默认值 + `@download_list` 兼容读取（`mergeSetting` 思路）
-- 修改权限逻辑时同步更新 [FAQ.md](../FAQ.md) 权限章节
+- 修改权限逻辑时同步更新 [FAQ.md](FAQ.md) 权限章节

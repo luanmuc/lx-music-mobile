@@ -46,7 +46,7 @@ chore(release): 更新版本信息 v1.9.2-b23
 ## 四、推送前 checklist（每条都要过）
 
 1. 语法检查 0 错误（见 [DEV_SETUP.md](./DEV_SETUP.md) 第五节）
-2. 是否动了「高冲突区」文件（见 [MERGE_GUIDE.md](../MERGE_GUIDE.md)）——若是，合并上游时按该文档处理
+2. 是否动了「高冲突区」文件（见 [MERGE_GUIDE.md](MERGE_GUIDE.md)）——若是，合并上游时按该文档处理
 3. 是否改了默认值——若改，必须走「设置迁移规则」（见 MERGE_GUIDE）
 4. `CUSTOM_CHANGELOG.md` 顶部已补记本次变更（发布说明引用真实变更）
 5. `git diff` 自查：没有调试残留、没有令牌/密钥、没有无关文件
@@ -73,7 +73,7 @@ chore(release): 更新版本信息 v1.9.2-b23
 | 合并上游 | 按 MERGE_GUIDE 流程 + 更新高冲突区清单 |
 | 版本号/依赖锁定变更 | 更新 RELEASE_SOP / UPSTREAM_LIFECYCLE / KNOWN_ISSUES 对应条目 |
 
-**文档及时同步（强制）**：文档是交付物的一部分，代码/版本/CI 变更后必须主动同步更新文档并随提交入库，不得等用户提醒（详见 [AGENTS.md](../AGENTS.md)「文档同步规范」）。推送前必跑一致性检查，过时引用清零才可推送：
+**文档及时同步（强制）**：文档是交付物的一部分，代码/版本/CI 变更后必须主动同步更新文档并随提交入库，不得等用户提醒（详见 [AGENTS.md](AGENTS.md)「文档同步规范」）。推送前必跑一致性检查，过时引用清零才可推送：
 
 ```bash
 node scripts/check_docs_consistency.js

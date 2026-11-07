@@ -133,7 +133,7 @@ v1 计划的 39 个维度全部标记 ✅，但 b68–b74 之间仍然连续暴�
 
 | # | 维度 | 状态 | 结论 |
 |---|---|---|---|
-| J1 | fork sha 锁定一致性 | ✅ | `package.json` 与 `package-lock.json` 共 3 处均为 `5bff17b` |
+| J1 | fork sha 锁定一致性 | ✅ | `package.json`×1 + `package-lock.json`×2 共 3 处一致，当前为 `eceacb5`（原 `5bff17b`，b75 后升级以拿到 quality/subSource 类型） |
 | J2 | Hermes 兼容（Node API） | ⚠️ | **R11**：`Buffer` 裸引用 2 个文件；`Buffer.byteLength` 类问题已在 b73 消除 |
 | J3 | JSON 解析健壮性 | ✅ | `officialVersion` 等解析点均有 try/catch |
 | J4 | 产物一致性 | ✅ | 每版 APK 解包校验键/中文值 |
@@ -205,7 +205,7 @@ v1 计划的 39 个维度全部标记 ✅，但 b68–b74 之间仍然连续暴�
 
 | # | 维度 | 状态 | 结论 |
 |---|---|---|---|
-| R1 | 镜像基线（键数/TS 数/底座版本） | ✅ | `node scripts/docs-audit.js` 三项全绿（730 键 / b74 / `5bff17b`） |
+| R1 | 镜像基线（键数/TS 数/底座版本） | ✅ | `node scripts/docs-audit.js` 三项全绿（730 键 / b75 / `eceacb5`） |
 | R2 | CI 触发条件认知 | ✅ | docs-audit 仅 schedule + dispatch，push 不跑（本轮已记录） |
 | R3 | 审计报告归档 | ✅ | 每轮结论写入 `docs/AUDIT_REPORT-YYYY-MM-DD.md` |
 

@@ -22,6 +22,11 @@ npm ci                    # 严格按 package-lock.json 安装（CI 同款）
 
 > 不要用 `npm install`：lockfile 差异会导致 CI 与本地不一致。`react-native-track-player` 依赖指向 fork commit，npm ci 会从 GitHub 拉取。
 
+> **升级 fork commit 时（已踩过的坑，b75 复现）**：改完 `package.json` / `package-lock.json` 里的 sha 后，直接 `npm ci` / `npm install` 往往报 "up to date" 而不重装该包，`node_modules/react-native-track-player/lib` 仍是旧产物 → `npx tsc --noEmit` 会报 `TS2353 'quality' does not exist in type 'NowPlayingMetadata'`。固定三步：
+> 1. 显式重装目标 sha：`npm install "github:luanmuc/react-native-track-player#<sha>"`（不要只改 lock 就以为装好了）；
+> 2. 校验产物：`grep -n "quality?:" node_modules/react-native-track-player/lib/interfaces.d.ts` 必须命中；
+> 3. 重跑 `npx tsc --noEmit`，必须 **0 error** 才允许提交（`lib/` 不在仓库里，靠包内 `prepare: npm run build` 生成，所以这一步无法跳过）。
+
 ## 三、跑 Debug 包
 
 ```bash

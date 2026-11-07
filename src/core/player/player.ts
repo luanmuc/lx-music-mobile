@@ -151,7 +151,9 @@ const getMusicPlayUrl = async(musicInfo: LX.Music.MusicInfo | LX.Download.ListIt
         return Array.isArray(singer) ? singer.join('/') : ''
       })(),
       url,
-      (playerState.playMusicInfo as any).toggleQuality ?? '',
+      // 原来读 playerState.playMusicInfo.toggleQuality —— PlayMusicInfo 只有 musicInfo/listId/isTempPlay
+      // 三个字段，该字段从未存在（靠 as any 掩盖），日志 quality 恒为空。改用真实字段 playQuality
+      playerState.playQuality ?? '',
     )
     return url
   }).catch(async err => {

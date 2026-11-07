@@ -1,4 +1,5 @@
 import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
+import { syncLyricButtonByState } from '@/core/desktopLyric'
 import { isInitialized, initial as playerInitial, isEmpty, setPause, setPlay, setResource, setStop, initTrackInfo } from '@/plugins/player'
 import { logger } from '@/utils/logger'
 import {
@@ -279,6 +280,8 @@ const handlePlay = async() => {
     })
     // 播放器初始化完成后补一次模式同步（启动早期播放器未就绪时同步被跳过，见 core/init/player/player.ts）
     syncNotificationRepeatMode()
+    // 同理补一次「词」按钮状态，否则桌面歌词开着时通知栏图标仍是灰的
+    syncLyricButtonByState()
   }
 
   global.lx.isPlayedStop &&= false

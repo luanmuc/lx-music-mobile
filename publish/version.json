@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b77",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 9af62c3d docs: 底座镜像统一到 b76（README/审计计划 R1/报告/执行记录），fork 锁定统一 eceacb5\n- d856ab94 docs: 审计报告基线口径改为现值（eceacb5 / b75），括号保留审计当时值\n- 287e97c0 fix(types): 清掉最后 3 处 as any + 修正死字段读取；文档镜像跟上 eceacb5",
+  "version": "1.9.2-b78",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 5b3200f0 chore(player): fork 锁升至 a0b2a87（取 2026-11-07 审计修复）+ 文档镜像同步\n- 37513763 docs: 底座镜像同步到 b77（README/审计计划 R1/报告/执行记录），记录手动重编产出",
   "history": [
+    {
+      "version": "1.9.2-b77",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 9af62c3d docs: 底座镜像统一到 b76（README/审计计划 R1/报告/执行记录），fork 锁定统一 eceacb5\n- d856ab94 docs: 审计报告基线口径改为现值（eceacb5 / b75），括号保留审计当时值\n- 287e97c0 fix(types): 清掉最后 3 处 as any + 修正死字段读取；文档镜像跟上 eceacb5"
+    },
     {
       "version": "1.9.2-b76",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 本次无代码变更（仅发布/文档调整）"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b72",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6a72feba feat(i18n): 音频焦点主开关文案中性化 + 下载页三语国际化（65 键）\n- 93527737 docs(known-issues): K5 依赖提交更正为 5bff17b [skip ci]"
-    },
-    {
-      "version": "1.9.2-b71",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b675bf00 feat(download): 下载设置全部收进下载页（b71）\n- a6da3c55 docs(known-issues): 补记 b69/b70 修复项与下载设置缺口 [skip ci]\n- 823b769b docs(merge-guide): 补充播放器初始化/快照同步的冲突说明 [skip ci]"
     }
   ]
 }

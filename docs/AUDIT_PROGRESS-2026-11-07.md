@@ -44,6 +44,8 @@
 8. 提交与推送：已入 `master`（b75 版本信息提交 `9a157ca`、b76 为 `e64c3611`，均由发布脚本自动生成）✓
 9. 后续收尾（同日）：清掉最后 3 处 `as any`（含 `toggleQuality` 死字段改读 `playQuality`）、文档镜像统一到 `eceacb5`（b78 起随 fork 审计修复升至 `a0b2a87`）、`DEV_SETUP` 固化「升级 fork sha 三步」✓
 10. 手动重编：取消 push 触发的首轮构建后 `workflow_dispatch` 重跑 → 成功产出 b77（tag `v1.9.2-b77` = `9af62c3d`，5 个 ABI APK，prerelease）✓
+11. 播放器 fork 审计落地（2026-11-07）：fork 侧提交两个（`7244c3d` 修复 7 项 / `a0b2a87` 审计四文档）并推送 `origin/v2`；App 侧 `package.json` + `package-lock.json` 三处锁定升到 `a0b2a87`（`npm install --package-lock-only` 生成，仅 2 行变更），五份文档镜像同步；push `master` 触发 release CI 真实编译 → **Android/Release 两 job 全绿**，产出 `v1.9.2-b78`（versionCode 237，tag = `5b3200f0`）；包内实证：`resources.arsc` 含 4 个 `notify_mode_*` + `lyric`/`lyric_inactive`/`default_artwork`，Manifest 含新权限 `PLAYER_CONTROL`（b77 对照 0 / b78 命中 1），bundle 含两个定制事件常量 ✓
+12. 说明：fork 自带的 `platform-validation.yml` 在 fork 仓库需 owner 手动启用（API 显示 enabled 但 `workflow_runs` 恒 0），故编译验证改由 App 的 release CI 承担——gradle 直接编译 `node_modules/react-native-track-player/android`，比 fork 的 example 验证更贴近真实
 
 ## 仍未做（需实机）
 

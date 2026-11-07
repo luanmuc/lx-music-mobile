@@ -1,3 +1,19 @@
+## [v1.9.2-b78] - 2026-11-07
+
+> 背景：播放器 fork（`luanmuc/react-native-track-player`）做了一轮全覆盖审计（9 组 76 维，见该仓库 `docs/AUDIT_PLAN-2026-11-07.md` / `AUDIT_REPORT-2026-11-07.md`），查出 10 处问题并全部修复。本轮把 App 的 fork 锁定 `eceacb5` → `a0b2a87`，取回这些修复。
+
+### 播放器原生层（随 fork 升级生效）
+- **焦点续播不再覆盖用户主动暂停**：原先「打断结束后自动续播」的判据是状态 != 播放中，但用户手动暂停后状态同样是 `PAUSED(2)`，500ms 后 `play()` 会把用户刚按的暂停撤销。新增 `userPausedDuringInterrupt` 标记，用户暂停统一走 `MusicManager.pauseByUser()`；通知栏暂停按钮在 `emit` 之前先打标记，堵住 JS 回调延迟窗口
+- **点通知开 App 的 PendingIntent 补 `FLAG_IMMUTABLE`**：原先只给歌词/模式两个按钮（requestCode 200/201）补了，开 App 那处（requestCode 0）漏了
+- **`MusicService` 挂 signature 级权限 `com.guichaguri.trackplayer.permission.PLAYER_CONTROL`**：服务 `exported=true` 且响应两个自定义 action（歌词切换、循环模式切换），此前任何第三方 App 都能 `startService` 伪造。若后续发现媒体键异常，删掉 `<service>` 上的 `android:permission` 一行即可复原
+- **耳机拔出**：先复位被压低的音量再暂停（原先音量停在 0.2）
+- 定制归口注释补齐（`TrackMetadata` / `MusicModule` / `MusicBinder`，`lx-music fork:` 覆盖 5 → 8 个文件）
+
+### 构建验证（非真机可验部分）
+- `v1.9.2-b78` / versionCode 237 由 App 侧 release CI 真实编译：gradle 直接编译 `node_modules/react-native-track-player/android` 的 Java 源码，等于把 fork 的修复跑了一遍真实编译链路
+- 包内实证：`resources.arsc` 含 4 个 `notify_mode_*` + `lyric` / `lyric_inactive` / `default_artwork`；Manifest 含新权限名（b77 命中 0、b78 命中 1，反向对照成立）；Hermes bundle 含 `remote-cycle-repeat` / `remote-toggle-desktop-lyric`
+- 看门狗：fork 自带的 `platform-validation.yml` 在 fork 仓库需 owner 手动启用，本轮不依赖它（App 编译链路更真实）
+
 ## [审计修复轮 · b75] - 2026-11-07
 
 > 背景：v1 审计计划 39 维度全绿，但 b68–b74 连续出运行时缺陷。改用「编译器真错误码 + 运行时可达性」重审，扩到 89 维度（`docs/AUDIT_PLAN.md` v2），查出 15 处，全部修复。类型错误 57 → 14，三语键 697 → 730。

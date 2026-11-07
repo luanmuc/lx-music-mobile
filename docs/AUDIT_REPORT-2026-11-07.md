@@ -4,7 +4,7 @@
 > 基线：代码 `20ac0519`（b74），文档 `c4cb35df`
 > 范围：三仓库（App `lx-music-mobile` 为主，fork `rntp` 的原生定制，音源 `lx-music-source` 未改）
 > 方法：见 `docs/AUDIT_PLAN.md` 的 L0–L4 分级；本轮做到 L3（产物级），L4（设备级）未做
-> 结论：**15 处缺陷**，其中 4 处高（会导致崩溃或功能完全失效）、6 处中、5 处低
+> 结论：**15 处缺陷**（4 高 / 6 中 / 5 低），**已全部修复于 b75**；另顺带修掉 6 类类型契约缺口（`trend` action、5 个治理 action、`common.enableDebugLog`、隐式 any、缺失样式、无效按钮属性）
 
 ---
 
@@ -127,7 +127,7 @@
 | 音频焦点三开关 | 主开关 → `setupPlayer.handleAudioFocus` → 原生 `MusicManager` 三处 `return`；子开关在主开关关闭时被强制 `false` | L0+L2 |
 | Duck 音量还原 | `volumeBeforeDuck` 记录再还原，不再写死 1.0 | L2 |
 | 设置项契约 | `defaultSetting` 75 键**全部**有真实消费点；"消费但未声明"的 5 个键全部在注释/迁移代码（`download.savePath`、`player.isPlayHighQuality` 均为注释） | L1 |
-| i18n 键 | 三语各 **697**、无重复键、占位符 0 缺失（1 处脚本误报已人工确认） | L1 |
+| i18n 键 | 三语各 **730**（b75 后）、无重复键、占位符 0 缺失（1 处脚本误报已人工确认） | L1 |
 | 依赖锁定 | `5bff17b` 在 `package.json`×1 + `package-lock.json`×2，共 3 处一致 | L1 |
 | 主题键 | 除 `c-font-1`/`c-border-1` 外，其余 `theme[...]` 引用合法 | L1 |
 | 升级/解析健壮性 | `officialVersion.parseOfficialVersion` 有 try/catch | L0 |
@@ -166,3 +166,33 @@ unzip -p apk assets/index.android.bundle | 按 UTF-16LE 查中文、按 ASCII �
 2. **R7、R8**（数据丢失与状态卡住）→ 需要产品决定 R7 走 A 还是 B 方案
 3. **R5、R6、R9、R10**（体验与 i18n）
 4. **R11–R15**（防御性，可与上面合并）
+
+---
+
+## 八、修复落地（b75）
+
+| 编号 | 修法 | 结果 |
+|---|---|---|
+| R1 | `core/music/utils.ts` 补 `getStoreMusicSource` 导入 | TS2304 消除，缓存命中分支可用 |
+| R2 | `PlayInfo.tsx` 补 `const theme = useTheme()` | TS2304 消除，横屏播放页不再崩 |
+| R3 | 3 处改 `RNFS.TemporaryDirectoryPath` | TS2551 消除，私有日志通道恢复 |
+| R4 | `importUserApi` 补 `return info` | TS2339 消除，一键更新流程闭环 |
+| R5 | `c-font-1 → c-font`、`c-border-1 → c-border-background` | TS2551/TS7053 消除 |
+| R6 | `HealthItem` 补 `playDead?`/`rateLimited?` | TS2339 消除，状态分支生效 |
+| R7 | `clearCompleted` 只清列表不删文件 | 数据丢失入口收口 |
+| R8 | 13 处状态变更补 `statusKey`，恢复时清 `error`/`speed` | 重启后不再卡在旧文案 |
+| R9 | 管理器层弹窗/toast/异常接 i18n（9 键） | 英/繁界面不再混中文 |
+| R10 | 4 组件 + 音源更新流程接 i18n（13 键） | 同上 |
+| R11 | 显式 `import { Buffer } from 'buffer'` | 本地歌词/同步登录路径不再 ReferenceError |
+| R12 | 封面下载 10s 超时 + `stopDownload` | 「已完成」不再被封面拖住 |
+| R13 | 目录写探针 | 只读目录在选目录时就报错 |
+| R14 | `makeError` + code 分类 | 失败分类不随语言失效 |
+| R15 | 目录选择说明补充权限要求 | 预期对齐 |
+
+**验证证据（本机执行）**
+- `node_modules/.bin/tsc --noEmit`：**57 → 14** 条（剩余均为上游历史类型不一致，运行时无对应缺陷）
+- `node scripts/docs-audit.js`：三语言 **730** 键一致、底座 b74、track-player `5bff17b` 三项全绿
+- 占位符脚本：新键 0 缺失、0 未引用；三语 JSON 均可解析、无重复键
+- ESLint：改动文件只余项目既有风格类问题（`space-before-function-paren` 等），无 `no-unused-vars` / `no-undef`
+- 设备级（S 组）仍需实机：横屏播放页、清空已完成、重启恢复、权限流
+

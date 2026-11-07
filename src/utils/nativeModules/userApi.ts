@@ -87,7 +87,7 @@ export const onScriptAction = (handler: (event: ActionsEvent) => void): () => vo
       } catch (e: any) {
         // 音源吐出的事件数据不是合法 JSON 时不能抛，否则整条事件处理会中断
         // 按空对象处理：后续逻辑依赖 data 为对象（Object.keys / 属性访问）
-        logger.warn('userApi', '事件数据解析失败，按空对象处理', e.message)
+        logger.warn('userApi', `事件数据解析失败，按空对象处理：${e.message}`)
         event.data = {} as any
       }
     }

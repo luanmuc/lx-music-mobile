@@ -27,6 +27,8 @@ const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
 
 export default () => {
   const t = useI18n()
+  // 分隔符「/」直接用主题色，这里必须声明 theme（子组件各自有声明，父组件漏了会渲染期 ReferenceError）
+  const theme = useTheme()
   const { maxPlayTimeStr, nowPlayTimeStr, progress, maxPlayTime } = useProgress()
   const buffered = useBufferProgress()
   const playQuality = usePlayQuality()

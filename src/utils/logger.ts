@@ -9,7 +9,7 @@ type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'DEBUG'
 
 // b71：调试日志双通道——公共目录（有"所有文件访问"权限）优先；公共不可用→私有目录（原版零权限逻辑，永不丢弃）
 const getLogPath = () => `${RNFS.DownloadDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
-const getPrivateLogPath = () => `${RNFS.temporaryDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
+const getPrivateLogPath = () => `${RNFS.TemporaryDirectoryPath}/lx-music/logs/${LOG_FILE_NAME}`
 
 const isEnabled = () => settingState.setting['common.enableDebugLog'] === true
 
@@ -27,7 +27,7 @@ const writeLog = async (level: LogLevel, tag: string, message: string, force = f
     const granted = isLogPermissionGranted()
     const line = `[${formatTime()}] [${level}] [${tag}] ${message}\n`
     const path = granted === true ? getLogPath() : getPrivateLogPath()
-    const dir = granted === true ? `${RNFS.DownloadDirectoryPath}/lx-music/logs` : `${RNFS.temporaryDirectoryPath}/lx-music/logs`
+    const dir = granted === true ? `${RNFS.DownloadDirectoryPath}/lx-music/logs` : `${RNFS.TemporaryDirectoryPath}/lx-music/logs`
 
     // 确保日志目录存在（RNFS.mkdir 不递归，逐级创建）
     try {

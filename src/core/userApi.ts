@@ -30,6 +30,8 @@ export const setUserApiList: typeof action['setUserApiList'] = (list) => {
 export const importUserApi = async(script: string) => {
   const info = await addUserApi(script)
   action.addUserApi(info)
+  // 必须返回新音源信息：调用方（设置页"一键更新音源"）要读 info.id 来删除旧音源、切换到新音源
+  return info
 }
 
 export const removeUserApi = async(ids: string[]) => {

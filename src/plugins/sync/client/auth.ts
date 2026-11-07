@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { request, generateRsaKey } from './utils'
 import { getSyncAuthKey, setSyncAuthKey } from '../data'
 import log from '../log'

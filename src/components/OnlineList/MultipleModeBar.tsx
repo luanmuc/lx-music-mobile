@@ -130,7 +130,7 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(({ onSelect
           onDownloadSelected
             ? (
                 <TouchableOpacity onPress={onDownloadSelected} style={styles.btn}>
-                  <Text color={theme['c-primary']}>下载选中</Text>
+                  <Text color={theme['c-primary']}>{global.i18n.t('list_download_selected')}</Text>
                 </TouchableOpacity>
               )
             : null

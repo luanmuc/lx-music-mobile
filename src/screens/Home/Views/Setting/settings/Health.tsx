@@ -24,6 +24,9 @@ interface HealthItem {
   healthScore: number
   // v6.0：真实播放请求最后使用时间戳（音源快照提供；0=从未用过）——五级分区"使用中"判定
   lastUsedAt?: number
+  // 音源快照 v26.1 / v17.2 提供：播放连续失败被摘除、连续 429 被限流
+  playDead?: boolean
+  rateLimited?: boolean
 }
 type HealthSnapshot = Record<string, HealthItem>
 
@@ -103,7 +106,7 @@ const displayToMs = (key: string, displayValue: number): number => {
 }
 
 // 获取当前音源的健康查询器（任一声明对应 action 的源均可，聚合结果与源无关）
-const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe' | 'config'): ((...args: any[]) => { promise: Promise<any> }) | null => {
+const getQuerier = (fn: 'getHealth' | 'toggle' | 'probe' | 'config' | 'trend'): ((...args: any[]) => { promise: Promise<any> }) | null => {
   const apis = (global as any).lx?.apis as Record<string, any> | undefined
   if (!apis) return null
   const sourceId = Object.keys(apis).find(id => typeof apis[id]?.[fn] === 'function')
@@ -156,7 +159,8 @@ export default memo(() => {
         if (trendQuerier) {
           const trendPromise = trendQuerier().promise
           const trendResult = await trendPromise
-          const history = (trendResult as any)?.history || []
+          // 历史快照结构固定为 { timestamp, sources }，显式声明类型，避免下游 entry/s 变成隐式 any
+          const history = ((trendResult as any)?.history || []) as Array<{ timestamp: number, sources: Record<string, { score: number | null, successRate: number | null }> }>
           setTrendData(history)
 
           // 判断逻辑：最近 3 次探测，健康分连续下降 ≥5 分
@@ -528,7 +532,7 @@ export default memo(() => {
     <Modal visible={showConfigModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>音源配置（运行参数）</Text>
+          <Text size={16} color={theme['c-font']} style={styles.modalTitle}>音源配置（运行参数）</Text>
           <ScrollView style={styles.modalScroll}>
             {configData && Object.entries(configData)
               .filter(([key]) => !['ikunApiKey', 'lingchuanApiKey', 'xinghaiDeviceId'].includes(key))
@@ -542,7 +546,7 @@ export default memo(() => {
                 <Text size={12} color={theme['c-font-label']} style={styles.configLabel}>{CONFIG_LABELS[key] || key}</Text>
                 <View style={styles.configInputRow}>
                   <TextInput
-                    style={[styles.configInput, { borderColor: theme['c-border-1'], color: theme['c-font-1'] }]}
+                    style={[styles.configInput, { borderColor: theme['c-border-background'], color: theme['c-font'] }]}
                     value={currentVal}
                     onChangeText={(text) => setConfigInputs(prev => ({ ...prev, [key]: text }))}
                     keyboardType="numeric"
@@ -557,12 +561,10 @@ export default memo(() => {
                       return (
                         <Button
                           key={p}
-                          size="small"
-                          type={isActive ? 'primary' : 'plain'}
                           style={styles.presetBtn}
                           onPress={() => setConfigInputs(prev => ({ ...prev, [key]: String(p) }))}
                         >
-                          {p}{unit}
+                          <Text size={11} color={isActive ? theme['c-primary'] : theme['c-font-label']}>{p}{unit}</Text>
                         </Button>
                       )
                     })}
@@ -574,8 +576,6 @@ export default memo(() => {
           </ScrollView>
           <View style={styles.modalBtnRow}>
             <Button
-              size="small"
-              type="plain"
               onPress={() => {
                 // 恢复默认值
                 const defaults: Record<string, string> = {}
@@ -602,7 +602,7 @@ export default memo(() => {
     <Modal visible={showTrendModal} animationType="slide" transparent={true}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <Text size={16} color={theme['c-font-1']} style={styles.modalTitle}>健康趋势（最近 {trendData.length} 次探测）</Text>
+          <Text size={16} color={theme['c-font']} style={styles.modalTitle}>健康趋势（最近 {trendData.length} 次探测）</Text>
           {/* 图例说明 */}
           <View style={styles.trendLegend}>
             <View style={styles.trendLegendItem}>
@@ -644,7 +644,7 @@ export default memo(() => {
                 return allSourceIds.map(id => {
                   // 源名优先用实时快照的中文名（音源侧历史快照不含 name，仅 score/successRate）；
                   // 再回退历史快照 name（兼容旧数据），最后回退 id
-                  const sourceName = snapshot?.[id]?.name || trendData[0]?.sources[id]?.name || id
+                  const sourceName = snapshot?.[id]?.name || (trendData[0]?.sources[id] as { name?: string } | undefined)?.name || id
                   // 最新一次探测的分数
                   const latestScore = trendData[trendData.length - 1]?.sources[id]?.score ?? null
                   const latestColor = latestScore === null ? '#9e9e9e' : latestScore >= 3 ? '#4caf50' : latestScore >= -5 ? '#ff9800' : '#f44336'
@@ -784,6 +784,24 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
+  },
+  // 趋势弹窗图例（此前只引用未定义，图例实际没有排版）
+  trendLegend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 10,
+  },
+  trendLegendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  trendLegendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   // v8.0：方块时间线趋势图样式（status page 经典风格）
   trendBlocks: {

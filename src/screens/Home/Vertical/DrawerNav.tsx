@@ -75,6 +75,7 @@ const styles = createStyle({
 })
 
 const Header = () => {
+  const t = useI18n()
   const theme = useTheme()
   const statusBarHeight = useStatusbarHeight()
   const [playCount, setPlayCount] = useState(getPlayCount())
@@ -87,10 +88,10 @@ const Header = () => {
     <View style={{ paddingTop: statusBarHeight, backgroundColor: theme['c-primary-light-700-alpha-500'] }}>
       <View style={styles.header}>
         <Text style={styles.statsMain} size={20} color={theme['c-primary-dark-100-alpha-300']}>
-          累计播放 {playCount.playedCount} 次
+          {t('drawer_stats_total', { num: playCount.playedCount })}
         </Text>
         <Text style={styles.statsSub} size={12} color={theme['c-primary-dark-100-alpha-300']}>
-          今日 {playCount.dayCount} 次 · 时长 {formatPlayTime(playCount.playTime)}
+          {t('drawer_stats_today', { today: playCount.dayCount, time: formatPlayTime(playCount.playTime) })}
         </Text>
       </View>
     </View>

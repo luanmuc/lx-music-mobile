@@ -102,28 +102,28 @@ export default memo(() => {
   const handleUpdateSource = useCallback(async() => {
     if (updating) return
     setUpdating(true)
-    toast('正在检查更新...')
+    toast(t('source_update_checking'))
     try {
       // 用 jsDelivr CDN 拉（有 CDN 加速），版本更新时先 purge CDN 缓存
       const url = 'https://cdn.jsdelivr.net/gh/luanmuc/backend-api@master/lx-source.js'
       // 15 秒超时控制
-      const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as string
+      const fetchPromise = httpFetch(url).promise.then(resp => resp.body) as unknown as string
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('拉取超时（15秒），请检查网络')), 15000)
+        setTimeout(() => reject(new Error(t('source_update_timeout'))), 15000)
       )
       const remoteScript = await Promise.race([fetchPromise, timeoutPromise]) as string
       if (remoteScript.length > 9_000_000) {
-        toast('音源文件过大', 'long')
+        toast(t('source_update_too_large'), 'long')
         setUpdating(false)
         return
       }
 
       // 提取远端版本号
       const remoteVerMatch = remoteScript.match(/@version\s+(\S+)/)
-      const remoteVersion = remoteVerMatch ? remoteVerMatch[1] : '未知'
+      const remoteVersion = remoteVerMatch ? remoteVerMatch[1] : t('source_version_unknown')
 
       // 提取本地当前音源版本号
-      let localVersion = '未知'
+      let localVersion: string = t('source_version_unknown')
       try {
         const localScript = await getUserApiScript(apiSourceSetting)
         const localVerMatch = localScript.match(/@version\s+(\S+)/)
@@ -132,23 +132,23 @@ export default memo(() => {
 
       // 版本一样 = 已是最新
       if (remoteVersion === localVersion) {
-        toast(`已是最新版 v${remoteVersion}`, 'long')
+        toast(t('source_update_latest', { version: remoteVersion }), 'long')
         setUpdating(false)
         return
       }
 
       // 弹窗显示版本信息，用户确认后才更新
       Alert.alert(
-        '发现新音源版本',
-        `当前版本：v${localVersion}\n最新版本：v${remoteVersion}\n\n确认更新到最新版？`,
+        t('source_update_new_version_title'),
+        t('source_update_new_version_msg', { local: localVersion, remote: remoteVersion }),
         [
           {
-            text: '取消',
+            text: t('cancel'),
             style: 'cancel',
             onPress: () => setUpdating(false),
           },
           {
-            text: '确认更新',
+            text: t('source_update_confirm'),
             onPress: async() => {
               try {
                 // 先导新的，成功了再删旧的（避免导失败全没了）
@@ -165,9 +165,9 @@ export default memo(() => {
                 // 自动切换到新导入的音源
                 await setApiSource(newApiInfo.id)
 
-                toast(`已更新到 v${remoteVersion}，重启 App 生效`, 'long')
+                toast(t('source_update_ok', { version: remoteVersion }), 'long')
               } catch (err: any) {
-                toast(`更新失败：${err.message}`, 'long')
+                toast(t('source_update_fail', { message: err.message }), 'long')
               } finally {
                 setUpdating(false)
               }
@@ -176,10 +176,10 @@ export default memo(() => {
         ],
       )
     } catch (err: any) {
-      toast(`检查更新失败：${err.message}`, 'long')
+      toast(t('source_update_check_fail', { message: err.message }), 'long')
       setUpdating(false)
     }
-  }, [updating, apiSourceSetting, userApiListRaw])
+  }, [t, updating, apiSourceSetting, userApiListRaw])
 
   return (
     <SubTitle title={t('setting_basic_source')}>
@@ -195,7 +195,7 @@ export default memo(() => {
         <Button onPress={handleShow}>{t('setting_basic_source_user_api_btn')}</Button>
         <View style={{ width: 10 }} />
         <Button onPress={handleUpdateSource} disabled={updating}>
-          {updating ? '更新中...' : '更新音源'}
+          {updating ? t('source_update_btn_doing') : t('source_update_btn')}
         </Button>
       </View>
       <UserApiEditModal ref={modalRef} />

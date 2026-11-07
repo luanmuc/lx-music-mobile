@@ -1,4 +1,5 @@
 
+import { Buffer } from 'buffer'
 import { saveLyric, saveMusicUrl } from '@/utils/data'
 import { updateListMusics } from '@/core/list'
 import {

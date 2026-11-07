@@ -78,7 +78,7 @@ export default async() => {
       }
     }
   } catch (e) {
-    logger.warn('App', '音源配置注入失败', e)
+    logger.warn('App', `音源配置注入失败：${(e as Error)?.message ?? e}`)
   }
 
   await initUserApi(setting)

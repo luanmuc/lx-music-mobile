@@ -6,6 +6,7 @@ import Text from '@/components/common/Text'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { FULL_QUALITYS_LIST } from '@/core/music/utils'
+import { useI18n } from '@/lang'
 
 export const QUALITY_NAMES: Record<string, string> = {
   flac24bit: 'Hi-Res 无损',
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export default forwardRef<QualitySelectType, Props>(({ onConfirm }, ref) => {
+  const t = useI18n()
   const theme = useTheme()
   const [visible, setVisible] = useState(false)
   const popupRef = useRef<PopupType>(null)
@@ -63,13 +65,13 @@ export default forwardRef<QualitySelectType, Props>(({ onConfirm }, ref) => {
       ? (
           <Popup
             ref={popupRef}
-            title="选择下载音质"
+            title={t('dl_quality_select_title')}
             onHide={handleHide}
             bgHide
             closeBtn
           >
             <View style={styles.content}>
-              <Text size={13} color={theme['c-font-label']} style={styles.tip}>默认下载最高音质，源不支持时将自动使用可用音质</Text>
+              <Text size={13} color={theme['c-font-label']} style={styles.tip}>{t('dl_quality_select_tip')}</Text>
               {
                 // 只显示当前歌曲实际支持的音质（完整音质列表）
                 (() => {

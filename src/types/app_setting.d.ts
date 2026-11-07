@@ -35,6 +35,7 @@ declare global {
        * 是否同意软件协议
        */
       'common.isAgreePact': boolean
+      'common.enableDebugLog': boolean
 
       /**
        * 是否在键盘弹出时隐藏播放栏

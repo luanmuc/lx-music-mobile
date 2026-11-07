@@ -1,3 +1,36 @@
+## [审计修复轮 · b75] - 2026-11-07
+
+> 背景：v1 审计计划 39 维度全绿，但 b68–b74 连续出运行时缺陷。改用「编译器真错误码 + 运行时可达性」重审，扩到 89 维度（`docs/AUDIT_PLAN.md` v2），查出 15 处，全部修复。类型错误 57 → 14，三语键 697 → 730。
+
+### 崩溃 / 功能失效（4）
+- **R1** `core/music/utils.ts` 调用未导入的 `getStoreMusicSource` → 缓存命中分支 ReferenceError（切源后播放失败）；与 K25 同型
+- **R2** 横屏播放页 `PlayInfo.tsx` 默认导出组件用 `theme` 却没声明 → 渲染即崩
+- **R3** `RNFS.temporaryDirectoryPath`（应为 `TemporaryDirectoryPath`）×3 → 私有日志目录变成 `undefined/lx-music/logs`，b71「零权限也永不丢日志」实际从未生效
+- **R4** `importUserApi` 无返回值，设置页读 `newApiInfo.id` → 「一键更新音源」必然 TypeError：新源已导入、旧源不删、不切换，还提示失败
+
+### 数据安全 / 状态一致性（2）
+- **R7** 「清空已完成」原来连文件一起删，文案只说清空任务 → 改为**只清列表**；删文件统一走 `removeDownload`
+- **R8** 13 处 `status` 变更补 `statusKey`（等待/暂停/失败/重试）；重启恢复同时清 `error`/`speed`。此前 UI 优先读 `statusKey`，重启后可能永远显示「获取歌曲信息…」
+
+### 视觉 / 国际化（4）
+- **R5** 健康面板 `c-font-1`(3)/`c-border-1`(1) 非法主题键 → `c-font` / `c-border-background`
+- **R9** 下载管理器层弹窗（权限引导、文件已存在）与 toast、异常文案接 i18n（新增 9 键）
+- **R10** `QualitySelect`/`MultipleModeBar`/`ListMenu`/`DrawerNav`/音源更新流程接 i18n（新增 13 键）
+- **R6** `HealthItem` 补 `playDead`/`rateLimited`（音源快照确实提供），状态分支恢复生效
+
+### 防御性（5）
+- **R11** `core/music/local.ts` / `plugins/sync/client/auth.ts` 显式 `import { Buffer } from 'buffer'`（Hermes 无全局 Buffer）
+- **R12** 封面下载加 10s 超时 + `stopDownload`，不再拖住「已完成」
+- **R13** 自定义下载目录写探针验证可写，失败即提示换目录
+- **R14** 新增 `makeError(msg, code)`，失败分类改按错误码，不再依赖中文子串
+- **R15** SAF 选目录说明补充「部分系统仍需所有文件访问」
+
+### 顺带修掉的类型契约缺口
+- `getQuerier` 补 `'trend'`、`UserApiSourceInfoActions` 补 5 个治理 action（音源 v8.0 已实现，App 只漏类型）
+- 趋势历史显式类型，消除 3 处隐式 any；补 3 个图例样式（此前只引用未定义）；`Button` 移除无效 `size`/`type`
+- `app_setting.d.ts` 补 `common.enableDebugLog`
+- `logger.warn` 第三参数被签名丢弃（2 处）→ 改模板串，保留失败原因
+
 ## [v1.9.2-b74] - 2026-11-07
 
 > 背景：用户反馈「下载没有进度提示」。核查后确认进度条/百分比**早已存在**（`Download/index.tsx` 的进度块、`downloadManager` 的 `progress` 回调、store 事件刷新链路都在），问题在于「看不见」而不是「没实现」。本轮只做 UI 层增强，不动下载核心。
@@ -17,7 +50,7 @@
 ### 未做
 - 剩余时间（`(total-downloaded)/speed`）：单曲秒级完成时恒显示「约 1 秒」，属噪音，批量场景 P2 已覆盖
 
-## [加固轮 · 未发布] - 2026-11-07
+## [v1.9.2-b73] 加固轮 - 2026-11-07
 
 > 状态：本地已改并自查通过，**尚未推送、未出安装包**，等确认后再走构建。查出来的都是定制代码自身的隐性缺陷，不是新功能。
 

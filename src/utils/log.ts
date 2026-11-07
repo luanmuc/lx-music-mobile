@@ -15,7 +15,7 @@ import { isExternalStorageManager } from '@/utils/nativeModules/utils'
 //   日志永远可写可看；「运行日志」页显示当前生效目录
 const LOG_ROOT = RNFS.DownloadDirectoryPath + '/lx-music'
 const LOGS_DIR = LOG_ROOT + '/logs'
-const PRIVATE_LOG_ROOT = RNFS.temporaryDirectoryPath + '/lx-music'
+const PRIVATE_LOG_ROOT = RNFS.TemporaryDirectoryPath + '/lx-music'
 const PRIVATE_LOGS_DIR = PRIVATE_LOG_ROOT + '/logs'
 // 当前生效目录（checkLogPermission 后确定；null=未初始化）
 let activeLogsDir: string | null = null

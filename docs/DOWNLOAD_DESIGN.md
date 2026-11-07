@@ -23,7 +23,8 @@ waiting ──→ run ──→ completed
    └─────────── (重启恢复：run 状态回 waiting)
 ```
 
-- 状态字段：`status` + `statusText`（中文提示，仅作兜底与旧数据兼容）
+- 状态字段：`status` + `statusKey` + `statusParams`（推荐）+ `statusText`（旧数据兜底）
+- **硬规则（b75 起）**：任何改 `status` 的地方必须同时写 `statusKey`。UI 优先读 `statusKey`，只改 `status` 会让界面继续显示上一轮的文案（典型：重启后一直显示「获取歌曲信息…」）
 - **i18n（加固轮起）**：界面优先读 `statusKey` + `statusParams`（可选字段），由 UI 按当前语言渲染，避免把中文写进存储后切语言仍显示简体；`statusText` 只在没有 `statusKey` 时使用
 - **失败原因**：`errorCode`（`network/cellular/noSource/noWrite/noSpace/unknown`）+ `error`（只存原始报错，如 HTTP 码），原因文案在 UI 侧翻译；只有 `unknown` 才把原始报错附在括号里
 - 失败分类：`network / cellular / noSource / noWrite / noSpace / unknown`，失败立即 toast 提示原因
@@ -60,6 +61,9 @@ waiting ──→ run ──→ completed
 
 权限语义（`tools.ts requestStoragePermission`）：GRANTED→`true` / NEVER_ASK_AGAIN→`null`（引导去系统设置）/ 其他→`false`。
 
+- **自定义目录（b75）**：`RNFS.mkdir` 后写一个 `.lxwrite` 探针再删，确认真的可写；失败直接报「目录不可写，请换一个目录」，不要把错误拖到下载阶段
+- **失败分类（b75）**：抛错统一用 `makeError(msg, code)`（`PERMISSION/NO_SPACE/NO_SOURCE/NO_URL`），分类只认 `code`；中文子串匹配已废弃（切语言后 `includes('权限')` 会失效）
+
 ## 七、完成处理
 
 - 写音频标签（title/artist/album/封面，失败不影响下载成功）
@@ -69,7 +73,7 @@ waiting ──→ run ──→ completed
 ## 八、持久化与重启恢复
 
 - 存储：AsyncStorage `@download_list`（任务列表 + 状态）
-- 重启：`run` 状态任务 → `waiting`，重新排队下载；已完成任务直接可用
+- 重启：`run` 状态任务 → `waiting`，**同时把 `statusKey` 改成 `dl_status_waiting` 并清 `error`/`speed`**，重新排队下载；已完成任务直接可用
 - 断点续传：**当前未实现**（暂停后重新从头下载），扩展点见下
 
 ## 九、扩展点（待实现）
@@ -99,7 +103,7 @@ waiting ──→ run ──→ completed
 
 ## 十二、国际化（b72）
 
-下载页与下载设置卡不再有硬编码中文，全部走 `useI18n()`，键前缀 `dl_`（65 个 + 加固轮 9 个状态/失败原因键，三语对齐到 694 键）。
+下载页、下载设置、下载管理器层（弹窗/toast/异常文案）不再有硬编码中文，全部走 `useI18n()`，键前缀 `dl_`（b75 起三语对齐到 730 键，`dl_*` 共 93 键）。
 
 两类文字刻意保持中文原样，不做翻译：
 
@@ -107,6 +111,13 @@ waiting ──→ run ──→ completed
 |---|---|---|
 | `歌名 - 歌手` / `歌名` / `歌手 - 歌名` 三个预设 | `NAME_PRESETS` | 是写入文件名模板的占位符字面量，翻译后 `formatMusicName()` 匹配不到「歌名」「歌手」，已有命名规则会失效 |
 | 占位符校验用的「歌名」「歌手」 | `applyName()` | 同上，校验的是模板内容而非界面文案 |
+
+## 十三、破坏性操作约定（b75）
+
+| 操作 | 行为 | 说明 |
+|---|---|---|
+| 「清空已完成」`clearCompleted` | **只从列表移除，不删文件** | 入口文案就是「清空已完成」，删文件属于用户预期外的数据丢失；b75 前会连文件一起删 |
+| 「删除任务」`removeDownload` | 删除任务 + 删除已下载文件 | 这是唯一会删文件入口，UI 用删除语义 |
 
 ## 十一、改代码注意事项
 

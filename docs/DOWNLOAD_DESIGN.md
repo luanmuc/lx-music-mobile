@@ -23,7 +23,9 @@ waiting ──→ run ──→ completed
    └─────────── (重启恢复：run 状态回 waiting)
 ```
 
-- 状态字段：`status` + `statusText`（中文提示）
+- 状态字段：`status` + `statusText`（中文提示，仅作兜底与旧数据兼容）
+- **i18n（加固轮起）**：界面优先读 `statusKey` + `statusParams`（可选字段），由 UI 按当前语言渲染，避免把中文写进存储后切语言仍显示简体；`statusText` 只在没有 `statusKey` 时使用
+- **失败原因**：`errorCode`（`network/cellular/noSource/noWrite/noSpace/unknown`）+ `error`（只存原始报错，如 HTTP 码），原因文案在 UI 侧翻译；只有 `unknown` 才把原始报错附在括号里
 - 失败分类：`network / cellular / noSource / noWrite / noSpace / unknown`，失败立即 toast 提示原因
 
 ## 三、并发控制

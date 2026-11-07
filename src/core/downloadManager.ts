@@ -7,7 +7,7 @@ import downloadState from '@/store/download/state'
 import settingState from '@/store/setting/state'
 import { getMusicUrl as getOnlineMusicUrl } from '@/core/music/online'
 import { getDownloadQuality, FULL_QUALITYS_LIST } from '@/core/music/utils'
-import { toast, requestStoragePermission, formatMusicName } from '@/utils/tools'
+import { toast, requestStoragePermission, formatMusicName, checkStoragePermissions } from '@/utils/tools'
 import { existsFile, moveFile, unlink } from '@/utils/fs'
 import { playList } from '@/core/player/player'
 import { shareFile as nativeShareFile, getWIFIIPV4Address, openFileInFileManager, writeAudioTag, isExternalStorageManager } from '@/utils/nativeModules/utils'
@@ -25,7 +25,19 @@ const save = () => {
   void saveData(DOWNLOAD_STORAGE_KEY, downloadState.list)
 }
 
-// 失败原因中文提示（借鉴 MusicFree DownloadFailReason 文案）
+// 失败原因按当前语言渲染（旧版把中文直接写进存储，切换语言后会残留中文）
+const getFailReasonText = (reason: LX.Download.DownloadErrorReason): string => {
+  switch (reason) {
+    case 'network': return global.i18n.t('dl_fail_network')
+    case 'cellular': return global.i18n.t('dl_fail_cellular')
+    case 'noSource': return global.i18n.t('dl_fail_noSource')
+    case 'noWrite': return global.i18n.t('dl_fail_noWrite')
+    case 'noSpace': return global.i18n.t('dl_fail_noSpace')
+    default: return global.i18n.t('dl_fail_unknown')
+  }
+}
+
+// 失败原因中文提示（保留给旧数据兜底 / 日志）
 const FAIL_REASON_TEXT: Record<LX.Download.DownloadErrorReason, string> = {
   network: '网络错误',
   cellular: '非 WiFi 环境',
@@ -36,19 +48,20 @@ const FAIL_REASON_TEXT: Record<LX.Download.DownloadErrorReason, string> = {
 }
 
 const failTask = (task: LX.Download.ListItem, err: any, failReason: LX.Download.DownloadErrorReason = 'unknown') => {
-  const reasonText = FAIL_REASON_TEXT[failReason] ?? '未知错误'
+  // error 只存原始信息（HTTP 码 / 异常文本），中文部分交给 UI 按语言渲染，
+  // 否则切到英文/繁体后这条失败原因仍然是简体
   const errMsg = (err as Error)?.message ?? ''
-  const errorText = errMsg && !errMsg.includes(reasonText) ? `${reasonText}：${errMsg}` : reasonText
   downloadActions.updateItem({
     ...task,
     status: 'error',
-    statusText: `下载失败：${errorText}`,
-    error: errorText,
+    statusText: FAIL_REASON_TEXT[failReason] ?? '未知错误',
+    error: errMsg,
     errorCode: failReason,
   } as any)
   save()
   // 下载失败立即提示原因（含"权限/链接/空间"等具体原因），避免只显示"重试"让用户无从下手
-  toast(`下载失败：${errorText}`, 'long')
+  const reasonText = getFailReasonText(failReason)
+  toast(`${global.i18n.t('dl_status_error')}：${reasonText}${errMsg ? `（${errMsg}）` : ''}`, 'long')
 }
 
 // 格式化下载速度
@@ -138,10 +151,27 @@ const getDownloadDir = async(): Promise<string> => {
 }
 
 const invalidFileNameChars = /[\\/:*?"<>|]+/g
+
+// 按 UTF-8 字节数截断：文件系统单段名上限常见 255 字节，中文 3 字节/字、emoji 4 字节/字，
+// 只按“字数”截断（旧实现 slice(0,80)）在长中文名+emoji 时会超限，导致 ENAMETOOLONG 下载失败
+const trimToBytes = (text: string, maxBytes: number): string => {
+  if (!text) return ''
+  let bytes = 0
+  let out = ''
+  for (const ch of text) {
+    // 手算 UTF-8 字节数：Hermes 没有 Node 的 Buffer，用 Buffer.byteLength 会直接崩
+    const code = ch.codePointAt(0) ?? 0
+    const chBytes = code < 0x80 ? 1 : code < 0x800 ? 2 : code < 0x10000 ? 3 : 4
+    if (bytes + chBytes > maxBytes) break
+    bytes += chBytes
+    out += ch
+  }
+  return out
+}
 const buildFileName = (musicInfo: LX.Music.MusicInfoOnline, url: string, quality: LX.Quality): string => {
   // 遵循「下载设置 - 文件命名」模板（歌名/歌手 两个占位符），默认值与旧行为一致
   const format = settingState.setting['download.fileName'] || '歌名 - 歌手'
-  const name = formatMusicName(format, musicInfo.name, musicInfo.singer).replace(invalidFileNameChars, '_').slice(0, 80)
+  const name = trimToBytes(formatMusicName(format, musicInfo.name, musicInfo.singer).replace(invalidFileNameChars, '_').trim(), 100).trim() || 'untitled'
   const extMatch = url.match(/\.(flac|mp3|m4a|aac|wav|ogg)(?:\?|$)/i)
   const ext = extMatch ? extMatch[1].toLowerCase() : 'mp3'
   // 文件名带音质标识，避免同一首歌不同音质互相覆盖
@@ -240,6 +270,7 @@ const runDownload = (task: LX.Download.ListItem): Promise<void> => {
             ...current,
             status: 'run',
             statusText: '下载中',
+            statusKey: 'dl_status_running',
             progress: progress > 0 ? progress : current.progress,
             downloaded: currentBytes,
             total: totalBytes,
@@ -266,6 +297,7 @@ const runDownload = (task: LX.Download.ListItem): Promise<void> => {
           ...task,
           status: 'run',
           statusText: '下载中',
+          statusKey: 'dl_status_running',
           progress,
           downloaded: currentBytes,
           total: totalBytes,
@@ -304,6 +336,7 @@ const runDownload = (task: LX.Download.ListItem): Promise<void> => {
         isComplate: true,
         status: 'completed',
         statusText: '已完成',
+        statusKey: 'dl_status_completed',
         progress: 1,
         downloaded: bytesWritten,
         total: bytesWritten,
@@ -335,7 +368,7 @@ const runDownload = (task: LX.Download.ListItem): Promise<void> => {
 
 const runTask = async(task: LX.Download.ListItem) => {
   activeDownloadCount++
-  downloadActions.updateItem({ ...task, status: 'run', statusText: '获取歌曲信息...' } as any)
+  downloadActions.updateItem({ ...task, status: 'run', statusText: '获取歌曲信息...', statusKey: 'dl_status_fetching' } as any)
 
   try {
     // 仅 WiFi 下载：非 WiFi 环境下暂停任务，等待用户切换网络后继续
@@ -345,6 +378,7 @@ const runTask = async(task: LX.Download.ListItem) => {
           ...task,
           status: 'pause',
           statusText: '非WiFi环境，已暂停',
+          statusKey: 'dl_status_wifi_paused',
         } as any)
         save()
         return
@@ -402,6 +436,7 @@ const runTask = async(task: LX.Download.ListItem) => {
               isComplate: true,
               status: 'completed',
               statusText: '已完成',
+              statusKey: 'dl_status_completed',
               progress: 1,
               downloaded: stat.size,
               total: stat.size,
@@ -445,6 +480,8 @@ const runTask = async(task: LX.Download.ListItem) => {
         retryCount: retryCount + 1,
         status: 'waiting',
         statusText: `等待重试 (${retryCount + 1}/${MAX_RETRY_COUNT})`,
+        statusKey: 'dl_status_retrying',
+        statusParams: { num: retryCount + 1, max: MAX_RETRY_COUNT },
         error: errorMsg || '下载失败',
         errorCode: failReason,
       } as any)
@@ -633,9 +670,11 @@ export const migrateDownloadDir = async() => {
       if (stored?.length) {
         let changed = false
         const updated = stored.map(t => {
-          if (t.filePath?.startsWith(oldPrefix) && !t.filePath.startsWith(musicDir + '/')) {
+          // filePath 在 metadata 下，旧实现读的是顶层字段（永远 undefined），迁移后记录不会更新
+          const oldPath = t.metadata?.filePath
+          if (oldPath?.startsWith(oldPrefix) && !oldPath.startsWith(musicDir + '/')) {
             changed = true
-            return { ...t, filePath: musicDir + '/' + t.filePath.slice(oldPrefix.length) }
+            return { ...t, metadata: { ...t.metadata, filePath: musicDir + '/' + oldPath.slice(oldPrefix.length) } }
           }
           return t
         })

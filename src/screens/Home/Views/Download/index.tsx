@@ -29,13 +29,37 @@ const formatSize = (bytes: number) => {
 }
 
 type TFn = ReturnType<typeof useI18n>
+const failReasonText = (code: LX.Download.DownloadErrorReason | undefined, t: TFn): string => {
+  switch (code) {
+    case 'network': return t('dl_fail_network')
+    case 'cellular': return t('dl_fail_cellular')
+    case 'noSource': return t('dl_fail_noSource')
+    case 'noWrite': return t('dl_fail_noWrite')
+    case 'noSpace': return t('dl_fail_noSpace')
+    case 'unknown': return t('dl_fail_unknown')
+    default: return ''
+  }
+}
+
 const getStatusInfo = (item: LX.Download.ListItem, t: TFn): { text: string, isProgress: boolean } => {
+  if (item.status === 'error') {
+    // 失败原因由 errorCode 翻译，error 里只保留原始信息（HTTP 码/异常文本）
+    const reason = failReasonText(item.errorCode, t)
+    // 已知原因已翻译，只在原因是 unknown 时才附原始报错（避免英文界面里冒出中文报错文本）
+    const detail = item.errorCode && item.errorCode !== 'unknown' && item.error ? `（${item.error}）` : ''
+    return { text: `${t('dl_status_error')}${reason ? `：${reason}` : ''}${detail}`, isProgress: false }
+  }
+  // 原生层写入的状态键优先（获取信息中 / 非WiFi已暂停 / 等待重试），避免展示存储里的中文
+  if (item.statusKey) {
+    const key = item.statusKey as Parameters<TFn>[0]
+    const values = item.statusParams as Parameters<TFn>[1]
+    return { text: values ? t(key, values) : t(key), isProgress: item.status === 'run' }
+  }
   switch (item.status) {
     case 'waiting': return { text: t('dl_status_waiting'), isProgress: false }
     case 'run': return { text: t('dl_status_running'), isProgress: true }
     case 'pause': return { text: t('dl_status_paused'), isProgress: false }
     case 'completed': return { text: t('dl_status_completed'), isProgress: false }
-    case 'error': return { text: `${t('dl_status_error')}${item.error ? `：${item.error}` : ''}`, isProgress: false }
     default: return { text: item.statusText, isProgress: false }
   }
 }

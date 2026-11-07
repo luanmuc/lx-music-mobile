@@ -332,8 +332,12 @@ export const resetIgnoringBatteryOptimizationCheck = async() => {
   return removeData(storageDataPrefix.ignoringBatteryOptimizationTipEnable)
 }
 
-export const formatMusicName = (format: string, name: string, singer: string) => {
-  return format.replace('歌手', singer).replace('歌名', name)
+export const formatMusicName = (format: string, name?: string, singer?: string) => {
+  // 全局替换：模板里出现多次占位符时，旧实现只替换第一处，剩下会漏替换
+  // 空值兜底：歌手/歌名为空时替换成空串，避免文件里出现字面量 "undefined"
+  return format
+    .replace(/歌手/g, singer ?? '')
+    .replace(/歌名/g, name ?? '')
 }
 
 export const shareMusic = (shareType: LX.ShareType, downloadFileName: LX.AppSetting['download.fileName'], musicInfo: LX.Music.MusicInfo) => {

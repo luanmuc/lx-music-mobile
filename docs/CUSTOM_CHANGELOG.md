@@ -1,3 +1,38 @@
+## [加固轮 · 未发布] - 2026-11-07
+
+> 状态：本地已改并自查通过，**尚未推送、未出安装包**，等确认后再走构建。查出来的都是定制代码自身的隐性缺陷，不是新功能。
+
+### 1. `migrateDownloadDir()` 一直静默失效（b64 的目录迁移从未真正执行过）
+
+- **缺陷 1**：函数里调用了 `checkStoragePermissions()`，但 `downloadManager.ts` **没有导入这个符号** → 运行时 `ReferenceError` → 被函数最外层 `catch (e) {}` 吞掉，整个迁移静默 return。也就是说 b64 写的「老版本 `Download/lx-music` 根目录文件迁到 `music/` 子目录」在任何设备上都没跑过
+- **缺陷 2**：迁移后更新下载记录那一段读的是 `t.filePath`，但 `filePath` 实际在 `t.metadata.filePath` 下 → 即使迁移跑起来，记录也永远匹配不到（`undefined?.startsWith` 恒 false），而且 `{ ...t, filePath }` 会往顶层塞一个不存在的字段
+- 修法：补 import，字段改为 `t.metadata?.filePath` 并写回 `metadata.filePath`
+
+### 2. 文件名只按「字数」截断，长中文名 + emoji 会超文件系统上限
+
+- `buildFileName()` 原来是 `.slice(0, 80)`，80 个汉字 = 240 字节，再加 ` [flac].flac` 已接近 255 字节单段名上限；含 emoji（4 字节/字）时直接超限 → 写入报 `ENAMETOOLONG`，表现为「下载失败」但看不出原因
+- 改为按 **UTF-8 字节** 截断到 100 字节（`trimToBytes`），并保证不出现空文件名（兜底 `untitled`）
+- **注意**：首版实现用了 `Buffer.byteLength`，Hermes 没有 Node 的 `Buffer`，会直接崩；已改手算字节数（`codePointAt` 分段判断）
+
+### 3. `formatMusicName()` 只替换第一处占位符 + 空值漏成字面量
+
+- 旧实现 `format.replace('歌手', singer).replace('歌名', name)`：模板里出现两次同占位符时只替换第一处
+- 歌手/歌名为 `undefined` 时会把字面量 `undefined` 写进文件名
+- 改为 `/歌手/g`、`/歌名/g` 全局替换 + `?? ''` 兜底
+
+### 4. 下载状态与失败原因的中文写进了存储（b72 i18n 的尾巴）
+
+- b72 只把下载页 UI 接了 i18n，但 `downloadManager` 仍在写中文：`获取歌曲信息...`、`非WiFi环境，已暂停`、`等待重试 (1/3)`、`下载失败：网络错误`，并且这些字符串会**落盘**，切语言后仍然显示简体
+- 改为任务上带 `statusKey` + `statusParams`（新增可选字段），UI 优先按当前语言渲染；`failTask` 的 `error` 只存原始报错（HTTP 码/异常文本），原因由 `errorCode` 翻译
+- 已知原因时不再把中文原始报错附在括号里（只有 `unknown` 才显示原始报错）
+- 新增 9 个键：`dl_status_fetching` / `dl_status_wifi_paused` / `dl_status_retrying` / `dl_fail_{network,cellular,noSource,noWrite,noSpace,unknown}`，三语各 **694** 键
+
+### 自查证据
+
+- `tsc --noEmit`：`downloadManager.ts`、`Download/index.tsx`、`tools.ts` 零错误（仓库其余历史类型错误与本轮无关）
+- ESLint：`downloadManager.ts` 38 条（**与改动前基线 38 条完全一致，无新增**）；`Download/index.tsx` 0 条
+- 命名逻辑用等价 JS 复算：`歌名 - 歌手`→`晴天 - 周杰伦`；`歌名 - 歌名`→`晴天 - 晴天`（旧实现第二处不替换）；超长中文名按 100 字节截断到 33 字；40 个 emoji 截断到 50 个字符不超限
+
 ## [v1.9.2-b72] - 2026-11-07
 
 ### 音频焦点主开关文案中性化 + 下载页三语国际化

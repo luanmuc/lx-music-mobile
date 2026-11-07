@@ -52,6 +52,9 @@ declare namespace LX {
       isComplate: boolean
       status: DownloadTaskStatus
       statusText: string
+      /** 状态的 i18n 键，UI 优先用它渲染，避免把中文写进存储 */
+      statusKey?: string
+      statusParams?: Record<string, string | number>
       downloaded: number
       total: number
       progress: number

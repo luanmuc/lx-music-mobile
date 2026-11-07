@@ -9,7 +9,8 @@
 - **App `plugins/player/utils.ts` 统一入口守卫**：`setPlay` / `setPause` / `setStop` / `setCurrentTime` / `setVolume` / `setPlaybackRate` / `setLoop` / `getPosition` / `getDuration` / `isCached` / `getCacheSize` / `clearCache` / `updateNowPlayingTitles` 在 `isInitialized` 为 false 时直接返回。原实现会真的打到原生：`MusicBinder.getPlayback()` 在 playback 为 null 时会**顺手建一个默认 playback 并拉起 MusicService**（空 Bundle → 默认 audioFocus/缓存参数），属于隐性的静默副作用
 - **App `plugins/player/hook.ts`**：首页播放条的 `useBufferProgress` 挂载即调 `getBufferedPosition` / `getDuration` / `getState`，冷启动时同样会触发上面那个「默认 playback + 拉服务」副作用 → 未初始化时跳过首次轮询
 - **App `core/desktopLyric.ts`**：通知栏「词」按钮状态同步加 `isInitialized` 判断，避免启动期（桌面歌词自动开启时）提前调原生
-- **依赖**：track-player 升到 `ed97de5`
+- **原生音频焦点（b68 遗留）**：`AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK` 结束后把音量还原成常量 `1.0`，会把用户在 App 里设的音量（如 60%）直接盖掉，导航播报一过音乐就变 100%。改为压低前记录 `playback.getVolume()`，GAIN / LOSS 分支还原该值
+- **依赖**：track-player 升到 `5bff17b`
 
 ---
 

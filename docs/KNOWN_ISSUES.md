@@ -24,6 +24,11 @@
 | K17 | **预加载脚本 supportActions 白名单过滤新 action**：音源侧新增 config/trend action 后，预加载脚本的白名单只有 6 个 action，把新 action 过滤掉了 | 音源传了 8 个 action，App 端只收到 6 个，配置/趋势按钮不生效 | `android/app/src/main/assets/script/user-api-preload.js` supportActions | ✅ 修复（2026-11-04 b19：白名单加 config/trend） |
 | K18 | **预加载脚本 handleRequest 缺 config/trend case**：白名单放行后，handleRequest 的 switch 也没处理这两个 action，result 是 undefined | 点配置/趋势按钮报错 "Cannot read property 'data' of undefined" | `android/app/src/main/assets/script/user-api-preload.js` handleRequest switch | ✅ 修复（2026-11-04 b20：加 config/trend case，统一返回 `{ source, action, data: response }`） |
 | K19 | **配置/趋势弹窗背景透明**：modalContent 用 `theme['c-bg-1']` 动态背景色，实际渲染透明，能看到后面的健康面板内容 | 弹窗内容叠在健康面板上面，没有白色背景和遮罩 | `Health.tsx` modalContent 样式 | ✅ 修复（2026-11-04 b20：改为明确 `backgroundColor: '#fff'` + `width: '100%'`） |
+| K20 | **启动即崩（b68 回归）**：`initPlayer` 在 `setupPlayer` 之前同步通知栏播放模式，原生 `MetadataManager` 直接解引用 `manager.getPlayback()`（此时为 null）→ 主线程 NPE | 存档播放模式不是「列表循环」时，冷启动必崩、App 打不开 | `service/metadata/MetadataManager.java`（`setRepeatMode`/`setLyricButtonActive`/`updateTitles`/`updateArtwork`） | ✅ b69 修复（四处判空 + App 侧 `isInitialized()` 守卫） |
+| K21 | **初始化状态卡死**：`plugins/player/index.ts` 的 `initial()` 中途 `await` 抛异常时 `isIniting` 永久为 true，之后每次点播放都被直接 return | 点播放永远「缓存中」、且无法自愈，只能重启 App | `plugins/player/index.ts` | ✅ b70 修复（`try/catch/finally` 复位状态） |
+| K22 | **音频焦点压低音量后恢复成 100%**：`CAN_DUCK` 结束用常量 `normalVolume=1.0f` 还原，忽略用户在 App 里设的音量 | 导航播报/来电一过，音乐音量突然跳到最大 | `service/MusicManager.java`（`audioFocusListener`） | ✅ b70 修复（压低前记录 `playback.getVolume()`，GAIN/LOSS 还原该值） |
+| K23 | **通知栏「词」按钮状态不同步**：启动期播放器未就绪时同步会被守卫拦掉，之后没人再补 | 桌面歌词开着，通知栏「词」按钮仍是灰色，与实际状态不符 | `core/desktopLyric.ts` + `core/player/player.ts` | ✅ b70 修复（`playerInitial` 成功后补 `syncLyricButtonByState()`） |
+| K24 | **下载类 5 个设置项无界面入口**：`download.onlyWifi` / `maxTask` / `autoRetry` / `dir` / `fileName` 在设置页没有对应开关 | 能力存在但用户无法配置（仅默认值生效） | `screens/Home/Views/Setting/`（缺 Download 分组） | ⬜ 待决策（是否补设置页；涉及 UI 新增，需用户确认） |
 
 ## 维护规则
 

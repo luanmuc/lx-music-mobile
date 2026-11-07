@@ -7,7 +7,7 @@ import downloadState from '@/store/download/state'
 import settingState from '@/store/setting/state'
 import { getMusicUrl as getOnlineMusicUrl } from '@/core/music/online'
 import { getDownloadQuality, FULL_QUALITYS_LIST } from '@/core/music/utils'
-import { toast, requestStoragePermission } from '@/utils/tools'
+import { toast, requestStoragePermission, formatMusicName } from '@/utils/tools'
 import { existsFile, moveFile, unlink } from '@/utils/fs'
 import { playList } from '@/core/player/player'
 import { shareFile as nativeShareFile, getWIFIIPV4Address, openFileInFileManager, writeAudioTag, isExternalStorageManager } from '@/utils/nativeModules/utils'
@@ -139,7 +139,9 @@ const getDownloadDir = async(): Promise<string> => {
 
 const invalidFileNameChars = /[\\/:*?"<>|]+/g
 const buildFileName = (musicInfo: LX.Music.MusicInfoOnline, url: string, quality: LX.Quality): string => {
-  const name = `${musicInfo.name} - ${musicInfo.singer}`.replace(invalidFileNameChars, '_').slice(0, 80)
+  // 遵循「下载设置 - 文件命名」模板（歌名/歌手 两个占位符），默认值与旧行为一致
+  const format = settingState.setting['download.fileName'] || '歌名 - 歌手'
+  const name = formatMusicName(format, musicInfo.name, musicInfo.singer).replace(invalidFileNameChars, '_').slice(0, 80)
   const extMatch = url.match(/\.(flac|mp3|m4a|aac|wav|ogg)(?:\?|$)/i)
   const ext = extMatch ? extMatch[1].toLowerCase() : 'mp3'
   // 文件名带音质标识，避免同一首歌不同音质互相覆盖

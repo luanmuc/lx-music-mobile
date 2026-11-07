@@ -349,7 +349,7 @@ declare global {
       /**
        * 文件命名方式
        */
-      'download.fileName': '歌名 - 歌手' | '歌手 - 歌名' | '歌名'
+      'download.fileName': string // 支持自定义模板（歌名/歌手 占位符）
 
       /**
        * 仅 WiFi 环境下下载

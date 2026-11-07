@@ -1,3 +1,22 @@
+## [v1.9.2-b71] - 2026-11-07
+
+### 下载设置全部收进「下载」页（不再占设置页分组）
+> 起因：下载类 6 个设置项（仅 WiFi / 最大并发 / 失败重试 / 目录 / 文件命名 / 完成通知）后端逻辑齐全但没有界面入口，用户要求全部整合到下载页，而不是新增设置分组。
+
+- **新增 `Download/Settings.tsx`**：下载页顶部「下载设置」折叠卡。没有任务时默认展开（整页不再空白），有任务时收起成一行摘要（`默认目录 · 仅WiFi关 · 并发2`），点击展开
+- **六项设置全部接入**：
+  - 仅 WiFi 下载（`download.onlyWifi`）
+  - 最大同时下载数 1–5 步进（`download.maxTask`）
+  - 失败自动重试（`download.autoRetry`）
+  - 下载目录（`download.dir`）：默认公共目录 / 应用私有目录（无需权限）/ **系统文件夹选择器**（`AndroidScoped.openDocumentTree`，SAF 树 URI 还原成 `/storage/...` 真实路径）/ 手动输入绝对路径
+  - 文件命名（`download.fileName`）：3 个预设模板 + 自定义（必须含「歌名」或「歌手」占位符）
+  - 下载完成通知（`download.notifyComplete`），从「基础设置」分组移到这里，避免同一个键两处开关
+- **`core/downloadManager.ts` 的 `buildFileName` 真正遵循命名模板**：原先硬编码 `${name} - ${singer}`、设置只影响分享文案，现在走 `formatMusicName()`，默认值 `歌名 - 歌手` 与旧行为完全一致；音质标识仍由下载自动追加
+- **`src/types/app_setting.d.ts`**：`download.fileName` 由三选一联合类型放开为 `string`，以支持自定义模板（`formatMusicName` 只做字符串替换，无解析风险）
+- **权限兜底**：选择/输入 `/storage/` 下的目录但创建失败时，先探测「所有文件访问」权限并提示去开启，而不是笼统报错
+
+---
+
 ## [v1.9.2-b70] - 2026-11-07
 
 ### 同类隐患二次排查：播放器未初始化时的其余原生崩溃 / 异常路径

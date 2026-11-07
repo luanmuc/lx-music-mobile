@@ -28,7 +28,7 @@
 | K21 | **初始化状态卡死**：`plugins/player/index.ts` 的 `initial()` 中途 `await` 抛异常时 `isIniting` 永久为 true，之后每次点播放都被直接 return | 点播放永远「缓存中」、且无法自愈，只能重启 App | `plugins/player/index.ts` | ✅ b70 修复（`try/catch/finally` 复位状态） |
 | K22 | **音频焦点压低音量后恢复成 100%**：`CAN_DUCK` 结束用常量 `normalVolume=1.0f` 还原，忽略用户在 App 里设的音量 | 导航播报/来电一过，音乐音量突然跳到最大 | `service/MusicManager.java`（`audioFocusListener`） | ✅ b70 修复（压低前记录 `playback.getVolume()`，GAIN/LOSS 还原该值） |
 | K23 | **通知栏「词」按钮状态不同步**：启动期播放器未就绪时同步会被守卫拦掉，之后没人再补 | 桌面歌词开着，通知栏「词」按钮仍是灰色，与实际状态不符 | `core/desktopLyric.ts` + `core/player/player.ts` | ✅ b70 修复（`playerInitial` 成功后补 `syncLyricButtonByState()`） |
-| K24 | **下载类 5 个设置项无界面入口**：`download.onlyWifi` / `maxTask` / `autoRetry` / `dir` / `fileName` 在设置页没有对应开关 | 能力存在但用户无法配置（仅默认值生效） | `screens/Home/Views/Setting/`（缺 Download 分组） | ⬜ 待决策（是否补设置页；涉及 UI 新增，需用户确认） |
+| K24 | **下载类 5 个设置项无界面入口**：`download.onlyWifi` / `maxTask` / `autoRetry` / `dir` / `fileName` 在设置页没有对应开关 | 能力存在但用户无法配置（仅默认值生效） | `screens/Home/Views/Download/Settings.tsx`（b71） | ✅ b71 解决（全部并入下载页折叠卡，不新增分组） |
 
 ## 维护规则
 

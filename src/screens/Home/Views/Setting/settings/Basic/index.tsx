@@ -16,7 +16,6 @@ import IsAlwaysKeepStatusbarHeight from './IsAlwaysKeepStatusbarHeight'
 import IsShowBackBtn from './IsShowBackBtn'
 import IsShowExitBtn from './IsShowExitBtn'
 import DrawerLayoutPosition from './DrawerLayoutPosition'
-import DownloadNotifyComplete from './DownloadNotifyComplete'
 import { useI18n } from '@/lang/i18n'
 
 export default memo(() => {
@@ -35,7 +34,6 @@ export default memo(() => {
       <IsEnableDebugLog />
       <IsUseSystemFileSelector />
       <IsAlwaysKeepStatusbarHeight />
-      <DownloadNotifyComplete />
       <Theme />
       <DrawerLayoutPosition />
       <Language />

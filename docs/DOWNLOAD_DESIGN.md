@@ -77,7 +77,22 @@ waiting ──→ run ──→ completed
 | 按歌单批量下载 | 歌单详情页"全部下载" | 歌单页 + action |
 | 下载历史/日志 | 复用 `logger.ts` 记录每个任务的关键节点 | downloadManager + logger |
 
-## 十、改代码注意事项
+## 十、设置入口（b71）
+
+全部下载相关设置都在**下载页顶部「下载设置」折叠卡**里，不再占用设置页分组：
+
+| 设置项 | 控件 | 落地位置 |
+|---|---|---|
+| `download.onlyWifi` | 开关 | `Download/Settings.tsx` |
+| `download.maxTask` | 步进 1–5 | 同上 |
+| `download.autoRetry` | 开关 | 同上 |
+| `download.dir` | 默认 / 应用私有 / SAF 目录选择 / 手输路径 | 同上 → `getDownloadDir()` |
+| `download.fileName` | 3 预设 + 自定义模板 | 同上 → `buildFileName()`（`formatMusicName` 占位符：歌名 / 歌手） |
+| `download.notifyComplete` | 开关（原在基础设置，已迁移） | 同上 |
+
+注意：SAF 选出来的是 `content://` 树 URI，下载走 RNFS 需要真实路径，`treeUriToPath()` 只认 `com.android.externalstorage.documents`（手机存储）；网盘/云端 provider 会被拒绝。写入 `/storage/...` 仍需「所有文件访问」权限，失败时提示去开启。
+
+## 十一、改代码注意事项
 
 - 保持「正式目录永远完整」的原子性原则，不要在正式路径直接写流
 - 新状态/新字段必须同步 `state.ts` 默认值 + `@download_list` 兼容读取（`mergeSetting` 思路）

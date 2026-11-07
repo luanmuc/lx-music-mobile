@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react'
-import { FlatList, TouchableOpacity, View, type ListRenderItemInfo } from 'react-native'
+import { FlatList, ScrollView, TouchableOpacity, View, type ListRenderItemInfo } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
@@ -19,6 +19,7 @@ import {
   shareDownloadedFile,
 } from '@/core/downloadManager'
 import { QUALITY_NAMES } from '@/components/OnlineList/QualitySelect'
+import DownloadSettings from './Settings'
 
 const formatSize = (bytes: number) => {
   if (!bytes || bytes <= 0) return ''
@@ -246,25 +247,30 @@ export default () => {
     />
   )
 
+  // 没有任务时整页只有一个提示，正好把下载设置展开铺满（下载相关设置全部收在这里，不再占设置页分组）
+  if (!list.length) {
+    return (
+      <View style={styles.container}>
+        <ScrollView contentContainerStyle={styles.emptyContent} keyboardShouldPersistTaps="handled">
+          <DownloadSettings defaultExpanded />
+          <View style={styles.empty}>
+            <Text size={14} color={theme['c-font-label']}>暂无下载任务</Text>
+            <Text size={12} color={theme['c-font-label']} style={styles.emptyTip}>在搜索、排行榜、歌单列表中长按歌曲，选择「下载」即可添加到下载队列</Text>
+          </View>
+        </ScrollView>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
-      {
-        list.length
-          ? (
-              sections.map(section => (
-                <View key={section.type}>
-                  {renderSectionHeader(section)}
-                  {renderFlatList(section.data)}
-                </View>
-              ))
-            )
-          : (
-              <View style={styles.empty}>
-                <Text size={14} color={theme['c-font-label']}>暂无下载任务</Text>
-                <Text size={12} color={theme['c-font-label']} style={styles.emptyTip}>在搜索、排行榜、歌单列表中长按歌曲，选择「下载」即可添加到下载队列</Text>
-              </View>
-            )
-      }
+      <DownloadSettings />
+      {sections.map(section => (
+        <View key={section.type}>
+          {renderSectionHeader(section)}
+          {renderFlatList(section.data)}
+        </View>
+      ))}
     </View>
   )
 }
@@ -357,6 +363,9 @@ const styles = createStyle({
   },
   sortBtn: {
     marginLeft: 12,
+  },
+  emptyContent: {
+    paddingBottom: 40,
   },
   empty: {
     flex: 1,

@@ -83,6 +83,6 @@ push master（paths-ignore: publish/**、npm-version-info/**、README.md、docs/
 
 ## 七、开发侧注意
 
-- 改 **README.md / docs/ 下文档不触发构建**（release.yml paths-ignore）；改 **.github/、根目录 CUSTOM_CHANGELOG.md 等**会触发构建发版——这是预期行为，正好让发布说明反映文档变更
+- 改 **README.md / docs/ 下文档不触发构建**（release.yml paths-ignore）；改 **.github/、.github/workflows** 等会触发构建发版（注：`CUSTOM_CHANGELOG.md` 在 `docs/` 下，属 paths-ignore，改它**不会**触发构建）——这是预期行为，正好让发布说明反映文档变更
 - 只更新版本信息（`publish/**`、`npm-version-info/**`，含 `publish/build-state.json`）不会触发构建，不会产生新版本号
 - 合并上游（含底座升版）后推送同样走本流程：`package.json` version 随底座 bump，CI 检测到 baseVersion 变化后自动从 `b1` 重新计数

@@ -29,7 +29,7 @@
 | K22 | **音频焦点压低音量后恢复成 100%**：`CAN_DUCK` 结束用常量 `normalVolume=1.0f` 还原，忽略用户在 App 里设的音量 | 导航播报/来电一过，音乐音量突然跳到最大 | `service/MusicManager.java`（`audioFocusListener`） | ✅ b70 修复（压低前记录 `playback.getVolume()`，GAIN/LOSS 还原该值） |
 | K23 | **通知栏「词」按钮状态不同步**：启动期播放器未就绪时同步会被守卫拦掉，之后没人再补 | 桌面歌词开着，通知栏「词」按钮仍是灰色，与实际状态不符 | `core/desktopLyric.ts` + `core/player/player.ts` | ✅ b70 修复（`playerInitial` 成功后补 `syncLyricButtonByState()`） |
 | K24 | **下载类 5 个设置项无界面入口**：`download.onlyWifi` / `maxTask` / `autoRetry` / `dir` / `fileName` 在设置页没有对应开关 | 能力存在但用户无法配置（仅默认值生效） | `screens/Home/Views/Download/Settings.tsx`（b71） | ✅ b71 解决（全部并入下载页折叠卡，不新增分组） |
-| K25 | **`migrateDownloadDir()` 静默失效**：引用了未导入的 `checkStoragePermissions`（运行时 ReferenceError 被外层 catch 吞掉），且更新记录时读顶层 `filePath`（实际在 `metadata.filePath`） | b64 的目录迁移在任何设备上都没执行过，老用户文件仍留在 `Download/lx-music` 根目录 | `src/core/downloadManager.ts` | ✅ 已修（补 import + 修正字段路径），待发布验证 |
+| K25 | **`migrateDownloadDir()` 静默失效**：引用了未导入的 `checkStoragePermissions`（运行时 ReferenceError 被外层 catch 吞掉），且更新记录时读顶层 `filePath`（实际在 `metadata.filePath`） | b64 的目录迁移在任何设备上都没执行过，老用户文件仍留在 `Download/lx-music` 根目录 | `src/core/downloadManager.ts` | ✅ 已修（补 import + 修正字段路径；b73 出包，b74–b78 已随多轮发布） |
 
 ## 维护规则
 

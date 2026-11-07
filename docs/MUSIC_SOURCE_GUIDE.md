@@ -1,6 +1,6 @@
 # 内置音源指南（MUSIC SOURCE GUIDE）
 
-本仓库的音源体系 = **六大官方平台 SDK（内置）+ 自定义源（QuickJS 脚本）**。定制版的核心差异在于内置了「豆包定制」聚合音源。
+本仓库的音源体系 = **官方平台 SDK（内置 7 个：kw/kg/mg/tx/wy/bd/xm）+ 自定义源（QuickJS 脚本）**。定制版的核心差异在于内置了「豆包定制」聚合音源。
 
 ## 一、音源架构
 
@@ -81,7 +81,7 @@ App 侧入口：`src/core/init/userApi/index.ts`；原生 QuickJS 引擎：`andr
 
 **面板分区排序（音源 v6.0 起）**：使用中 → 正常 → 待采样 → 休眠 → 已关（按 `lastUsedAt` 真实播放记录分组）。
 
-> 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [backend-api DEV_GUIDE §3.4b](https://github.com/luanmuc/backend-api/blob/master/DEV_GUIDE.md)。
+> 评分公式与口径（成功率置信度收缩 / 均时惩罚 / 连败惩罚 / 版权失败不惩罚）见 [backend-api DEV_GUIDE §3.4b](https://github.com/luanmuc/backend-api/blob/master/docs/DEV_GUIDE.md)。
 
 ## 五、如何测试音源
 

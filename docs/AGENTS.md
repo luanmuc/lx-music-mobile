@@ -11,9 +11,9 @@
 
 ```
 README.md                   用户视角：定制功能一览/默认设置差异/文档索引
-MERGE_GUIDE.md              开发协作：高冲突区/设置迁移规则/代码地图（合并上游前必读）
-FAQ.md                      定制版常见问题
-CUSTOM_CHANGELOG.md         定制历史（bN 随底座版本重置，v1.9.2 起从 b1 计数）
+docs/MERGE_GUIDE.md         开发协作：高冲突区/设置迁移规则/代码地图（合并上游前必读）
+docs/FAQ.md                 定制版常见问题
+docs/CUSTOM_CHANGELOG.md    定制历史（bN 随底座版本重置，v1.9.2 起从 b1 计数）
 docs/RELEASE_SOP.md         发布流程/版本号规则/测试清单（push 即发版）
 docs/DEV_CONVENTIONS.md     多账号开发规范详情（分工/提交/评审裁决）
 docs/DEV_SETUP.md           开发环境搭建
@@ -58,9 +58,7 @@ git add <文件> && git commit -m "<type>(<scope>): <中文描述>" && git push 
 7. **禁止**：把令牌/密钥写入提交或文档；提交 node_modules/构建产物；未验证就宣称"应该能用"。
 8. **推送前强制检查远端（多账号防覆盖）**：本仓库由多个豆包账号共用同一令牌开发，额度有限时可能中断或只推送了一部分。**每次 `git push` 前必须先 `git fetch origin` 并对比 `origin/master` 与本地 HEAD**：
    - 若远端领先（有其他账号的新提交），**必须先 `git pull --rebase origin master`**，以最新代码为基线；
-   - rebase 后重跑语法检查（`node scripts/check_ts_syntax.js`）+ 文档一致性检查（`node scripts/check_docs_consistency.js
-# L4 文档一致性巡检（低风险自动修复：TS 文件数/底座 bN/track-player commit；--dry-run 只报告）
-node scripts/docs-audit.js`），确认自己与对方的改动都存活；
+   - rebase 后重跑语法检查（`node scripts/check_ts_syntax.js`）+ 文档一致性检查（`node scripts/check_docs_consistency.js` + `node scripts/docs-audit.js`），确认自己与对方的改动都存活；
    - 有冲突必须读对方实现再解决，**禁止整块覆盖**他人已实测的功能；
    - 推送被拒绝（non-fast-forward）时，立即 rebase 再推，**禁止 force push（`-f`）**；
    - 若其他账号已完成同一主题（如版本升级、健康分同步），直接复用其结论、合并到自己的文档行，不重复劳动；

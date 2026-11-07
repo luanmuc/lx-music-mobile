@@ -10,7 +10,7 @@
 - 上游：`https://github.com/lyswhut/lx-music-mobile.git`（remote 名 `upstream`）
 - 分叉点：`fb848072`（原版 v1.9.1）
 - 上游进度：已合并至 **v1.9.2**（`0669d1b6`，2026-11-01 合入；实质变更见 [CUSTOM_CHANGELOG.md](./CUSTOM_CHANGELOG.md) v1.9.2-b1 条目），此后新差异从 v1.9.2 起累积
-- 定制基线：分叉点之上当前有 **141** 个定制提交（`git rev-list --count fb848072..HEAD` 可复核，动态增长），内容包括下载管理器重写、内置音源、共存包、权限适配、默认设置预设、底座升级 v1.9.2 等，详见 README 定制功能一览
+- 定制基线：分叉点之上定期增长（`git rev-list --count fb848072..HEAD` 可复核，截至 2026-11-07 为 **368**），内容包括下载管理器重写、内置音源、共存包、权限适配、默认设置预设、底座升级 v1.9.2 等，详见 README 定制功能一览
 
 ## 合并流程
 
@@ -26,7 +26,7 @@ git add .
 git commit -m "merge: 合并上游更新"
 
 # 4. 全量语法检查
-# 508 个 TS/TSX 文件语法检查（无 node_modules 时用 typescript transpileModule 逐文件检查）
+# 514 个 TS/TSX 文件语法检查（无 node_modules 时用 typescript transpileModule 逐文件检查）
 
 # 5. 推送触发云编译
 git push origin master
@@ -79,7 +79,7 @@ git push origin master
 
 ## 合并后必查清单
 
-1. 全量语法检查 0 错误（508 个 TS/TSX）
+1. 全量语法检查 0 错误（514 个 TS/TSX）
 2. `APP_PROVIDER_NAME`（constant.ts）与 AndroidManifest 的 `${applicationId}.provider`、原生 shareFile/openFile 传参一致
 3. 内置音源兜底逻辑仍在（`has_imported_builtin_source` 标记 + 名称含「豆包定制」检测）
 4. 权限三分支（<30 / 30-32 / >=33）未被上游覆盖
@@ -137,7 +137,7 @@ git push origin master
 | 播放器核心逻辑 | `src/core/player/player.ts` |
 | 在线列表点击行为 | `src/components/OnlineList/List.tsx` → `handlePress` |
 | 音质选择弹窗 | `src/components/OnlineList/QualitySelect.tsx` |
-| 音源 SDK（酷我等） | `src/utils/musicSdk/{kw,kg,mg,tx,wy,bd}/` |
+| 音源 SDK（酷我等） | `src/utils/musicSdk/{kw,kg,mg,tx,wy,bd,xm}` | |
 | 内置音源导入 | `src/core/init/userApi/index.ts` |
 | 权限请求 | `src/utils/tools.ts` → `requestStoragePermission` |
 | 启动权限引导 | `src/app.ts` |

@@ -9,8 +9,8 @@
 | Node.js | 见 `.nvmrc`（18+） | 推荐 nvm 管理 |
 | npm | 随 Node | 用 `npm ci`（锁版本） |
 | JDK | 17（`microsoft` 发行版） | 与 CI 一致 |
-| Android SDK | 平台 33+、build-tools | 本地跑 debug 包需要 |
-| 真机/模拟器 | Android 5+ | 定制版 target 33，minSdk 21 |
+| Android SDK | 平台 36（compileSdk 36）、build-tools | 本地跑 debug 包需要 |
+| 真机/模拟器 | Android 5+ | 定制版 compileSdk 36 / targetSdk 29 / minSdk 21 |
 
 ## 二、克隆与安装
 

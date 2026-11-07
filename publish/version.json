@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b72",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6a72feba feat(i18n): 音频焦点主开关文案中性化 + 下载页三语国际化（65 键）\n- 93527737 docs(known-issues): K5 依赖提交更正为 5bff17b [skip ci]",
+  "version": "1.9.2-b73",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 36e6048f fix(hardening): 修迁移函数静默失效/文件名字节截断/占位符全局替换/下载状态i18n\n- e244f6f6 chore(docs): 三语言键数基线 618→685 [skip ci]",
   "history": [
+    {
+      "version": "1.9.2-b72",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 6a72feba feat(i18n): 音频焦点主开关文案中性化 + 下载页三语国际化（65 键）\n- 93527737 docs(known-issues): K5 依赖提交更正为 5bff17b [skip ci]"
+    },
     {
       "version": "1.9.2-b71",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b675bf00 feat(download): 下载设置全部收进下载页（b71）\n- a6da3c55 docs(known-issues): 补记 b69/b70 修复项与下载设置缺口 [skip ci]\n- 823b769b docs(merge-guide): 补充播放器初始化/快照同步的冲突说明 [skip ci]"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b67",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- a4643e13 fix: 补强定时器与列表下标的健壮性\n- c86b2f9f fix(storage): 补齐删除路径与音源事件的解析兜底\n- c2a5b8d9 fix(storage): 数据损坏不再拖垮启动"
-    },
-    {
-      "version": "1.9.2-b66",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 11740027 fix(player): 恢复通知栏模式图标重绘"
     }
   ]
 }

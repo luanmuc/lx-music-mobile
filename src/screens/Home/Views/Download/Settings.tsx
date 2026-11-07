@@ -6,6 +6,7 @@ import { AndroidScoped, getExternalStoragePaths } from 'react-native-file-system
 import Text from '@/components/common/Text'
 import CheckBox from '@/components/common/CheckBox'
 import { useSettingValue } from '@/store/setting/hook'
+import { useI18n } from '@/lang'
 import { updateSetting } from '@/core/common'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle, toast } from '@/utils/tools'
@@ -39,8 +40,9 @@ const treeUriToPath = async(uri: string): Promise<string | null> => {
   return relative ? `${base}/${relative}` : base
 }
 
-const shortDir = (path: string) => {
-  if (!path) return `默认（${DEFAULT_DIR}）`
+type TFn = ReturnType<typeof useI18n>
+const shortDir = (path: string, t: TFn) => {
+  if (!path) return t('dl_dir_default_with', { dir: DEFAULT_DIR })
   return path.replace(`${RNFS.ExternalStorageDirectoryPath}/`, '')
 }
 
@@ -68,6 +70,7 @@ export interface DownloadSettingsProps {
 }
 export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
   const theme = useTheme()
+  const t = useI18n()
   const onlyWifi = useSettingValue('download.onlyWifi')
   const maxTask = useSettingValue('download.maxTask')
   const autoRetry = useSettingValue('download.autoRetry')
@@ -81,20 +84,24 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
   const [customDir, setCustomDir] = useState('')
   const [customName, setCustomName] = useState('')
 
-  const summary = `${dir ? '自定义目录' : '默认目录'} · 仅WiFi${onlyWifi ? '开' : '关'} · 并发${maxTask}`
+  const summary = [
+    dir ? t('dl_summary_dir_custom') : t('dl_summary_dir_default'),
+    t('dl_summary_wifi', { status: onlyWifi ? t('dl_on') : t('dl_off') }),
+    t('dl_summary_task', { num: maxTask }),
+  ].join(' · ')
 
   const pickDir = async() => {
     let picked: { path?: string } | null
     try {
       picked = await AndroidScoped.openDocumentTree(true)
     } catch (e) {
-      toast('打开目录选择器失败')
+      toast(t('dl_toast_picker_failed'))
       return
     }
     if (!picked?.path) return // 用户取消
     const path = await treeUriToPath(picked.path)
     if (!path) {
-      toast('请选择手机存储里的文件夹（网盘/云端目录无法用于下载）', 'long')
+      toast(t('dl_toast_dir_needs_local'), 'long')
       return
     }
     await applyDir(path)
@@ -106,37 +113,37 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
         await RNFS.mkdir(value)
       } catch (e) {
         if (value.includes('/storage/') && !(await isExternalStorageManager())) {
-          toast('该目录需要「所有文件访问」权限，请先去系统设置里开启', 'long')
+          toast(t('dl_toast_dir_need_permission'), 'long')
         } else {
-          toast('该路径无法创建，请换一个')
+          toast(t('dl_toast_dir_invalid'))
         }
         return
       }
       if (!(await RNFS.exists(value))) {
-        toast('该路径不可用，请换一个')
+        toast(t('dl_toast_dir_unavailable'))
         return
       }
     }
     updateSetting({ 'download.dir': value })
     setShowDirOptions(false)
     setCustomDir('')
-    toast(value ? '下载目录已更新' : '已恢复默认下载目录')
+    toast(value ? t('dl_toast_dir_updated') : t('dl_toast_dir_reset'))
   }
 
   const applyName = (value: string) => {
     const v = value.trim()
     if (!v) {
-      toast('命名规则不能为空')
+      toast(t('dl_toast_name_empty'))
       return
     }
     if (!v.includes('歌名') && !v.includes('歌手')) {
-      toast('命名规则需包含「歌名」或「歌手」')
+      toast(t('dl_toast_name_invalid'))
       return
     }
     updateSetting({ 'download.fileName': v })
     setShowNameOptions(false)
     setCustomName('')
-    toast('文件命名规则已更新')
+    toast(t('dl_toast_name_updated'))
   }
 
   return (
@@ -147,25 +154,25 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
         style={{ ...styles.header, backgroundColor: theme['c-content-background'] }}
       >
         <View style={styles.headerLeft}>
-          <Text size={14}>下载设置</Text>
+          <Text size={14}>{t('dl_settings_title')}</Text>
           {
             expanded
               ? null
               : <Text size={11} color={theme['c-font-label']} numberOfLines={1} style={styles.summary}>{summary}</Text>
           }
         </View>
-        <Text size={12} color={theme['c-primary']}>{expanded ? '收起 ▴' : '展开 ▾'}</Text>
+        <Text size={12} color={theme['c-primary']}>{expanded ? t('dl_settings_collapse') : t('dl_settings_expand')}</Text>
       </TouchableOpacity>
 
       {
         expanded
           ? (
               <View style={{ ...styles.body, backgroundColor: theme['c-content-background'] }}>
-                <Row label="仅 WiFi 下载" desc="移动网络下不自动开始下载">
+                <Row label={t('dl_only_wifi')} desc={t('dl_only_wifi_desc')}>
                   <CheckBox check={onlyWifi} onChange={(v) => { updateSetting({ 'download.onlyWifi': v }) }} />
                 </Row>
 
-                <Row label="最大同时下载数" desc="1 - 5，任务多时排队">
+                <Row label={t('dl_max_task')} desc={t('dl_max_task_desc')}>
                   <View style={styles.stepper}>
                     <TouchableOpacity
                       onPress={() => { updateSetting({ 'download.maxTask': Math.max(1, maxTask - 1) }) }}
@@ -183,7 +190,7 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
                   </View>
                 </Row>
 
-                <Row label="失败自动重试" desc="权限类错误不重试，避免反复弹窗">
+                <Row label={t('dl_auto_retry')} desc={t('dl_auto_retry_desc')}>
                   <CheckBox check={autoRetry} onChange={(v) => { updateSetting({ 'download.autoRetry': v }) }} />
                 </Row>
 
@@ -194,39 +201,39 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
                     style={styles.row}
                   >
                     <View style={styles.rowLabel}>
-                      <Text size={13}>下载目录</Text>
-                      <Text size={11} color={theme['c-font-label']} numberOfLines={1} style={styles.rowDesc}>{shortDir(dir)}</Text>
+                      <Text size={13}>{t('dl_dir')}</Text>
+                      <Text size={11} color={theme['c-font-label']} numberOfLines={1} style={styles.rowDesc}>{shortDir(dir, t)}</Text>
                     </View>
-                    <Text size={12} color={theme['c-primary']}>{showDirOptions ? '收起' : '更改'}</Text>
+                    <Text size={12} color={theme['c-primary']}>{showDirOptions ? t('dl_action_collapse') : t('dl_action_change')}</Text>
                   </TouchableOpacity>
                   {
                     showDirOptions
                       ? (
                           <View style={styles.subPanel}>
                             <TouchableOpacity onPress={() => { void applyDir('') }} style={styles.option}>
-                              <Text size={12} color={!dir ? theme['c-primary'] : theme['c-font']}>默认公共目录</Text>
+                              <Text size={12} color={!dir ? theme['c-primary'] : theme['c-font']}>{t('dl_dir_default_option')}</Text>
                               <Text size={10} color={theme['c-font-label']} numberOfLines={1}>{DEFAULT_DIR}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { void applyDir(PRIVATE_DIR) }} style={styles.option}>
-                              <Text size={12} color={dir === PRIVATE_DIR ? theme['c-primary'] : theme['c-font']}>应用私有目录（无需权限）</Text>
+                              <Text size={12} color={dir === PRIVATE_DIR ? theme['c-primary'] : theme['c-font']}>{t('dl_dir_private_option')}</Text>
                               <Text size={10} color={theme['c-font-label']} numberOfLines={1}>{PRIVATE_DIR}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => { void pickDir() }} style={styles.option}>
-                              <Text size={12} color={theme['c-primary']}>选择其他目录…</Text>
-                              <Text size={10} color={theme['c-font-label']}>打开系统文件夹选择器（手机存储内的目录）</Text>
+                              <Text size={12} color={theme['c-primary']}>{t('dl_dir_pick_option')}</Text>
+                              <Text size={10} color={theme['c-font-label']}>{t('dl_dir_pick_desc')}</Text>
                             </TouchableOpacity>
                             <View style={styles.customRow}>
                               <TextInput
                                 value={customDir}
                                 onChangeText={setCustomDir}
-                                placeholder="或直接输入绝对路径，如 /storage/emulated/0/Music"
+                                placeholder={t('dl_dir_input_placeholder')}
                                 placeholderTextColor={theme['c-font-label']}
                                 style={{ ...styles.input, color: theme['c-font'], backgroundColor: theme['c-primary-input-background'] }}
                                 autoCapitalize="none"
                                 autoCorrect={false}
                               />
                               <TouchableOpacity onPress={() => { void applyDir(customDir.trim()) }} style={styles.confirmBtn}>
-                                <Text size={12} color={theme['c-primary-font']}>保存</Text>
+                                <Text size={12} color={theme['c-primary-font']}>{t('dl_save')}</Text>
                               </TouchableOpacity>
                             </View>
                           </View>
@@ -242,10 +249,10 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
                     style={styles.row}
                   >
                     <View style={styles.rowLabel}>
-                      <Text size={13}>文件命名</Text>
+                      <Text size={13}>{t('dl_file_name')}</Text>
                       <Text size={11} color={theme['c-font-label']} numberOfLines={1} style={styles.rowDesc}>{fileName}</Text>
                     </View>
-                    <Text size={12} color={theme['c-primary']}>{showNameOptions ? '收起' : '更改'}</Text>
+                    <Text size={12} color={theme['c-primary']}>{showNameOptions ? t('dl_action_collapse') : t('dl_action_change')}</Text>
                   </TouchableOpacity>
                   {
                     showNameOptions
@@ -268,24 +275,24 @@ export default memo(({ defaultExpanded = false }: DownloadSettingsProps) => {
                               <TextInput
                                 value={customName}
                                 onChangeText={setCustomName}
-                                placeholder="含「歌名」「歌手」，如 歌手-歌名"
+                                placeholder={t('dl_file_name_placeholder')}
                                 placeholderTextColor={theme['c-font-label']}
                                 style={{ ...styles.input, color: theme['c-font'], backgroundColor: theme['c-primary-input-background'] }}
                                 autoCapitalize="none"
                                 autoCorrect={false}
                               />
                               <TouchableOpacity onPress={() => { applyName(customName) }} style={styles.confirmBtn}>
-                                <Text size={12} color={theme['c-primary-font']}>保存</Text>
+                                <Text size={12} color={theme['c-primary-font']}>{t('dl_save')}</Text>
                               </TouchableOpacity>
                             </View>
-                            <Text size={10} color={theme['c-font-label']}>音质标识由下载自动追加，无需写在这里</Text>
+                            <Text size={10} color={theme['c-font-label']}>{t('dl_file_name_tip')}</Text>
                           </View>
                         )
                       : null
                   }
                 </View>
 
-                <Row label="下载完成通知" desc="下载结束后弹出通知">
+                <Row label={t('dl_notify_complete')} desc={t('dl_notify_complete_desc')}>
                   <CheckBox check={notifyComplete} onChange={(v) => { updateSetting({ 'download.notifyComplete': v }) }} />
                 </Row>
               </View>

@@ -20,6 +20,7 @@ import {
 } from '@/core/downloadManager'
 import { QUALITY_NAMES } from '@/components/OnlineList/QualitySelect'
 import DownloadSettings from './Settings'
+import { useI18n } from '@/lang'
 
 const formatSize = (bytes: number) => {
   if (!bytes || bytes <= 0) return ''
@@ -27,13 +28,14 @@ const formatSize = (bytes: number) => {
   return `${(bytes / 1024 / 1024).toFixed(1)}MB`
 }
 
-const getStatusInfo = (item: LX.Download.ListItem): { text: string, isProgress: boolean } => {
+type TFn = ReturnType<typeof useI18n>
+const getStatusInfo = (item: LX.Download.ListItem, t: TFn): { text: string, isProgress: boolean } => {
   switch (item.status) {
-    case 'waiting': return { text: '等待中', isProgress: false }
-    case 'run': return { text: '下载中', isProgress: true }
-    case 'pause': return { text: '已暂停', isProgress: false }
-    case 'completed': return { text: '已完成', isProgress: false }
-    case 'error': return { text: `下载失败${item.error ? `：${item.error}` : ''}`, isProgress: false }
+    case 'waiting': return { text: t('dl_status_waiting'), isProgress: false }
+    case 'run': return { text: t('dl_status_running'), isProgress: true }
+    case 'pause': return { text: t('dl_status_paused'), isProgress: false }
+    case 'completed': return { text: t('dl_status_completed'), isProgress: false }
+    case 'error': return { text: `${t('dl_status_error')}${item.error ? `：${item.error}` : ''}`, isProgress: false }
     default: return { text: item.statusText, isProgress: false }
   }
 }
@@ -48,6 +50,7 @@ interface SectionData {
 
 export default () => {
   const theme = useTheme()
+  const t = useI18n()
   const list = useDownloadList()
   const listRef = useRef<FlatList>(null)
 
@@ -72,7 +75,7 @@ export default () => {
   }
 
   const renderItem = ({ item }: ListRenderItemInfo<LX.Download.ListItem>) => {
-    const statusInfo = getStatusInfo(item)
+    const statusInfo = getStatusInfo(item, t)
     const isCompleted = item.isComplate
     const isActive = !isCompleted
 
@@ -81,7 +84,7 @@ export default () => {
         <View style={styles.itemMain}>
           <View style={styles.itemInfo}>
             <Text numberOfLines={1} style={styles.itemName} size={14}>{item.metadata.musicInfo.name}</Text>
-            <Text numberOfLines={1} style={styles.itemSinger} size={12} color={theme['c-font-label']}>{item.metadata.musicInfo.singer || '未知歌手'}</Text>
+            <Text numberOfLines={1} style={styles.itemSinger} size={12} color={theme['c-font-label']}>{item.metadata.musicInfo.singer || t('dl_unknown_singer')}</Text>
           </View>
           <View style={styles.itemActions}>
             {
@@ -89,16 +92,16 @@ export default () => {
                 ? (
                     <>
                       <Button style={styles.itemBtn} onPress={() => { handlePlay(item) }}>
-                        <Text color={theme['c-primary-font']} size={12}>播放</Text>
+                        <Text color={theme['c-primary-font']} size={12}>{t('dl_action_play')}</Text>
                       </Button>
                       <Button style={styles.itemBtn} onPress={() => { void shareDownloadedFile(item.id) }}>
-                        <Text color={theme['c-font-label']} size={12}>分享</Text>
+                        <Text color={theme['c-font-label']} size={12}>{t('dl_action_share')}</Text>
                       </Button>
                       <Button style={styles.itemBtn} onPress={() => { void openDownloadedFile(item.id) }}>
-                        <Text color={theme['c-font-label']} size={12}>打开</Text>
+                        <Text color={theme['c-font-label']} size={12}>{t('dl_action_open')}</Text>
                       </Button>
                       <Button style={styles.itemBtn} onPress={() => { void removeDownload(item.id) }}>
-                        <Text color={theme['c-font-label']} size={12}>删除</Text>
+                        <Text color={theme['c-font-label']} size={12}>{t('dl_action_delete')}</Text>
                       </Button>
                     </>
                   )
@@ -106,10 +109,10 @@ export default () => {
                   ? (
                       <>
                         <Button style={styles.itemBtn} onPress={() => { void retryDownload(item.id) }}>
-                          <Text color={theme['c-primary-font']} size={12}>重试</Text>
+                          <Text color={theme['c-primary-font']} size={12}>{t('dl_action_retry')}</Text>
                         </Button>
                         <Button style={styles.itemBtn} onPress={() => { void removeDownload(item.id) }}>
-                          <Text color={theme['c-font-label']} size={12}>删除</Text>
+                          <Text color={theme['c-font-label']} size={12}>{t('dl_action_delete')}</Text>
                         </Button>
                       </>
                     )
@@ -117,20 +120,20 @@ export default () => {
                     ? (
                         <>
                           <Button style={styles.itemBtn} onPress={() => { void resumeDownload(item.id) }}>
-                            <Text color={theme['c-primary-font']} size={12}>继续</Text>
+                            <Text color={theme['c-primary-font']} size={12}>{t('dl_action_resume')}</Text>
                           </Button>
                           <Button style={styles.itemBtn} onPress={() => { void removeDownload(item.id) }}>
-                            <Text color={theme['c-font-label']} size={12}>删除</Text>
+                            <Text color={theme['c-font-label']} size={12}>{t('dl_action_delete')}</Text>
                           </Button>
                         </>
                       )
                     : (
                         <>
                           <Button style={styles.itemBtn} onPress={() => { void pauseDownload(item.id) }}>
-                            <Text color={theme['c-font-label']} size={12}>暂停</Text>
+                            <Text color={theme['c-font-label']} size={12}>{t('dl_action_pause')}</Text>
                           </Button>
                           <Button style={styles.itemBtn} onPress={() => { void removeDownload(item.id) }}>
-                            <Text color={theme['c-font-label']} size={12}>取消</Text>
+                            <Text color={theme['c-font-label']} size={12}>{t('dl_action_cancel')}</Text>
                           </Button>
                         </>
                       )
@@ -157,7 +160,7 @@ export default () => {
         {/* 失败时显示已下载大小 */}
         {
           item.status === 'error' && item.downloaded > 0
-            ? <Text style={styles.progressText} size={11} color={theme['c-font-label']}>已下载 {formatSize(item.downloaded)}</Text>
+            ? <Text style={styles.progressText} size={11} color={theme['c-font-label']}>{t('dl_downloaded', { size: formatSize(item.downloaded) })}</Text>
             : null
         }
 
@@ -166,7 +169,7 @@ export default () => {
           isCompleted
             ? (
                 <>
-                  <Text numberOfLines={1} style={styles.filePathText} size={11} color={theme['c-font-label']}>音质 {QUALITY_NAMES[item.metadata.quality] ?? item.metadata.quality}</Text>
+                  <Text numberOfLines={1} style={styles.filePathText} size={11} color={theme['c-font-label']}>{t('dl_quality', { quality: QUALITY_NAMES[item.metadata.quality] ?? item.metadata.quality })}</Text>
                   <Text numberOfLines={1} style={styles.filePathText} size={11} color={theme['c-font-label']}>{item.metadata.fileName}</Text>
                 </>
               )
@@ -179,10 +182,10 @@ export default () => {
             ? (
                 <View style={styles.sortArea}>
                   <TouchableOpacity onPress={() => { void moveTask(item.id, 'up') }} style={styles.sortBtn}>
-                    <Text size={11} color={theme['c-font-label']}>↑ 上移</Text>
+                    <Text size={11} color={theme['c-font-label']}>{t('dl_action_move_up')}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => { void moveTask(item.id, 'down') }} style={styles.sortBtn}>
-                    <Text size={11} color={theme['c-font-label']}>↓ 下移</Text>
+                    <Text size={11} color={theme['c-font-label']}>{t('dl_action_move_down')}</Text>
                   </TouchableOpacity>
                 </View>
               )
@@ -196,13 +199,13 @@ export default () => {
   const sections: SectionData[] = useMemo(() => {
     const result: SectionData[] = []
     if (activeCount > 0) {
-      result.push({ title: `下载中 (${activeCount})`, data: activeList, type: 'active' })
+      result.push({ title: t('dl_section_active', { num: activeCount }), data: activeList, type: 'active' })
     }
     if (completedCount > 0) {
-      result.push({ title: `已完成 (${completedCount})`, data: completedList, type: 'completed' })
+      result.push({ title: t('dl_section_completed', { num: completedCount }), data: completedList, type: 'completed' })
     }
     return result
-  }, [activeList, completedList, activeCount, completedCount])
+  }, [activeList, completedList, activeCount, completedCount, t])
 
   const renderSectionHeader = (section: SectionData) => (
     <View style={styles.sectionHeader}>
@@ -215,13 +218,13 @@ export default () => {
                   hasActiveDownloading
                     ? (
                         <TouchableOpacity onPress={() => { void pauseAllDownload() }} style={styles.sectionBtn}>
-                          <Text size={12} color={theme['c-primary']}>全部暂停</Text>
+                          <Text size={12} color={theme['c-primary']}>{t('dl_action_pause_all')}</Text>
                         </TouchableOpacity>
                       )
                     : hasPaused
                       ? (
                           <TouchableOpacity onPress={() => { void resumeAllDownload() }} style={styles.sectionBtn}>
-                            <Text size={12} color={theme['c-primary']}>全部继续</Text>
+                            <Text size={12} color={theme['c-primary']}>{t('dl_action_resume_all')}</Text>
                           </TouchableOpacity>
                         )
                       : null
@@ -230,7 +233,7 @@ export default () => {
             )
           : (
               <TouchableOpacity onPress={() => { void clearCompleted() }} style={styles.sectionBtn}>
-                <Text size={12} color={theme['c-primary']}>清空已完成</Text>
+                <Text size={12} color={theme['c-primary']}>{t('dl_action_clear_completed')}</Text>
               </TouchableOpacity>
             )
         }
@@ -254,8 +257,8 @@ export default () => {
         <ScrollView contentContainerStyle={styles.emptyContent} keyboardShouldPersistTaps="handled">
           <DownloadSettings defaultExpanded />
           <View style={styles.empty}>
-            <Text size={14} color={theme['c-font-label']}>暂无下载任务</Text>
-            <Text size={12} color={theme['c-font-label']} style={styles.emptyTip}>在搜索、排行榜、歌单列表中长按歌曲，选择「下载」即可添加到下载队列</Text>
+            <Text size={14} color={theme['c-font-label']}>{t('dl_empty')}</Text>
+            <Text size={12} color={theme['c-font-label']} style={styles.emptyTip}>{t('dl_empty_tip')}</Text>
           </View>
         </ScrollView>
       </View>

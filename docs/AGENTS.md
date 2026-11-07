@@ -121,6 +121,7 @@ node scripts/docs-audit.js`），确认自己与对方的改动都存活；
 | 默认设置 / 设置迁移 | `MERGE_GUIDE.md` 迁移历史、`docs/KNOWN_ISSUES.md`、README「默认设置差异」表 |
 | CI / 发布流程改动 | `docs/RELEASE_SOP.md`、AGENTS.md（常用命令 / 发布） |
 | 功能新增 / 缺陷修复 | `CUSTOM_CHANGELOG.md` 顶部 + 对应功能文档（DOWNLOAD_DESIGN / MUSIC_SOURCE_GUIDE 等）+ `docs/KNOWN_ISSUES.md` 状态 |
+| 内置音源升级（音源仓 `@version` 升版） | `docs/MUSIC_SOURCE_GUIDE.md` §四「聚合源内部结构」（版本号 + 新增特性行）；音源不在本仓迭代、构建时才由 CI 拉取，**最容易漏**——曾滞留 v8.10.1→v8.10.3 才被发现 |
 | 上游合并 | 按 `MERGE_GUIDE.md` 合并后必查清单 + 上表版本行 |
 | AGENTS.md / 协作规则变更 | `AGENTS.md` 自身（协作规则/命令段/流程改动）+ 紧随提交的 docs 说明 |
 

@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b69",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- cb083696 fix(player): 修复启动时通知栏状态同步触发的原生崩溃",
+  "version": "1.9.2-b70",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 9e0e9700 fix(lyric-button): 初始化后补同步通知栏词按钮状态（b70）\n- a5f50372 fix(audiofocus): 压低音量结束后还原用户实际音量（b70 补丁）\n- 85deac73 fix(player): 播放器未初始化路径全面加固（b70）",
   "history": [
+    {
+      "version": "1.9.2-b69",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- cb083696 fix(player): 修复启动时通知栏状态同步触发的原生崩溃"
+    },
     {
       "version": "1.9.2-b68",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 7cbd5cba feat(audio-focus): 音频焦点拆成主开关 + 两个子开关"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b64",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- ce893520 feat(player): 通知栏播放模式图标改用标准符号"
-    },
-    {
-      "version": "1.9.2-b63",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- f6b9b157 chore: 修正 build-state 到 b62\n- ef36595e docs: 订正通知栏按钮数量，同步依赖版本与高冲突区\n- ff7f278e fix(player): 通知栏自定义按钮 PendingIntent 补 FLAG_IMMUTABLE\n- fe19c78e feat(player): 通知栏播放模式按钮跳过禁用态，只循环四个真实模式\n- c7cd05c4 fix(player): 播放模式图标改走统一配置变更事件同步"
     }
   ]
 }

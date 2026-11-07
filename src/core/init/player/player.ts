@@ -2,7 +2,7 @@ import { addPlayedList, clearPlayedList } from '@/core/player/playedList'
 import { pause, playNext } from '@/core/player/player'
 import { setStatusText, setIsPlay } from '@/core/player/playStatus'
 // import { resetPlayerMusicInfo } from '@/core/player/playInfo'
-import { setStop } from '@/plugins/player'
+import { isInitialized, setStop } from '@/plugins/player'
 import { delayUpdateMusicInfo } from '@/plugins/player/playList'
 import playerState from '@/store/player/state'
 import settingState from '@/store/setting/state'
@@ -11,7 +11,9 @@ import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
 
 export default async(setting: LX.AppSetting) => {
   // 启动时把播放模式同步给通知栏按钮
-  syncNotificationRepeatMode()
+  // 注意：播放器尚未初始化时原生 manager.getPlayback() 为 null，直接调会崩主线程（b68 打不开的根因），
+  // 所以这里只在已初始化时同步；首次初始化由 handlePlay 里的 playerInitial 之后补一次
+  if (isInitialized()) syncNotificationRepeatMode()
 
   const setPlayStatus = () => {
     setIsPlay(true)

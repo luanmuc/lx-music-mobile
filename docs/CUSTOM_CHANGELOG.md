@@ -1,3 +1,15 @@
+## [v1.9.2-b69] - 2026-11-07
+
+### 修复：关掉音频焦点主开关后 App 启动即崩溃（b68 回归，根因在原生）
+- **现象**：把「其他应用播放声音时，自动暂停播放」关掉、重启 App，闪屏过后卡住、随即崩溃。崩溃日志为 `java.lang.NullPointerException: Attempt to invoke virtual method 'int ...t0()' on a null object reference`，栈顶是 `MusicModule.setNotificationRepeatMode` → `MetadataManager.setRepeatMode`
+- **根因（与音频焦点开关无直接因果，是既有隐患被踩到）**：启动时 `initPlayer` 第一步就调用 `syncNotificationRepeatMode()`，把播放模式同步给通知栏按钮；此刻播放器还没 `setupPlayer`，原生 `MetadataManager` 里 `manager.getPlayback()` 是 `null`，`setRepeatMode()` 里 `manager.getPlayback().getState()` 直接解引用 → 主线程 NPE。原生 `repeatMode` 默认值是 1（列表循环），所以只有存档模式**不是列表循环**时才会走进该行，表现为「装好第一次能用、之后重启就打不开」
+- **同类隐患（一并修）**：`setLyricButtonActive()`、`updateTitles()`、`updateArtwork()` 同样无条件解引用 `manager.getPlayback()`，启动早期或播放器销毁后回调都会崩
+- **修复（播放器 fork `c5c4ea6`）**：`MetadataManager` 四处全部加判空；playback 未创建时只记录状态（播放模式 / 歌词按钮），等初始化后随通知一起生效
+- **App 侧双保险**：`core/init/player/player.ts` 的启动同步加 `isInitialized()` 判断，未初始化不发原生调用；`handlePlay` 中 `playerInitial` 成功后补同步一次，保证首次启动通知栏按钮图标也正确
+- **依赖**：track-player 升到 `c5c4ea6`，`package-lock.json` 同步
+
+---
+
 ## [v1.9.2-b68] - 2026-11-07
 
 ### 音频焦点拆分为三个开关

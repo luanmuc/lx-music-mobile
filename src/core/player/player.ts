@@ -1,3 +1,4 @@
+import { syncNotificationRepeatMode } from '@/core/player/repeatMode'
 import { isInitialized, initial as playerInitial, isEmpty, setPause, setPlay, setResource, setStop, initTrackInfo } from '@/plugins/player'
 import { logger } from '@/utils/logger'
 import {
@@ -276,6 +277,8 @@ const handlePlay = async() => {
       duckOnTransientDuck: settingState.setting['player.duckOnTransientDuck'],
       isEnableAudioOffload: settingState.setting['player.isEnableAudioOffload'],
     })
+    // 播放器初始化完成后补一次模式同步（启动早期播放器未就绪时同步被跳过，见 core/init/player/player.ts）
+    syncNotificationRepeatMode()
   }
 
   global.lx.isPlayedStop &&= false

@@ -1,7 +1,11 @@
 {
-  "version": "1.9.2-b74",
-  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 20ac0519 feat(download): 进度条可见性 + 无长度源文案 + 批量队列汇总\n- 0d936ed6 docs: README 底座版本更新到 b73 [skip ci]\n- fe921aea docs(agents): TS 文件数 511→514 [skip ci]\n- 21838da3 docs: 同步键数基线 694 / README 底座 b72 / TS 文件数 / AUDIT_PLAN 基线 b73 [skip ci]",
+  "version": "1.9.2-b75",
+  "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- b78601ab docs: 音源快照 playDead/rateLimited 字段说明（配合 HealthItem 补字段）\n- 45719203 fix: 审计修复轮（R1–R15 全修 + 类型契约缺口），tsc 57→14、键数 697→730\n- a38ab77c docs: 审计计划 v2（89 维）+ b74 全维度审计报告（15 处缺陷）\n- c4cb35df docs: README 底座版本 b73→b74 [skip ci]\n- 692cca74 docs: 进度可视化记为 b74 / README 底座版本同步 [skip ci]",
   "history": [
+    {
+      "version": "1.9.2-b74",
+      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 20ac0519 feat(download): 进度条可见性 + 无长度源文案 + 批量队列汇总\n- 0d936ed6 docs: README 底座版本更新到 b73 [skip ci]\n- fe921aea docs(agents): TS 文件数 511→514 [skip ci]\n- 21838da3 docs: 同步键数基线 694 / README 底座 b72 / TS 文件数 / AUDIT_PLAN 基线 b73 [skip ci]"
+    },
     {
       "version": "1.9.2-b73",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 36e6048f fix(hardening): 修迁移函数静默失效/文件名字节截断/占位符全局替换/下载状态i18n\n- e244f6f6 chore(docs): 三语言键数基线 618→685 [skip ci]"
@@ -21,10 +25,6 @@
     {
       "version": "1.9.2-b69",
       "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- cb083696 fix(player): 修复启动时通知栏状态同步触发的原生崩溃"
-    },
-    {
-      "version": "1.9.2-b68",
-      "desc": "基于洛雪音乐原版 v1.9.2 的定制版构建。本次更新：\n- 7cbd5cba feat(audio-focus): 音频焦点拆成主开关 + 两个子开关"
     }
   ]
 }
